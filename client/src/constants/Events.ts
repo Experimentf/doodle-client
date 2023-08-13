@@ -1,3 +1,4 @@
 export enum Events {
-    CREATE_PRIVATE_ROOM = "create-private-room",
+    SET_USERNAME = "set-username",
+    PLAY_PUBLIC_GAME = "play-public-game",
 }

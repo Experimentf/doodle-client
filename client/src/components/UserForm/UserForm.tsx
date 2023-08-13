@@ -1,44 +1,40 @@
 import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Button from "../Button/Button";
 import { UserContext } from "../../contexts/UserContext";
 import { SocketContext } from "../../contexts/SocketContext";
 import { Events } from "../../constants/Events";
 
-const UserForm = () => {
-    const navigate = useNavigate();
+interface UserFormProps {
+    handlePlay: () => void;
+    handleCreatePrivateRoom: () => void;
+}
+
+const UserForm = ({ handlePlay, handleCreatePrivateRoom }: UserFormProps) => {
     const { name, updateName, saveName } = useContext(UserContext);
     const socket = useContext(SocketContext);
     const [error, setError] = useState("");
+
+    const setup = () => {
+        if (!validate()) return;
+        saveName(name);
+        socket.connect();
+        socket.emit(Events.SET_USERNAME, name);
+    };
 
     const handleFormSubmit = (e: FormEvent) => {
         e.preventDefault();
     };
 
-    // Play in public room
-    const handlePlay = () => {
-        saveName(name);
-    };
-
-    // Create a private room
-    const handleCreatePrivateRoom = () => {
-        saveName(name);
-        socket.emit(
-            Events.CREATE_PRIVATE_ROOM,
-            (data: { roomId: string; ownerId: string }, error?: Error) => {
-                console.log(data, error);
-
-                if (error) {
-                    console.log(error);
-                    setError(error.message);
-                    return;
-                }
-                navigate(`/${data.roomId}/lobby`, { replace: true });
-            }
-        );
+    const validate = () => {
+        if (!name) {
+            setError("Please enter your name");
+            return false;
+        }
+        return true;
     };
 
     const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setError("");
         updateName(e.target.value);
     };
 
@@ -59,18 +55,30 @@ const UserForm = () => {
                 <Button
                     variant="secondary"
                     color="success"
-                    onClick={handlePlay}
+                    onClick={() => {
+                        setup();
+                        handlePlay();
+                    }}
                 >
                     Play!
                 </Button>
                 <Button
                     variant="secondary"
                     color="secondary"
-                    onClick={handleCreatePrivateRoom}
+                    onClick={() => {
+                        setup();
+                        handleCreatePrivateRoom();
+                    }}
                 >
                     Create private room
                 </Button>
-                {error && <p className="text-chalk-pink">{error}</p>}
+                <p
+                    className={`text-center text-light-chalk-pink ${
+                        error ? "block" : "hidden"
+                    }`}
+                >
+                    {error}
+                </p>
             </form>
         </div>
     );

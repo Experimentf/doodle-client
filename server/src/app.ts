@@ -2,14 +2,17 @@ import { config } from "dotenv";
 import express, { Application } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { onCreatePrivateRoomHandler } from "./handlers/socket/rooms";
 import { onSocketConnectHandler } from "./handlers/socket/connection";
 import {
     ClientToServerEvents,
     InterServerEvents,
+    RoomInfoMapType,
+    RoomInfoType,
     ServerToClientEvents,
     SocketData,
 } from "./types/socket";
+import { ErrorFromServer } from "./utils/error";
+import { getRandomRoom } from "./handlers/socket/rooms";
 
 config();
 
@@ -24,29 +27,32 @@ const io = new Server<
     SocketData
 >(httpServer, { cors: { origin: "*" } });
 
-const roomToOwnerMap = new Map<string, string>();
+// Information regarding rooms
+const publicRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>([
+    ...Array.from(Array(10), (x, i) => [`public-${i}`, { type: "public" }]),
+] as Iterable<readonly [string, RoomInfoType]>);
+
+const privateRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
 
 // Socket
 io.on("connection", (socket) => {
     onSocketConnectHandler(io, socket);
 
-    socket.on("create-private-room", (callback) => {
-        const room = onCreatePrivateRoomHandler(io, socket);
-        socket.join(room.roomId);
-        roomToOwnerMap.set(room.roomId, room.ownerId);
-        callback(room);
-    });
+    // Set username
+    socket.on("set-username", (name) => (socket.data.name = name));
 
-    socket.on("disconnect", () => {
-        const joinedRooms = socket.rooms;
-        for (const room in joinedRooms) {
-            // If this socket is the owner of a room, delete that room
-            if (roomToOwnerMap.get(room) === socket.id)
-                roomToOwnerMap.delete(room);
-
-            io.sockets.adapter.rooms.delete(room);
+    // Play Public Game
+    socket.on("play-public-game", (callback) => {
+        try {
+            const roomId = getRandomRoom(io, socket, publicRoomsInfoMap);
+            callback(roomId);
+        } catch (e) {
+            callback(null, e as ErrorFromServer);
         }
     });
+
+    // User leaves
+    socket.on("disconnect", () => {});
 });
 
 const PORT = process.env.PORT || 5000;
