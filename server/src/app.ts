@@ -12,7 +12,7 @@ import {
     SocketData,
 } from "./types/socket";
 import { ErrorFromServer } from "./utils/error";
-import { getRandomRoom } from "./handlers/socket/rooms";
+import { onPlayPublicGameHandler } from "./handlers/socket/rooms";
 
 config();
 
@@ -28,9 +28,7 @@ const io = new Server<
 >(httpServer, { cors: { origin: "*" } });
 
 // Information regarding rooms
-const publicRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>([
-    ...Array.from(Array(10), (x, i) => [`public-${i}`, { type: "public" }]),
-] as Iterable<readonly [string, RoomInfoType]>);
+const publicRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
 
 const privateRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
 
@@ -38,13 +36,28 @@ const privateRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
 io.on("connection", (socket) => {
     onSocketConnectHandler(io, socket);
 
+    // Get username
+    socket.on("get-username", (callback) => {
+        const name = socket.data.name;
+        if (!name) {
+            const error = new ErrorFromServer("User does not exist");
+            callback(null, error);
+            return;
+        }
+        callback(name);
+    });
+
     // Set username
     socket.on("set-username", (name) => (socket.data.name = name));
 
     // Play Public Game
     socket.on("play-public-game", (callback) => {
         try {
-            const roomId = getRandomRoom(io, socket, publicRoomsInfoMap);
+            const roomId = onPlayPublicGameHandler(
+                io,
+                socket,
+                publicRoomsInfoMap
+            );
             callback(roomId);
         } catch (e) {
             callback(null, e as ErrorFromServer);

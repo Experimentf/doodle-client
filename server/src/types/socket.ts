@@ -16,6 +16,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
+    "get-username": (callback: CallbackFunction) => void;
     "set-username": (name: string) => void;
     "play-public-game": (callback: CallbackFunction) => void;
 }

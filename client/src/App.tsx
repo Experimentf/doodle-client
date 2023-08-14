@@ -1,46 +1,32 @@
-import { useContext } from "react";
-import "./App.css";
-import Title from "./components/Title/Title";
-import UserForm from "./components/UserForm/UserForm";
-import SocketProvider, { SocketContext } from "./contexts/SocketContext";
+import SocketProvider from "./contexts/SocketContext";
 import UserProvider from "./contexts/UserContext";
-import { Events } from "./constants/Events";
-
-function Main() {
-    const socket = useContext(SocketContext);
-    const handlePlay = () => {
-        socket.emit(Events.PLAY_PUBLIC_GAME, (roomId: string, error: Error) => {
-            if (error) {
-                // TODO
-                // Use error boundary
-                throw error;
-            }
-            console.log(roomId);
-        });
-    };
-
-    const handleCreatePrivateRoom = () => {};
-
-    return (
-        <div className="flex flex-col items-center justify-between gap-16">
-            <Title className="mt-16" />
-            <UserForm
-                handlePlay={handlePlay}
-                handleCreatePrivateRoom={handleCreatePrivateRoom}
-            />
-        </div>
-    );
-}
+import Home from "./routes/Home";
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Game from "./routes/Game";
+import Lobby from "./routes/Lobby";
 
 function App() {
-    const searchParams = new URLSearchParams(document.location.search);
-    const roomId = searchParams.get("room"); // null | existing room | non-existing room
+    const router = createBrowserRouter([
+        {
+            path: "/",
+            element: <Home />,
+        },
+        {
+            path: "/:roomId",
+            element: <Game />,
+        },
+        {
+            path: "/:roomId/lobby",
+            element: <Lobby />,
+        },
+    ]);
 
     return (
         <div className="min-h-screen flex flex-col justify-between">
             <UserProvider>
                 <SocketProvider>
-                    <Main />
+                    <RouterProvider router={router} />
                 </SocketProvider>
             </UserProvider>
         </div>
