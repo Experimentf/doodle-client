@@ -19,7 +19,7 @@ const Snackbar = ({
     const colorClass = getSnackbarColorClass(color);
     return (
         <div
-            className={`fixed left-5 bottom-5  transition-all ${colorClass} ${
+            className={`fixed left-0 bottom-0 m-5 max-w-full  transition-all ${colorClass} ${
                 open
                     ? "visible opacity-100 scale-100"
                     : "invisible opacity-0 scale-0"
@@ -27,7 +27,7 @@ const Snackbar = ({
         >
             <div className="relative">
                 <button
-                    className="absolute right-1 top-1"
+                    className="absolute right-0 top-0 m-2"
                     onClick={handleClose}
                 >
                     <X className="stroke-board-green" size={18} />

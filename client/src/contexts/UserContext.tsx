@@ -4,6 +4,7 @@ import React, {
     useEffect,
     useState,
 } from "react";
+import { LocalStorageKeys } from "../constants/LocalStorage";
 
 export const UserContext = createContext({
     name: "",
@@ -19,7 +20,7 @@ const UserProvider = ({ children }: PropsWithChildren) => {
     };
 
     const saveName = (newName: string) => {
-        localStorage.setItem("name", name);
+        localStorage.setItem(LocalStorageKeys.USER_NAME, name);
     };
 
     useEffect(() => {

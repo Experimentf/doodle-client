@@ -25,7 +25,7 @@ const UserForm = ({ roomId }: UserFormProps) => {
 
     const validate = () => {
         if (!name) {
-            openSnackbar("Please enter your name", "error");
+            openSnackbar({ message: "Please enter your name", color: "error" });
             return false;
         }
         return true;
@@ -43,7 +43,7 @@ const UserForm = ({ roomId }: UserFormProps) => {
             Events.PLAY_PUBLIC_GAME,
             (publicRoomId: string, error: Error) => {
                 if (error) {
-                    openSnackbar(error.message);
+                    openSnackbar({ message: error.message, color: "error" });
                     return;
                 }
                 navigate(`/${publicRoomId}`);

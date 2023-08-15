@@ -11,29 +11,39 @@ const useSnackbar = () => {
     const [message, setMessage] = useState("");
     const [duration, setDuration] = useState(DEFAULT_DURATION);
     const [color, setColor] = useState<ColorType>(DEFAULT_COLOR);
+    const [isInfinite, setIsInfinite] = useState(false);
 
-    const open = (
-        newMessage: string,
-        newColor?: ColorType,
-        newDuration?: number
-    ) => {
+    const open = ({
+        message: newMessage,
+        color: newColor,
+        duration: newDuration,
+        isInfinite: newIsInfinite,
+    }: {
+        message: string;
+        color?: ColorType;
+        duration?: number;
+        isInfinite?: boolean;
+    }) => {
         setMount(!mount);
         setIsOpen(true);
         setMessage(newMessage);
         if (newColor) setColor(newColor);
         if (newDuration) setDuration(newDuration);
+        if (newIsInfinite) setIsInfinite(newIsInfinite);
     };
 
     const close = () => {
         setIsOpen(false);
         setDuration(DEFAULT_DURATION);
         setColor(DEFAULT_COLOR);
+        setIsInfinite(false);
     };
 
     useEffect(() => {
-        if (isOpen) timerRef.current = setTimeout(close, duration);
+        if (isOpen && !isInfinite)
+            timerRef.current = setTimeout(close, duration);
         return () => clearTimeout(timerRef.current);
-    }, [isOpen, mount]);
+    }, [isOpen, isInfinite, mount]);
 
     return { message, color, isOpen, open, close };
 };
