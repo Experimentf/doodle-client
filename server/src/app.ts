@@ -2,7 +2,10 @@ import { config } from "dotenv";
 import express, { Application } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { onSocketConnectHandler } from "./handlers/socket/connection";
+import {
+    onSocketConnectHandler,
+    onSocketDisconnectHandler,
+} from "./handlers/socket/connection";
 import {
     ClientToServerEvents,
     InterServerEvents,
@@ -58,6 +61,9 @@ io.on("connection", (socket) => {
                 socket,
                 publicRoomsInfoMap
             );
+            console.log(publicRoomsInfoMap);
+            console.log(io.sockets.adapter.rooms);
+
             callback(roomId);
         } catch (e) {
             callback(null, e as ErrorFromServer);
@@ -65,7 +71,15 @@ io.on("connection", (socket) => {
     });
 
     // User leaves
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+        console.log("User disconnected :", socket.id);
+        onSocketDisconnectHandler(
+            io,
+            socket,
+            publicRoomsInfoMap,
+            privateRoomsInfoMap
+        );
+    });
 });
 
 const PORT = process.env.PORT || 5000;

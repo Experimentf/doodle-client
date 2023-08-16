@@ -40,6 +40,7 @@ export const onPlayPublicGameHandler = (
 
     // Otherwise, create a new public room
     const newPublicRoomId = generateId();
+    publicRoomsInfoMap.set(newPublicRoomId, { type: "public" });
 
     // Join the new room
     socket.join(newPublicRoomId);
