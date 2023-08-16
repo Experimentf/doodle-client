@@ -39,7 +39,7 @@ const UserForm = ({ roomId }: UserFormProps) => {
                     openSnackbar({ message: error.message, color: "error" });
                     return;
                 }
-                navigate(`/${publicRoomId}`);
+                navigate(`/${publicRoomId}`, { replace: true });
             }
         );
     };
