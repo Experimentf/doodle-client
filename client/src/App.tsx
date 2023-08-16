@@ -5,6 +5,7 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Game from "./routes/Game";
 import Lobby from "./routes/Lobby";
+import SnackbarProvider from "./contexts/SnackbarContext";
 
 function App() {
     const router = createBrowserRouter([
@@ -26,7 +27,9 @@ function App() {
         <div className="min-h-screen flex flex-col justify-between">
             <UserProvider>
                 <SocketProvider>
-                    <RouterProvider router={router} />
+                    <SnackbarProvider>
+                        <RouterProvider router={router} />
+                    </SnackbarProvider>
                 </SocketProvider>
             </UserProvider>
         </div>

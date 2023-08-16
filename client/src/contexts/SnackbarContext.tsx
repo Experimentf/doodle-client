@@ -1,10 +1,28 @@
-import React, { useEffect, useRef, useState } from "react";
+import {
+    PropsWithChildren,
+    createContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+import Snackbar from "../components/Snackbar/Snackbar";
 import { ColorType } from "../types/color";
 
 const DEFAULT_DURATION = 3000;
 const DEFAULT_COLOR = "primary";
 
-const useSnackbar = () => {
+type OpenSnackbarAttributes = {
+    message: string;
+    color?: ColorType;
+    duration?: number;
+    isInfinite?: boolean;
+};
+
+export const SnackbarContext = createContext({
+    open: (attributes: OpenSnackbarAttributes) => {},
+});
+
+const SnackbarProvider = ({ children }: PropsWithChildren) => {
     const timerRef = useRef<ReturnType<typeof setTimeout>>();
     const [mount, setMount] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -18,12 +36,7 @@ const useSnackbar = () => {
         color: newColor,
         duration: newDuration,
         isInfinite: newIsInfinite,
-    }: {
-        message: string;
-        color?: ColorType;
-        duration?: number;
-        isInfinite?: boolean;
-    }) => {
+    }: OpenSnackbarAttributes) => {
         setMount(!mount);
         setIsOpen(true);
         setMessage(newMessage);
@@ -45,7 +58,17 @@ const useSnackbar = () => {
         return () => clearTimeout(timerRef.current);
     }, [isOpen, isInfinite, mount]);
 
-    return { message, color, isOpen, open, close };
+    return (
+        <SnackbarContext.Provider value={{ open }}>
+            {children}
+            <Snackbar
+                message={message}
+                handleClose={close}
+                open={isOpen}
+                color={color}
+            />
+        </SnackbarContext.Provider>
+    );
 };
 
-export default useSnackbar;
+export default SnackbarProvider;

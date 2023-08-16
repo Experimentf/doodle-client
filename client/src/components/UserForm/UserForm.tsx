@@ -1,11 +1,10 @@
-import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
+import React, { ChangeEvent, FormEvent, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../Button/Button";
 import { UserContext } from "../../contexts/UserContext";
 import { SocketContext } from "../../contexts/SocketContext";
 import { Events } from "../../constants/Events";
-import Snackbar from "../Snackbar/Snackbar";
-import useSnackbar from "../../hooks/useSnackbar";
+import { SnackbarContext } from "../../contexts/SnackbarContext";
 
 interface UserFormProps {
     roomId: string | null;
@@ -15,13 +14,7 @@ const UserForm = ({ roomId }: UserFormProps) => {
     const navigate = useNavigate();
     const { name, updateName, saveName } = useContext(UserContext);
     const socket = useContext(SocketContext);
-    const {
-        color: snackbarColor,
-        message: snackbarMessage,
-        isOpen: isSnackbarOpen,
-        open: openSnackbar,
-        close: closeSnackbar,
-    } = useSnackbar();
+    const { open: openSnackbar } = useContext(SnackbarContext);
 
     const validate = () => {
         if (!name) {
@@ -99,12 +92,6 @@ const UserForm = ({ roomId }: UserFormProps) => {
                 >
                     Create private room
                 </Button>
-                <Snackbar
-                    open={isSnackbarOpen}
-                    message={snackbarMessage}
-                    color={snackbarColor}
-                    handleClose={closeSnackbar}
-                />
             </form>
         </div>
     );

@@ -21,8 +21,8 @@ const Snackbar = ({
         <div
             className={`fixed left-0 bottom-0 m-5 max-w-full  transition-all ${colorClass} ${
                 open
-                    ? "visible opacity-100 scale-100"
-                    : "invisible opacity-0 scale-0"
+                    ? "visible opacity-100 translate-y-0 pointer-events-auto"
+                    : "invisible opacity-0 translate-y-full pointer-events-none"
             }`}
         >
             <div className="relative">
