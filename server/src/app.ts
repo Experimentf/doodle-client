@@ -35,6 +35,12 @@ const publicRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
 
 const privateRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
 
+const getRoomDetails = (roomId: string) => {
+    if (publicRoomsInfoMap.has(roomId)) return publicRoomsInfoMap.get(roomId);
+    if (privateRoomsInfoMap.has(roomId)) return privateRoomsInfoMap.get(roomId);
+    throw new ErrorFromServer("Room not found!");
+};
+
 // Socket
 io.on("connection", (socket) => {
     onSocketConnectHandler(io, socket);
@@ -61,13 +67,51 @@ io.on("connection", (socket) => {
                 socket,
                 publicRoomsInfoMap
             );
-            console.log(publicRoomsInfoMap);
-            console.log(io.sockets.adapter.rooms);
+
+            // Join the new room
+            socket.join(roomId);
+
+            // Let other users in the room know
+            socket.to(roomId).emit("new-user", {
+                id: socket.id,
+                name: socket.data.name,
+                isOwner: false,
+            });
 
             callback(roomId);
         } catch (e) {
             callback(null, e as ErrorFromServer);
         }
+    });
+
+    // Get the details of the game
+    socket.on("get-game-details", async (roomId, callback) => {
+        try {
+            const roomDetails = getRoomDetails(roomId);
+            const { isWaiting, type, ownerId } = roomDetails as RoomInfoType;
+            const memberSockets = await io.in(roomId).fetchSockets();
+
+            const members = memberSockets.map((memberSocket) => ({
+                id: memberSocket.id,
+                name: memberSocket.data.name,
+                isOwner: ownerId === memberSocket.id,
+            }));
+
+            callback({ isWaiting: isWaiting ?? false, members, type });
+        } catch (e) {
+            callback(null, e as ErrorFromServer);
+        }
+    });
+
+    // Before disconnecting
+    socket.on("disconnecting", () => {
+        socket.rooms.forEach((roomId) => {
+            socket.to(roomId).emit("user-leave", {
+                id: socket.id,
+                name: socket.data.name,
+                isOwner: false,
+            });
+        });
     });
 
     // User leaves

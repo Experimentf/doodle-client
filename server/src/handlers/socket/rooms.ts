@@ -35,16 +35,18 @@ export const onPlayPublicGameHandler = (
         }
     }
 
+    // Room to be joined
+    let room = null;
+
     // If there are rooms with capacity, return one of them
-    if (validRooms.size > 0) return getRandomRoom(io, socket, validRooms);
-
-    // Otherwise, create a new public room
-    const newPublicRoomId = generateId();
-    publicRoomsInfoMap.set(newPublicRoomId, { type: "public" });
-
-    // Join the new room
-    socket.join(newPublicRoomId);
+    if (validRooms.size > 0) {
+        room = getRandomRoom(io, socket, validRooms);
+    } else {
+        // Otherwise, create a new public room
+        room = generateId();
+        publicRoomsInfoMap.set(room, { type: "public" });
+    }
 
     // Return the room id
-    return newPublicRoomId;
+    return room;
 };
