@@ -1,1 +1,1 @@
-export const MAX_PUBLIC_ROOM_CAPACITY = 1;
+export const MAX_PUBLIC_ROOM_CAPACITY = 5;
