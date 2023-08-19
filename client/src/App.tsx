@@ -1,11 +1,11 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SocketProvider from "./contexts/SocketContext";
 import UserProvider from "./contexts/UserContext";
 import Home from "./routes/Home";
-import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Game from "./routes/Game";
 import Lobby from "./routes/Lobby";
 import SnackbarProvider from "./contexts/SnackbarContext";
+import "./App.css";
 
 function App() {
     const router = createBrowserRouter([

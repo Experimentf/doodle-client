@@ -28,6 +28,7 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState("");
     const [duration, setDuration] = useState(DEFAULT_DURATION);
+    const [timestamp, setTimestamp] = useState(Date.now());
     const [color, setColor] = useState<ColorType>(DEFAULT_COLOR);
     const [isInfinite, setIsInfinite] = useState(false);
 
@@ -40,6 +41,7 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
         setMount(!mount);
         setIsOpen(true);
         setMessage(newMessage);
+        setTimestamp(Date.now());
         if (newColor) setColor(newColor);
         if (newDuration) setDuration(newDuration);
         if (newIsInfinite) setIsInfinite(newIsInfinite);
@@ -56,7 +58,7 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
         if (isOpen && !isInfinite)
             timerRef.current = setTimeout(close, duration);
         return () => clearTimeout(timerRef.current);
-    }, [isOpen, isInfinite, mount]);
+    }, [isOpen, isInfinite, duration, timestamp, mount]);
 
     return (
         <SnackbarContext.Provider value={{ open }}>
@@ -66,6 +68,9 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
                 handleClose={close}
                 open={isOpen}
                 color={color}
+                isInfinite={isInfinite}
+                duration={duration}
+                timestamp={timestamp}
             />
         </SnackbarContext.Provider>
     );
