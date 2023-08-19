@@ -1,25 +1,16 @@
 import { Server } from "socket.io";
 import { ErrorFromServer } from "../utils/error";
+import { Member, Room } from "../Game/Room";
 
 type CallbackFunction = (data: any, error?: ErrorFromServer) => void;
 
-export interface Member {
-    id: string;
-    name: string;
-    isOwner: boolean;
-}
-
-export interface RoomInfoType {
-    type: "public" | "private";
-    ownerId?: string;
-    isWaiting?: boolean;
-}
-
-export type RoomInfoMapType = Map<string, RoomInfoType>;
+export type RoomInfoMapType = Map<string, Room>;
 
 export interface ServerToClientEvents {
     "new-user": (member: Member) => void;
     "user-leave": (member: Member) => void;
+    "game-start": () => void;
+    "game-end": () => void;
     // basicEmit: (a: number, b: string, c: Buffer) => void;
     // withAck: (d: string, callback: (e: number) => void) => void;
 }

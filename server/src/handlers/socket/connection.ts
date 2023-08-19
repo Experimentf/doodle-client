@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { IoType, RoomInfoMapType } from "../../types/socket";
+import { Room } from "../../Game/Room";
 
 export const onSocketConnectHandler = (io: IoType, socket: Socket) => {
     console.log("User connected :", socket.id);
@@ -8,31 +9,31 @@ export const onSocketConnectHandler = (io: IoType, socket: Socket) => {
 export const onSocketDisconnectHandler = (
     io: IoType,
     socket: Socket,
-    publicRoomsInfoMap: RoomInfoMapType,
-    privateRoomsInfoMap: RoomInfoMapType
+    rooms: RoomInfoMapType
 ) => {
-    const newExistingRoomIdsMap = io.sockets.adapter.rooms;
+    socket.rooms.forEach((roomId) => {
+        console.log(roomId);
 
-    // Delete non-required ids from public
-    const removableIdsFromPublic = [];
-    for (const [publicRoomId, publicRoomInfo] of publicRoomsInfoMap.entries()) {
-        if (!newExistingRoomIdsMap.has(publicRoomId))
-            removableIdsFromPublic.push(publicRoomId);
-    }
-    for (const id of removableIdsFromPublic) {
-        publicRoomsInfoMap.delete(id);
-    }
+        // Let other people in the room know you are leaving
+        socket.to(roomId).emit("user-leave", {
+            id: socket.id,
+            name: socket.data.name,
+        });
+        const room = rooms.get(roomId);
+        const memberDetail = room?.removeMember(socket.id);
+        const nMembersLeft = room?.getNumberOfMembers();
 
-    // Delete non-required ids from private
-    const removableIdsFromPrivate = [];
-    for (const [
-        privateRoomId,
-        privateRoomInfo,
-    ] of privateRoomsInfoMap.entries()) {
-        if (!newExistingRoomIdsMap.has(privateRoomId))
-            removableIdsFromPrivate.push(privateRoomId);
-    }
-    for (const id of removableIdsFromPrivate) {
-        privateRoomsInfoMap.delete(id);
-    }
+        // End a game if there is only one member left
+        if (nMembersLeft && nMembersLeft < 2) {
+            room?.end();
+        }
+
+        // Delete the room if you are its owner or if you were the only member
+        if (
+            (memberDetail && room?.isOwner(memberDetail?.id)) ||
+            nMembersLeft === 0
+        ) {
+            rooms.delete(roomId);
+        }
+    });
 };

@@ -2,8 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SocketProvider from "./contexts/SocketContext";
 import UserProvider from "./contexts/UserContext";
 import Home from "./routes/Home";
-import Game from "./routes/Game";
-import Lobby from "./routes/Lobby";
+import Game from "./routes/Game/GameLayout";
 import SnackbarProvider from "./contexts/SnackbarContext";
 import "./App.css";
 
@@ -14,12 +13,8 @@ function App() {
             element: <Home />,
         },
         {
-            path: "/:roomId",
+            path: ":roomId",
             element: <Game />,
-        },
-        {
-            path: "/:roomId/lobby",
-            element: <Lobby />,
         },
     ]);
 

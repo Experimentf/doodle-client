@@ -10,12 +10,12 @@ import {
     ClientToServerEvents,
     InterServerEvents,
     RoomInfoMapType,
-    RoomInfoType,
     ServerToClientEvents,
     SocketData,
 } from "./types/socket";
 import { ErrorFromServer } from "./utils/error";
 import { onPlayPublicGameHandler } from "./handlers/socket/rooms";
+import { Member, Room } from "./Game/Room";
 
 config();
 
@@ -31,13 +31,10 @@ const io = new Server<
 >(httpServer, { cors: { origin: "*" } });
 
 // Information regarding rooms
-const publicRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
-
-const privateRoomsInfoMap: RoomInfoMapType = new Map<string, RoomInfoType>();
+const rooms: RoomInfoMapType = new Map<string, Room>();
 
 const getRoomDetails = (roomId: string) => {
-    if (publicRoomsInfoMap.has(roomId)) return publicRoomsInfoMap.get(roomId);
-    if (privateRoomsInfoMap.has(roomId)) return privateRoomsInfoMap.get(roomId);
+    if (rooms.has(roomId)) return rooms.get(roomId);
     throw new ErrorFromServer("Room not found!");
 };
 
@@ -62,67 +59,30 @@ io.on("connection", (socket) => {
     // Play Public Game
     socket.on("play-public-game", (callback) => {
         try {
-            const roomId = onPlayPublicGameHandler(
-                io,
-                socket,
-                publicRoomsInfoMap
-            );
-
-            // Join the new room
-            socket.join(roomId);
-
-            // Let other users in the room know
-            socket.to(roomId).emit("new-user", {
-                id: socket.id,
-                name: socket.data.name,
-                isOwner: false,
-            });
-
+            const roomId = onPlayPublicGameHandler(io, socket, rooms);
             callback(roomId);
         } catch (e) {
             callback(null, e as ErrorFromServer);
         }
     });
 
-    // Get the details of the game
-    socket.on("get-game-details", async (roomId, callback) => {
-        try {
-            const roomDetails = getRoomDetails(roomId);
-            const { isWaiting, type, ownerId } = roomDetails as RoomInfoType;
-            const memberSockets = await io.in(roomId).fetchSockets();
-
-            const members = memberSockets.map((memberSocket) => ({
-                id: memberSocket.id,
-                name: memberSocket.data.name,
-                isOwner: ownerId === memberSocket.id,
-            }));
-
-            callback({ isWaiting: isWaiting ?? false, members, type });
-        } catch (e) {
-            callback(null, e as ErrorFromServer);
+    // Get the game details
+    socket.on("get-game-details", (roomId, callback) => {
+        const room = rooms.get(roomId);
+        if (room && room?.getNumberOfMembers() > 1) {
+            room.start();
         }
+        callback(room?.getJSON());
     });
 
     // Before disconnecting
     socket.on("disconnecting", () => {
-        socket.rooms.forEach((roomId) => {
-            socket.to(roomId).emit("user-leave", {
-                id: socket.id,
-                name: socket.data.name,
-                isOwner: false,
-            });
-        });
+        onSocketDisconnectHandler(io, socket, rooms);
     });
 
     // User leaves
     socket.on("disconnect", () => {
         console.log("User disconnected :", socket.id);
-        onSocketDisconnectHandler(
-            io,
-            socket,
-            publicRoomsInfoMap,
-            privateRoomsInfoMap
-        );
     });
 });
 

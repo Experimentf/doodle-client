@@ -1,1 +1,0 @@
-export const MAX_PUBLIC_ROOM_CAPACITY = 5;
