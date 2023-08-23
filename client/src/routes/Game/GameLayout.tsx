@@ -6,8 +6,28 @@ import { Events } from "../../constants/Events";
 import { GameStatus, MemberType, RoomType } from "../../types/game";
 import Lobby from "./Lobby/Lobby";
 import End from "./End/End";
+import Title from "../../components/Title/Title";
+import Game from "./Game/Game";
+import { AllColors } from "../../types/color";
 
-const Game = () => {
+const MemberList = ({ members }: { members: MemberType[] }) => {
+    return (
+        <div className="w-80">
+            <div className="p-4 bg-card-surface-2 rounded-lg">
+                <h1 className="text-xl">Players</h1>
+                <div className="mt-8">
+                    {members.map((member, index) => (
+                        <p className={`${AllColors[index % AllColors.length]}`}>
+                            {member.name}
+                        </p>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const GameLayout = () => {
     const mountRef = useRef(false);
     const { roomId } = useParams();
     const navigate = useNavigate();
@@ -19,6 +39,26 @@ const Game = () => {
         status: "lobby",
         type: "public",
     });
+
+    const getLayout = (status: GameStatus, members: MemberType[]) => {
+        if (status === "game")
+            return (
+                <Game members={members}>
+                    <MemberList members={members} />
+                </Game>
+            );
+        if (status === "lobby")
+            return (
+                <Lobby roomType={room.type} members={members}>
+                    <MemberList members={members} />
+                </Lobby>
+            );
+        return (
+            <End members={members}>
+                <MemberList members={members} />
+            </End>
+        );
+    };
 
     const returnToHomePage = () => navigate("/", { replace: true });
 
@@ -94,14 +134,13 @@ const Game = () => {
     if (loading) return <div>Loading...</div>;
 
     return (
-        <div>
-            {room.status}
-            {/* {renderMainLayout()} */}
-            {members.map((member) => (
-                <p key={member.id}>{member.name}</p>
-            ))}
+        <div className="p-4">
+            <div className="p-4">
+                <Title small />
+            </div>
+            <div className="p-4">{getLayout(room.status, members)}</div>
         </div>
     );
 };
 
-export default Game;
+export default GameLayout;

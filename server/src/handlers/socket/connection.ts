@@ -12,8 +12,6 @@ export const onSocketDisconnectHandler = (
     rooms: RoomInfoMapType
 ) => {
     socket.rooms.forEach((roomId) => {
-        console.log(roomId);
-
         // Let other people in the room know you are leaving
         socket.to(roomId).emit("user-leave", {
             id: socket.id,
@@ -34,6 +32,7 @@ export const onSocketDisconnectHandler = (
             nMembersLeft === 0
         ) {
             rooms.delete(roomId);
+            console.log("Delete Room :", roomId);
         }
     });
 };

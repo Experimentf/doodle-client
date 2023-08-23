@@ -32,6 +32,10 @@ module.exports = {
             "chalk-yellow": "#f7e99e",
             "light-chalk-yellow": "#faf0bb",
             "dark-chalk-yellow": "#a89c5b",
+
+            // Surface
+            "card-surface-1": "#3e3329",
+            "card-surface-2": "#1d2921",
         },
     },
     plugins: [],

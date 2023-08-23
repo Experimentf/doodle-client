@@ -1,6 +1,11 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
+import { MemberType } from "../../../types/game";
 
-const End = () => {
+interface EndProps extends PropsWithChildren {
+    members: MemberType[];
+}
+
+const End = ({ children }: EndProps) => {
     return <div>End</div>;
 };
 

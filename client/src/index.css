@@ -29,7 +29,6 @@
 
 body {
     background-color: var(--background-primary);
-    background-image: url("/public/assets/background.png");
     color: var(--text-white);
     min-height: 100vh;
     margin: 0;
