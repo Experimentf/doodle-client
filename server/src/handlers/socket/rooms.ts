@@ -41,12 +41,13 @@ export const onPlayPublicGameHandler = (
 
     // Join the new room
     socket.join(room.id);
-    room.addMember(new Member(socket.id, socket.data.name));
+    room.addMember(new Member(socket.id, socket.data.name, socket.data.avatar));
 
     // Let other users in the room know
     socket.to(room.id).emit("new-user", {
         id: socket.id,
         name: socket.data.name,
+        avatar: socket.data.avatar,
     });
 
     // Return the room id

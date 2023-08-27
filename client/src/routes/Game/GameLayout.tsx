@@ -3,29 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { SocketContext } from "../../contexts/SocketContext";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
 import { Events } from "../../constants/Events";
-import { GameStatus, MemberType, RoomType } from "../../types/game";
+import { GameStatus, MemberType, Room, RoomType } from "../../types/game";
 import Lobby from "./Lobby/Lobby";
 import End from "./End/End";
 import Title from "../../components/Title/Title";
 import Game from "./Game/Game";
-import { AllColors } from "../../types/color";
-
-const MemberList = ({ members }: { members: MemberType[] }) => {
-    return (
-        <div className="w-80">
-            <div className="p-4 bg-card-surface-2 rounded-lg">
-                <h1 className="text-xl">Players</h1>
-                <div className="mt-8">
-                    {members.map((member, index) => (
-                        <p className={`${AllColors[index % AllColors.length]}`}>
-                            {member.name}
-                        </p>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
+import MemberList from "../../components/MemberList/MemberList";
 
 const GameLayout = () => {
     const mountRef = useRef(false);
@@ -35,29 +18,16 @@ const GameLayout = () => {
     const [loading, setLoading] = useState(false);
     const { open: openSnackbar } = useContext(SnackbarContext);
     const [members, setMembers] = useState<Array<MemberType>>([]);
-    const [room, setRoom] = useState<{ status: GameStatus; type: RoomType }>({
+    const [room, setRoom] = useState<Room>({
         status: "lobby",
         type: "public",
+        capacity: 0,
     });
 
     const getLayout = (status: GameStatus, members: MemberType[]) => {
-        if (status === "game")
-            return (
-                <Game members={members}>
-                    <MemberList members={members} />
-                </Game>
-            );
-        if (status === "lobby")
-            return (
-                <Lobby roomType={room.type} members={members}>
-                    <MemberList members={members} />
-                </Lobby>
-            );
-        return (
-            <End members={members}>
-                <MemberList members={members} />
-            </End>
-        );
+        if (status === "game") return <Game members={members} />;
+        if (status === "lobby") return <Lobby room={room} members={members} />;
+        return <End members={members} />;
     };
 
     const returnToHomePage = () => navigate("/", { replace: true });
@@ -68,6 +38,7 @@ const GameLayout = () => {
             roomId,
             (
                 data: {
+                    capacity: number;
                     status: GameStatus;
                     type: RoomType;
                     members: [MemberType];
@@ -80,7 +51,11 @@ const GameLayout = () => {
                     return;
                 }
 
-                setRoom({ status: data.status, type: data.type });
+                setRoom({
+                    status: data.status,
+                    type: data.type,
+                    capacity: data.capacity,
+                });
                 setMembers(data.members);
             }
         );
@@ -101,12 +76,17 @@ const GameLayout = () => {
 
         // When a game starts
         socket.on(Events.ON_GAME_START, () => {
-            setRoom((prev) => ({ type: prev.type, status: "game" }));
+            setRoom((prev) => ({ ...prev, status: "game" }));
         });
 
         // When a game ends
         socket.on(Events.ON_GAME_END, () => {
-            setRoom((prev) => ({ type: prev.type, status: "end" }));
+            setRoom((prev) => ({ ...prev, status: "end" }));
+        });
+
+        // When a game comes to lobby
+        socket.on(Events.ON_GAME_LOBBBY, () => {
+            setRoom((prev) => ({ ...prev, status: "lobby" }));
         });
     };
 
@@ -118,16 +98,19 @@ const GameLayout = () => {
         }
         setLoading(true);
 
-        socket.emit(Events.GET_USERNAME, (name: string, error: Error) => {
-            if (error) {
-                openSnackbar({ message: error.message, color: "error" });
-                returnToHomePage();
-                return;
+        socket.emit(
+            Events.GET_USER,
+            ({ name }: { name: string }, error: Error) => {
+                if (error || !name) {
+                    openSnackbar({ message: error.message, color: "error" });
+                    returnToHomePage();
+                    return;
+                }
+                getGameDetails();
+                handleEvents();
+                setLoading(false);
             }
-            getGameDetails();
-            handleEvents();
-            setLoading(false);
-        });
+        );
         mountRef.current = true;
     }, [roomId, socket]);
 
@@ -138,7 +121,10 @@ const GameLayout = () => {
             <div className="p-4">
                 <Title small />
             </div>
-            <div className="p-4">{getLayout(room.status, members)}</div>
+            <div className="p-4 flex gap-8">
+                <MemberList userId={socket.id} members={members} />
+                {getLayout(room.status, members)}
+            </div>
         </div>
     );
 };

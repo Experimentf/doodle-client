@@ -20,7 +20,7 @@ const UserProvider = ({ children }: PropsWithChildren) => {
     };
 
     const saveName = (newName: string) => {
-        localStorage.setItem(LocalStorageKeys.USER_NAME, name);
+        localStorage.setItem(LocalStorageKeys.USER_NAME, newName);
     };
 
     useEffect(() => {

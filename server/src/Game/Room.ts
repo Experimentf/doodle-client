@@ -9,9 +9,12 @@ type RoomType = "public" | "private";
 export class Member {
     id: string;
     name: string;
-    constructor(id: string, name: string) {
+    avatar: Object;
+
+    constructor(id: string, name: string, avatar: Object) {
         this.id = id;
         this.name = name;
+        this.avatar = avatar;
     }
 }
 
@@ -77,11 +80,13 @@ export class Room {
     // Get room details in json
     getJSON() {
         return {
+            capacity: this.capacity,
             status: this.status,
             type: this.type,
             members: this.members.map((member) => ({
                 id: member.id,
                 name: member.name,
+                avatar: member.avatar,
                 isOwner: this.ownerId === member.id,
             })),
         };
@@ -97,5 +102,11 @@ export class Room {
     end() {
         this.status = "end";
         this.io.to(this.id).emit("game-end");
+    }
+
+    // Lobby the game
+    lobby() {
+        this.status = "lobby";
+        this.io.to(this.id).emit("game-lobby");
     }
 }

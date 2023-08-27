@@ -6,3 +6,21 @@
         width: 100%;
     }
 }
+
+.shadowed {
+    box-shadow: 6px 6px 0 var(--background-shadow);
+}
+
+.shadowed-text {
+    position: relative;
+}
+
+.shadowed-text::before {
+    content: attr(data-content);
+    font-family: "SolidChalk";
+    position: absolute;
+    left: 10%;
+    top: 15%;
+    z-index: -1;
+    color: #000;
+}

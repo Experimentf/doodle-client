@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Title from "../components/Title/Title";
 import UserForm from "../components/UserForm/UserForm";
 
@@ -7,9 +6,9 @@ const Home = () => {
     const roomIdFromLink = searchParams.get("roomId"); // null | existing room | non-existing room
 
     return (
-        <div className="flex flex-col items-center justify-between gap-16">
+        <div className="flex flex-col items-center justify-between">
             <Title className="mt-16" />
-            <UserForm roomId={roomIdFromLink} />
+            <UserForm roomId={roomIdFromLink} className="mb-40" />
         </div>
     );
 };

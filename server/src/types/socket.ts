@@ -11,13 +11,14 @@ export interface ServerToClientEvents {
     "user-leave": (member: Member) => void;
     "game-start": () => void;
     "game-end": () => void;
+    "game-lobby": () => void;
     // basicEmit: (a: number, b: string, c: Buffer) => void;
     // withAck: (d: string, callback: (e: number) => void) => void;
 }
 
 export interface ClientToServerEvents {
-    "get-username": (callback: CallbackFunction) => void;
-    "set-username": (name: string) => void;
+    "get-user": (callback: CallbackFunction) => void;
+    "set-user": ({ name, avatar }: { name: string; avatar: Object }) => void;
     "play-public-game": (callback: CallbackFunction) => void;
     "get-game-details": (roomId: string, callback: CallbackFunction) => void;
 }
@@ -26,6 +27,7 @@ export interface InterServerEvents {}
 
 export interface SocketData {
     name: string;
+    avatar: Object;
 }
 
 export type IoType = Server<

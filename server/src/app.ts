@@ -15,7 +15,7 @@ import {
 } from "./types/socket";
 import { ErrorFromServer } from "./utils/error";
 import { onPlayPublicGameHandler } from "./handlers/socket/rooms";
-import { Member, Room } from "./Game/Room";
+import { Room } from "./Game/Room";
 
 config();
 
@@ -43,18 +43,22 @@ io.on("connection", (socket) => {
     onSocketConnectHandler(io, socket);
 
     // Get username
-    socket.on("get-username", (callback) => {
+    socket.on("get-user", (callback) => {
         const name = socket.data.name;
-        if (!name) {
+        const avatar = socket.data.avatar;
+        if (!name || !avatar) {
             const error = new ErrorFromServer("User does not exist");
             callback(null, error);
             return;
         }
-        callback(name);
+        callback({ name });
     });
 
     // Set username
-    socket.on("set-username", (name) => (socket.data.name = name));
+    socket.on("set-user", ({ name, avatar }) => {
+        socket.data.name = name;
+        socket.data.avatar = avatar;
+    });
 
     // Play Public Game
     socket.on("play-public-game", (callback) => {

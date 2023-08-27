@@ -6,7 +6,12 @@ interface GameProps extends PropsWithChildren {
 }
 
 const Game = ({ children }: GameProps) => {
-    return <div>Game</div>;
+    return (
+        <div>
+            {children}
+            <div>Game</div>
+        </div>
+    );
 };
 
 export default Game;

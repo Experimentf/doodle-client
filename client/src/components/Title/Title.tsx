@@ -22,7 +22,13 @@ const Title = ({ small, className, ...props }: TitleProps) => {
         >
             <h1 className={sizeClass}>
                 {title.split("").map((ch, index) => (
-                    <span key={index} className={colors[index % colors.length]}>
+                    <span
+                        key={index}
+                        className={`${
+                            colors[index % colors.length]
+                        } shadowed-text`}
+                        data-content={ch}
+                    >
                         {ch}
                     </span>
                 ))}

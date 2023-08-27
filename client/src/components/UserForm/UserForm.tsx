@@ -1,20 +1,34 @@
-import React, { ChangeEvent, FormEvent, useContext } from "react";
+import React, {
+    ChangeEvent,
+    FormEvent,
+    useContext,
+    useState,
+    useEffect,
+} from "react";
 import { useNavigate } from "react-router-dom";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
+import { AvatarProps } from "@bigheads/core";
 import Button from "../Button/Button";
 import { UserContext } from "../../contexts/UserContext";
 import { SocketContext } from "../../contexts/SocketContext";
 import { Events } from "../../constants/Events";
 import { SnackbarContext } from "../../contexts/SnackbarContext";
+import CustomizableAvatar from "../Avatar/Avatar";
+import { getRandomAvatarProps } from "../../utils/avatar";
+import IconButton from "../Button/IconButton";
 
-interface UserFormProps {
+interface UserFormProps extends React.HTMLAttributes<HTMLDivElement> {
     roomId: string | null;
 }
 
-const UserForm = ({ roomId }: UserFormProps) => {
+const UserForm = ({ roomId, ...props }: UserFormProps) => {
     const navigate = useNavigate();
     const { name, updateName, saveName } = useContext(UserContext);
     const socket = useContext(SocketContext);
     const { open: openSnackbar } = useContext(SnackbarContext);
+    const [avatarProps, setAvatarProps] = useState<AvatarProps>(
+        getRandomAvatarProps()
+    );
 
     const validate = () => {
         if (!name) {
@@ -28,7 +42,7 @@ const UserForm = ({ roomId }: UserFormProps) => {
         if (!validate()) return;
         saveName(name);
         socket.connect();
-        socket.emit(Events.SET_USERNAME, name);
+        socket.emit(Events.SET_USER, { name, avatar: avatarProps });
     };
 
     const handlePlayPublicGame = () => {
@@ -44,14 +58,17 @@ const UserForm = ({ roomId }: UserFormProps) => {
         );
     };
 
+    // Play Game in Private Room when coming through a link
     const handlePlayGame = () => {};
 
+    // Play Game in Public Room directly
     const handlePlay = () => {
         setup();
         if (!roomId) handlePlayPublicGame();
         else handlePlayGame();
     };
 
+    // Create a new room
     const handleCreatePrivateRoom = () => {
         setup();
     };
@@ -64,20 +81,41 @@ const UserForm = ({ roomId }: UserFormProps) => {
         updateName(e.target.value);
     };
 
+    const handleRandomizeAvatar = () => {
+        setAvatarProps(getRandomAvatarProps());
+    };
+
     return (
-        <div>
+        <div {...props}>
             <form
                 className="p-8 rounded-xl flex flex-col gap-8"
                 onSubmit={handleFormSubmit}
             >
-                <input
-                    autoFocus
-                    type="text"
-                    placeholder="Type your name"
-                    className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white"
-                    value={name}
-                    onChange={handleNameChange}
-                />
+                <div>
+                    <div className="relative">
+                        <CustomizableAvatar
+                            className="mb-8"
+                            avatarProps={avatarProps}
+                        />
+                        <IconButton
+                            variant="primary"
+                            color="warning"
+                            className="absolute right-0 bottom-0 text-2xl"
+                            onClick={handleRandomizeAvatar}
+                            type="button"
+                        >
+                            <GiPerspectiveDiceSixFacesRandom />
+                        </IconButton>
+                    </div>
+                    <input
+                        autoFocus
+                        type="text"
+                        placeholder="Type your name"
+                        className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white"
+                        value={name}
+                        onChange={handleNameChange}
+                    />
+                </div>
                 <Button
                     variant="secondary"
                     color="success"
