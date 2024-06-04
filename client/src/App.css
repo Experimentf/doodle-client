@@ -1,26 +1,26 @@
 @keyframes no-width-to-full-width {
-    0% {
-        width: 0;
-    }
-    100% {
-        width: 100%;
-    }
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 .shadowed {
-    box-shadow: 6px 6px 0 var(--background-shadow);
+  box-shadow: 6px 6px 0 var(--background-shadow);
 }
 
 .shadowed-text {
-    position: relative;
+  position: relative;
 }
 
 .shadowed-text::before {
-    content: attr(data-content);
-    font-family: "SolidChalk";
-    position: absolute;
-    left: 10%;
-    top: 15%;
-    z-index: -1;
-    color: #000;
+  content: attr(data-content);
+  font-family: 'SolidChalk';
+  position: absolute;
+  left: 10%;
+  top: 15%;
+  z-index: -1;
+  color: #000;
 }

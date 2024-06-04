@@ -3,44 +3,44 @@
 @tailwind utilities;
 
 :root {
-    --background-primary: #071f19;
-    --background-shadow: #04120e;
-    --text-white: #efefef;
-    --text-blue: #a1c8e1;
-    --text-green: #a4d8b2;
-    --text-pink: #f3bac8;
-    --text-yellow: #f7e99e;
+  --background-primary: #071f19;
+  --background-shadow: #04120e;
+  --text-white: #efefef;
+  --text-blue: #a1c8e1;
+  --text-green: #a4d8b2;
+  --text-pink: #f3bac8;
+  --text-yellow: #f7e99e;
 }
 
 @font-face {
-    font-family: SolidChalk;
-    src: url("/public/fonts/chalk/KGSecondChancesSolid.ttf");
+  font-family: SolidChalk;
+  src: url('/public/fonts/chalk/KGSecondChancesSolid.ttf');
 }
 
 @font-face {
-    font-family: SketchChalk;
-    src: url("/public/fonts/chalk/KGSecondChancesSketch.ttf");
+  font-family: SketchChalk;
+  src: url('/public/fonts/chalk/KGSecondChancesSketch.ttf');
 }
 
 * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 body {
-    background-color: var(--background-primary);
-    color: var(--text-white);
-    min-height: 100vh;
-    margin: 0;
-    font-family: "SolidChalk", -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-        "Helvetica Neue", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-primary);
+  color: var(--text-white);
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'SolidChalk', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-        monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
