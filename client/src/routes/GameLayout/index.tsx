@@ -106,18 +106,16 @@ const GameLayout = () => {
   if (loading) return <Loading />;
 
   return (
-    <div className="p-4">
-      <div className="p-4">
-        <Title small />
-      </div>
-      <div className="p-4">
-        <DetailBar />
-      </div>
-      <div className="p-4 flex gap-8">
-        <MemberList members={game.members} />
-        {game.room.status === GameStatus.IN_GAME && <Game />}
-        {game.room.status === GameStatus.LOBBY && <Lobby />}
-        {game.room.status === GameStatus.END && <End />}
+    <div className="p-4 h-screen flex flex-col gap-4">
+      <Title small />
+      <DetailBar />
+      <div className="flex flex-grow gap-4">
+        <MemberList />
+        <div className="flex-grow">
+          {game.room.status === GameStatus.IN_GAME && <Game />}
+          {game.room.status === GameStatus.LOBBY && <Lobby />}
+          {game.room.status === GameStatus.END && <End />}
+        </div>
         <GuessArea />
       </div>
     </div>

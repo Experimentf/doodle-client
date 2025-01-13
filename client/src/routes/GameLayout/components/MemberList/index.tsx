@@ -1,20 +1,18 @@
 import Avatar from '../../../../components/Avatar/Avatar';
-import { MemberInterface } from '../../../../types/game';
 import { useContext } from 'react';
 import { SocketContext } from '../../../../contexts/SocketContext';
+import { GameContext } from '../../../../contexts/GameContext';
 
-interface MembetListProps {
-  members: MemberInterface[];
-}
-
-const MemberList = ({ members }: MembetListProps) => {
+const MemberList = () => {
   const socket = useContext(SocketContext);
+  const { members } = useContext(GameContext);
   const userId = socket.id;
 
   return (
-    <div className="w-80">
-      <div className="p-4 bg-card-surface-2 rounded-lg shadowed w-full">
+    <div className="max-w-[96]">
+      <div className="p-4 bg-card-surface-2 rounded-lg shadowed">
         <h1 className="text-lg whitespace-nowrap">doodlers</h1>
+        <hr className="my-2" />
         <div className="mt-2">
           {members.map((member, index) => (
             <div key={index} className="flex items-center gap-1">

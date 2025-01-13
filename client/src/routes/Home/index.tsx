@@ -6,7 +6,7 @@ const Home = () => {
   const roomIdFromLink = searchParams.get('roomId'); // null | existing room | non-existing room
 
   return (
-    <div className="flex flex-col items-center justify-between">
+    <div className="min-h-screen flex flex-col items-center justify-between">
       <Title className="mt-16" />
       <UserForm roomId={roomIdFromLink} className="mb-40" />
     </div>
