@@ -1,7 +1,6 @@
-import React, { ChangeEvent, FormEvent, useContext, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
-import { AvatarProps } from '@bigheads/core';
 import Button from '../../../../components/Button/Button';
 import { UserContext } from '../../../../contexts/UserContext';
 import { SocketContext } from '../../../../contexts/SocketContext';
@@ -17,12 +16,10 @@ interface UserFormProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const UserForm = ({ roomId, ...props }: UserFormProps) => {
   const navigate = useNavigate();
-  const { name, updateName, saveName } = useContext(UserContext);
+  const { name, updateName, saveName, avatarProps, updateAvatarProps } =
+    useContext(UserContext);
   const socket = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
-  const [avatarProps, setAvatarProps] = useState<AvatarProps>(
-    getRandomAvatarProps()
-  );
 
   const validate = () => {
     if (!name) {
@@ -76,7 +73,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   };
 
   const handleRandomizeAvatar = () => {
-    setAvatarProps(getRandomAvatarProps());
+    updateAvatarProps(getRandomAvatarProps());
   };
 
   return (

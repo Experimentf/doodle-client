@@ -11,6 +11,8 @@ import Game from './Game/Game';
 import MemberList from './components/MemberList';
 import GuessArea from './components/GuessArea';
 import { GameContext } from '../../contexts/GameContext';
+import Loading from '../../components/Loading';
+import DetailBar from './components/DetailBar';
 
 const GameLayout = () => {
   const mountRef = useRef(false);
@@ -20,12 +22,6 @@ const GameLayout = () => {
   const socket = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
   const game = useContext(GameContext);
-
-  const getLayout = () => {
-    if (game.room.status === GameStatus.IN_GAME) return <Game />;
-    if (game.room.status === GameStatus.LOBBY) return <Lobby />;
-    return <End />;
-  };
 
   const returnToHomePage = () => navigate('/', { replace: true });
 
@@ -47,13 +43,12 @@ const GameLayout = () => {
           returnToHomePage();
           return;
         }
-
-        game.updateRoom({
+        game.setRoom({
           status: data.status,
           type: data.type,
           capacity: data.capacity,
         });
-        game.updateMembers(data.members);
+        game.setMembers(data.members);
       }
     );
   };
@@ -61,29 +56,29 @@ const GameLayout = () => {
   const handleEvents = () => {
     // When a new member joins the room
     socket.on(Events.ON_NEW_USER, (newMember: MemberInterface) => {
-      game.updateMembers([...game.members, newMember]);
+      game.setMembers((prev) => [...prev, newMember]);
     });
 
     // When a member leaves the room
     socket.on(Events.ON_USER_LEAVE, (oldMember: MemberInterface) => {
-      game.updateMembers(
-        game.members.filter((data) => data.id !== oldMember.id)
+      game.setMembers((prev) =>
+        prev.filter((data) => data.id !== oldMember.id)
       );
     });
 
     // When a game starts
     socket.on(Events.ON_GAME_START, () => {
-      game.updateRoom({ ...game.room, status: GameStatus.IN_GAME });
+      game.setRoom((prev) => ({ ...prev, status: GameStatus.IN_GAME }));
     });
 
     // When a game ends
     socket.on(Events.ON_GAME_END, () => {
-      game.updateRoom({ ...game.room, status: GameStatus.END });
+      game.setRoom((prev) => ({ ...prev, status: GameStatus.END }));
     });
 
     // When a game comes to lobby
     socket.on(Events.ON_GAME_LOBBBY, () => {
-      game.updateRoom({ ...game.room, status: GameStatus.LOBBY });
+      game.setRoom((prev) => ({ ...prev, status: GameStatus.LOBBY }));
     });
   };
 
@@ -108,16 +103,21 @@ const GameLayout = () => {
     mountRef.current = true;
   }, [roomId, socket]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <div className="p-4">
       <div className="p-4">
         <Title small />
       </div>
+      <div className="p-4">
+        <DetailBar />
+      </div>
       <div className="p-4 flex gap-8">
         <MemberList members={game.members} />
-        {getLayout()}
+        {game.room.status === GameStatus.IN_GAME && <Game />}
+        {game.room.status === GameStatus.LOBBY && <Lobby />}
+        {game.room.status === GameStatus.END && <End />}
         <GuessArea />
       </div>
     </div>

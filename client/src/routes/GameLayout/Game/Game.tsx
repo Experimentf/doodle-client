@@ -1,12 +1,19 @@
-import React, { useContext } from 'react';
-import { SocketContext } from '../../../contexts/SocketContext';
+import React, { useRef } from 'react';
+
+const CANVAS_WIDTH = 800;
+const CANVAS_HEIGHT = 600;
 
 const Game = () => {
-  const socket = useContext(SocketContext);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   return (
     <div className="w-full">
-      <div>Game</div>
+      <canvas
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        ref={canvasRef}
+        className="bg-dark-board-green rounded-xl w-full h-full"
+      />
     </div>
   );
 };

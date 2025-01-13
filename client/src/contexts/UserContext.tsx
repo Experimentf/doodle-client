@@ -6,16 +6,22 @@ import React, {
   useState,
 } from 'react';
 import { LocalStorageKeys } from '../constants/LocalStorage';
+import { getRandomAvatarProps } from '../utils/avatar';
+import { AvatarProps } from '@bigheads/core';
 
 export const UserContext = createContext({
   name: '',
   updateName: (newName: string) => {},
   saveName: (newName: string) => {},
+  avatarProps: {},
+  updateAvatarProps: (newProps: AvatarProps) => {},
 });
 
 const UserProvider = ({ children }: PropsWithChildren) => {
   const [name, setName] = useState('');
-
+  const [avatarProps, setAvatarProps] = useState<AvatarProps>(
+    getRandomAvatarProps()
+  );
   const updateName = (newName: string) => {
     setName(newName);
   };
@@ -24,13 +30,17 @@ const UserProvider = ({ children }: PropsWithChildren) => {
     localStorage.setItem(LocalStorageKeys.USER_NAME, newName);
   };
 
+  const updateAvatarProps = (newProps: AvatarProps) => setAvatarProps(newProps);
+
   useEffect(() => {
     const storedName = localStorage.getItem('name');
     if (storedName) updateName(storedName);
   }, []);
 
   return (
-    <UserContext.Provider value={{ name, updateName, saveName }}>
+    <UserContext.Provider
+      value={{ name, updateName, saveName, avatarProps, updateAvatarProps }}
+    >
       {children}
     </UserContext.Provider>
   );

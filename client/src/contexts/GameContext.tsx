@@ -1,22 +1,40 @@
-import React, { PropsWithChildren, createContext, useState } from 'react';
+import React, {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useState,
+} from 'react';
 import { GameStatus, MemberInterface, Room, RoomType } from '../types/game';
 
 interface GameContextType {
   members: Array<MemberInterface>;
-  updateMembers: (newMembers: Array<MemberInterface>) => void;
+  setMembers: Dispatch<SetStateAction<Array<MemberInterface>>>;
   room: Room;
-  updateRoom: (newRoom: Room) => void;
+  setRoom: Dispatch<SetStateAction<Room>>;
+  time: number;
+  setTime: Dispatch<SetStateAction<number>>;
+  word: string;
+  setWord: Dispatch<SetStateAction<string>>;
+  score: number;
+  setScore: Dispatch<SetStateAction<number>>;
 }
 
-const defaultValues = {
+const defaultValues: GameContextType = {
   members: [],
-  updateMembers: () => {},
+  setMembers: () => [],
   room: {
     capacity: 0,
     status: GameStatus.LOBBY,
     type: RoomType.PUBLIC,
   },
-  updateRoom: () => {},
+  setRoom: () => ({} as Room),
+  time: 0,
+  setTime: () => 0,
+  word: 'DUMMY WORD',
+  setWord: () => '',
+  score: 0,
+  setScore: () => 0,
 };
 
 export const GameContext = createContext<GameContextType>(defaultValues);
@@ -26,18 +44,23 @@ const GameProvider = ({ children }: PropsWithChildren) => {
     defaultValues.members
   );
   const [room, setRoom] = useState<Room>(defaultValues.room);
-
-  const updateMembers = (newMembers: Array<MemberInterface>) =>
-    setMembers(newMembers);
-  const updateRoom = (newRoom: Room) => setRoom(newRoom);
+  const [time, setTime] = useState(defaultValues.time);
+  const [word, setWord] = useState(defaultValues.word);
+  const [score, setScore] = useState(defaultValues.score);
 
   return (
     <GameContext.Provider
       value={{
         members,
-        updateMembers,
+        setMembers,
         room,
-        updateRoom,
+        setRoom,
+        time,
+        setTime,
+        word,
+        setWord,
+        score,
+        setScore,
       }}
     >
       {children}
