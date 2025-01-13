@@ -16,8 +16,9 @@ interface GameContextType {
   setTime: Dispatch<SetStateAction<number>>;
   word: string;
   setWord: Dispatch<SetStateAction<string>>;
-  score: number;
-  setScore: Dispatch<SetStateAction<number>>;
+  round: number;
+  setRound: Dispatch<SetStateAction<number>>;
+  maxRounds: number;
 }
 
 const defaultValues: GameContextType = {
@@ -33,8 +34,9 @@ const defaultValues: GameContextType = {
   setTime: () => 0,
   word: 'DUMMY WORD',
   setWord: () => '',
-  score: 0,
-  setScore: () => 0,
+  round: 0,
+  setRound: () => 0,
+  maxRounds: 3,
 };
 
 export const GameContext = createContext<GameContextType>(defaultValues);
@@ -46,7 +48,8 @@ const GameProvider = ({ children }: PropsWithChildren) => {
   const [room, setRoom] = useState<Room>(defaultValues.room);
   const [time, setTime] = useState(defaultValues.time);
   const [word, setWord] = useState(defaultValues.word);
-  const [score, setScore] = useState(defaultValues.score);
+  const [round, setRound] = useState(defaultValues.round);
+  const [maxRounds, setMaxRounds] = useState(defaultValues.maxRounds);
 
   return (
     <GameContext.Provider
@@ -59,8 +62,9 @@ const GameProvider = ({ children }: PropsWithChildren) => {
         setTime,
         word,
         setWord,
-        score,
-        setScore,
+        round,
+        setRound,
+        maxRounds,
       }}
     >
       {children}

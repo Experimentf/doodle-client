@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-import { GiAlarmClock, GiStarsStack } from 'react-icons/gi';
+import { GiAlarmClock } from 'react-icons/gi';
+import { FaArrowRotateRight } from 'react-icons/fa6';
 import { GameContext } from '../../../../contexts/GameContext';
 
 const DetailBar = () => {
@@ -16,8 +17,10 @@ const DetailBar = () => {
           <h1 className="text-2xl">{game.word}</h1>
         </div>
         <div className="flex flex-row items-center gap-2">
-          <GiStarsStack size={36} />
-          <h1>{game.score}</h1>
+          <FaArrowRotateRight size={28} />
+          <h1>
+            {game.round} / {game.maxRounds}
+          </h1>
         </div>
       </div>
     </div>
