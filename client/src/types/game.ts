@@ -1,15 +1,22 @@
 import { AvatarProps } from '@bigheads/core';
 
-export type MemberType = {
+export interface MemberInterface {
   id: string;
   name: string;
   avatar: AvatarProps;
   isOwner: boolean;
-};
+}
 
-export type GameStatus = 'game' | 'lobby' | 'end';
+export enum GameStatus {
+  IN_GAME = 'game',
+  LOBBY = 'lobby',
+  END = 'end',
+}
 
-export type RoomType = 'public' | 'private';
+export enum RoomType {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+}
 
 export type Room = {
   capacity: number;

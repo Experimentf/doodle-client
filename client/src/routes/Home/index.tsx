@@ -1,5 +1,5 @@
-import Title from '../components/Title/Title';
-import UserForm from '../components/UserForm/UserForm';
+import Title from '../../components/Title/Title';
+import UserForm from './components/UserForm';
 
 const Home = () => {
   const searchParams = new URLSearchParams(document.location.search);

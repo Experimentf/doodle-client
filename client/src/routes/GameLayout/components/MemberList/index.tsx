@@ -1,17 +1,21 @@
-import Avatar from '../Avatar/Avatar';
-import { MemberType } from '../../types/game';
+import Avatar from '../../../../components/Avatar/Avatar';
+import { MemberInterface } from '../../../../types/game';
+import { useContext } from 'react';
+import { SocketContext } from '../../../../contexts/SocketContext';
 
-interface MembetListType {
-  userId: string;
-  members: MemberType[];
+interface MembetListProps {
+  members: MemberInterface[];
 }
 
-const MemberList = ({ userId, members }: MembetListType) => {
+const MemberList = ({ members }: MembetListProps) => {
+  const socket = useContext(SocketContext);
+  const userId = socket.id;
+
   return (
     <div className="w-80">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed w-full">
         <h1 className="text-xl">Players</h1>
-        <div>
+        <div className="mt-2">
           {members.map((member, index) => (
             <div key={index} className="flex items-center gap-1">
               <Avatar

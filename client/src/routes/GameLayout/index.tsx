@@ -3,31 +3,28 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { SocketContext } from '../../contexts/SocketContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { Events } from '../../constants/Events';
-import { GameStatus, MemberType, Room, RoomType } from '../../types/game';
+import { GameStatus, MemberInterface, RoomType } from '../../types/game';
 import Lobby from './Lobby/Lobby';
 import End from './End/End';
 import Title from '../../components/Title/Title';
 import Game from './Game/Game';
-import MemberList from '../../components/MemberList/MemberList';
+import MemberList from './components/MemberList';
+import GuessArea from './components/GuessArea';
+import { GameContext } from '../../contexts/GameContext';
 
 const GameLayout = () => {
   const mountRef = useRef(false);
   const { roomId } = useParams();
   const navigate = useNavigate();
-  const socket = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
+  const socket = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
-  const [members, setMembers] = useState<Array<MemberType>>([]);
-  const [room, setRoom] = useState<Room>({
-    status: 'lobby',
-    type: 'public',
-    capacity: 0,
-  });
+  const game = useContext(GameContext);
 
-  const getLayout = (status: GameStatus, members: MemberType[]) => {
-    if (status === 'game') return <Game members={members} />;
-    if (status === 'lobby') return <Lobby room={room} members={members} />;
-    return <End members={members} />;
+  const getLayout = () => {
+    if (game.room.status === GameStatus.IN_GAME) return <Game />;
+    if (game.room.status === GameStatus.LOBBY) return <Lobby />;
+    return <End />;
   };
 
   const returnToHomePage = () => navigate('/', { replace: true });
@@ -41,7 +38,7 @@ const GameLayout = () => {
           capacity: number;
           status: GameStatus;
           type: RoomType;
-          members: [MemberType];
+          members: [MemberInterface];
         },
         error: Error
       ) => {
@@ -51,40 +48,42 @@ const GameLayout = () => {
           return;
         }
 
-        setRoom({
+        game.updateRoom({
           status: data.status,
           type: data.type,
           capacity: data.capacity,
         });
-        setMembers(data.members);
+        game.updateMembers(data.members);
       }
     );
   };
 
   const handleEvents = () => {
     // When a new member joins the room
-    socket.on(Events.ON_NEW_USER, (newMember: MemberType) => {
-      setMembers((prev) => [...prev, newMember]);
+    socket.on(Events.ON_NEW_USER, (newMember: MemberInterface) => {
+      game.updateMembers([...game.members, newMember]);
     });
 
     // When a member leaves the room
-    socket.on(Events.ON_USER_LEAVE, (oldMember: MemberType) => {
-      setMembers((prev) => prev.filter((data) => data.id !== oldMember.id));
+    socket.on(Events.ON_USER_LEAVE, (oldMember: MemberInterface) => {
+      game.updateMembers(
+        game.members.filter((data) => data.id !== oldMember.id)
+      );
     });
 
     // When a game starts
     socket.on(Events.ON_GAME_START, () => {
-      setRoom((prev) => ({ ...prev, status: 'game' }));
+      game.updateRoom({ ...game.room, status: GameStatus.IN_GAME });
     });
 
     // When a game ends
     socket.on(Events.ON_GAME_END, () => {
-      setRoom((prev) => ({ ...prev, status: 'end' }));
+      game.updateRoom({ ...game.room, status: GameStatus.END });
     });
 
     // When a game comes to lobby
     socket.on(Events.ON_GAME_LOBBBY, () => {
-      setRoom((prev) => ({ ...prev, status: 'lobby' }));
+      game.updateRoom({ ...game.room, status: GameStatus.LOBBY });
     });
   };
 
@@ -117,8 +116,9 @@ const GameLayout = () => {
         <Title small />
       </div>
       <div className="p-4 flex gap-8">
-        <MemberList userId={socket.id} members={members} />
-        {getLayout(room.status, members)}
+        <MemberList members={game.members} />
+        {getLayout()}
+        <GuessArea />
       </div>
     </div>
   );

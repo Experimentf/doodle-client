@@ -2,14 +2,14 @@ import React, { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
 import { AvatarProps } from '@bigheads/core';
-import Button from '../Button/Button';
-import { UserContext } from '../../contexts/UserContext';
-import { SocketContext } from '../../contexts/SocketContext';
-import { Events } from '../../constants/Events';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import CustomizableAvatar from '../Avatar/Avatar';
-import { getRandomAvatarProps } from '../../utils/avatar';
-import IconButton from '../Button/IconButton';
+import Button from '../../../../components/Button/Button';
+import { UserContext } from '../../../../contexts/UserContext';
+import { SocketContext } from '../../../../contexts/SocketContext';
+import { Events } from '../../../../constants/Events';
+import { SnackbarContext } from '../../../../contexts/SnackbarContext';
+import CustomizableAvatar from '../../../../components/Avatar/Avatar';
+import { getRandomAvatarProps } from '../../../../utils/avatar';
+import IconButton from '../../../../components/Button/IconButton';
 
 interface UserFormProps extends React.HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
@@ -83,6 +83,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
     <div {...props}>
       <form
         className="p-8 rounded-xl flex flex-col gap-8"
+        noValidate
         onSubmit={handleFormSubmit}
       >
         <div>
@@ -102,8 +103,9 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
             autoFocus
             type="text"
             placeholder="Type your name"
-            className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white"
+            className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
             value={name}
+            required
             onChange={handleNameChange}
           />
         </div>
