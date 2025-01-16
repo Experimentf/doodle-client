@@ -1,6 +1,6 @@
-import { ColorType } from '@/types/styles';
+import { VariantColorClassSource } from '@/types/styles';
 
-export const SnackbarClass = {
+const PrimarySnackbarVariantClasses = {
   primary: 'bg-chalk-white text-board-green',
   secondary: 'bg-chalk-blue text-board-green',
   success: 'bg-chalk-green text-board-green',
@@ -8,6 +8,15 @@ export const SnackbarClass = {
   warning: 'bg-chalk-yellow text-board-green',
 };
 
-export const getSnackbarColorClass = (color: ColorType) => {
-  return SnackbarClass[color];
+const SecondarySnackbarVariantClasses = {
+  primary: 'bg-chalk-white text-board-green',
+  secondary: 'bg-chalk-blue text-board-green',
+  success: 'bg-chalk-green text-board-green',
+  error: 'bg-chalk-pink text-board-green',
+  warning: 'bg-chalk-yellow text-board-green',
+};
+
+export const SnackbarClassSource: VariantColorClassSource = {
+  primary: PrimarySnackbarVariantClasses,
+  secondary: SecondarySnackbarVariantClasses,
 };

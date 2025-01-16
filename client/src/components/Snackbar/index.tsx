@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react';
 import { X } from 'react-feather';
 
 import { ColorType } from '@/types/styles';
+import { getVariantClass } from '@/utils/variants';
 
-import { getSnackbarColorClass } from './utils';
+import { SnackbarClassSource } from './utils';
 
 interface SnackbarOptions {
   open: boolean;
@@ -24,7 +25,7 @@ const Snackbar = ({
   timestamp,
   color = 'primary',
 }: SnackbarOptions) => {
-  const colorClass = getSnackbarColorClass(color);
+  const variantClass = getVariantClass('primary', color, SnackbarClassSource);
   const requestId = useRef<number>();
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +46,7 @@ const Snackbar = ({
 
   return (
     <div
-      className={`fixed left-0 bottom-0 m-5 max-w-full transition-all rounded-lg overflow-hidden ${colorClass} ${
+      className={`fixed left-0 bottom-0 m-5 max-w-full transition-all rounded-lg overflow-hidden ${variantClass} ${
         open
           ? 'visible opacity-100 translate-y-0 pointer-events-auto'
           : 'invisible opacity-0 translate-y-full pointer-events-none'

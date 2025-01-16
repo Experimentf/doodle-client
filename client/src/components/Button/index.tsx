@@ -1,10 +1,7 @@
 import { getVariantClass } from '@/utils/variants';
 
 import { ButtonType } from './types';
-import {
-  PrimaryButtonVariantClasses,
-  SecondaryButtonVariantClasses,
-} from './utils';
+import { ButtonClassSource } from './utils';
 
 const Button = ({
   variant = 'primary',
@@ -13,10 +10,7 @@ const Button = ({
   children,
   ...props
 }: ButtonType) => {
-  const variantClass = getVariantClass(variant, color, {
-    primary: PrimaryButtonVariantClasses,
-    secondary: SecondaryButtonVariantClasses,
-  });
+  const variantClass = getVariantClass(variant, color, ButtonClassSource);
 
   return (
     <button

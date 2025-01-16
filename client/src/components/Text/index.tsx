@@ -3,10 +3,7 @@ import { ElementType, HTMLAttributes } from 'react';
 import { ColorType } from '@/types/styles';
 import { getVariantClass } from '@/utils/variants';
 
-import {
-  PrimaryTextVariantClasses,
-  SecondaryTextVariantClasses,
-} from './utils';
+import { TextClassSource } from './utils';
 
 interface TextProps extends HTMLAttributes<HTMLElement> {
   component?: ElementType;
@@ -21,10 +18,7 @@ const Text = (props: TextProps) => {
     ...rest
   } = props;
 
-  const variantClass = getVariantClass('primary', color, {
-    primary: PrimaryTextVariantClasses,
-    secondary: SecondaryTextVariantClasses,
-  });
+  const variantClass = getVariantClass('primary', color, TextClassSource);
 
   return <Component className={`${variantClass} ${className}`} {...rest} />;
 };

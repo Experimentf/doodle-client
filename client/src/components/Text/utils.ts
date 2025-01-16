@@ -1,6 +1,6 @@
-import { ColorClassSource } from '@/types/styles';
+import { ColorClassSource, VariantColorClassSource } from '@/types/styles';
 
-export const PrimaryTextVariantClasses: ColorClassSource = {
+const PrimaryTextVariantClasses: ColorClassSource = {
   primary: 'text-chalk-white',
   secondary: 'text-chalk-blue',
   success: 'text-chalk-green',
@@ -8,10 +8,15 @@ export const PrimaryTextVariantClasses: ColorClassSource = {
   warning: 'text-chalk-yellow',
 };
 
-export const SecondaryTextVariantClasses: ColorClassSource = {
+const SecondaryTextVariantClasses: ColorClassSource = {
   primary: 'text-chalk-white',
   secondary: 'text-chalk-blue',
   success: 'text-chalk-green',
   error: 'text-chalk-pink',
   warning: 'text-chalk-yellow',
+};
+
+export const TextClassSource: VariantColorClassSource = {
+  primary: PrimaryTextVariantClasses,
+  secondary: SecondaryTextVariantClasses,
 };

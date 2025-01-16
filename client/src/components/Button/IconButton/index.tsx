@@ -1,10 +1,7 @@
 import { getVariantClass } from '@/utils/variants';
 
 import { ButtonType } from '../types';
-import {
-  PrimaryIconButtonVariantClasses,
-  SecondaryIconButtonVariantClasses,
-} from './utils';
+import { IconButtonClassSource } from './utils';
 
 const IconButton = ({
   variant = 'primary',
@@ -13,10 +10,7 @@ const IconButton = ({
   children,
   ...props
 }: ButtonType) => {
-  const variantClass = getVariantClass(variant, color, {
-    primary: PrimaryIconButtonVariantClasses,
-    secondary: SecondaryIconButtonVariantClasses,
-  });
+  const variantClass = getVariantClass(variant, color, IconButtonClassSource);
 
   return (
     <button
