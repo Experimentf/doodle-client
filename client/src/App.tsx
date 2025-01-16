@@ -25,13 +25,13 @@ function App() {
 
   return (
     <div>
-      <UserProvider>
-        <SocketProvider>
-          <SnackbarProvider>
+      <SnackbarProvider>
+        <UserProvider>
+          <SocketProvider>
             <RouterProvider router={router} />
-          </SnackbarProvider>
-        </SocketProvider>
-      </UserProvider>
+          </SocketProvider>
+        </UserProvider>
+      </SnackbarProvider>
     </div>
   );
 }
