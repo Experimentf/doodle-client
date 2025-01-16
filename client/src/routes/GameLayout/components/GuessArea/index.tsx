@@ -9,6 +9,7 @@ import {
 import { GameContext } from '../../../../contexts/GameContext';
 import Avatar from '../../../../components/Avatar';
 import { SocketContext } from '../../../../contexts/SocketContext';
+import Text from '../../../../components/Text';
 
 const GuessArea = () => {
   const socket = useContext(SocketContext);
@@ -68,17 +69,12 @@ const GuessArea = () => {
             return (
               <li key={index} className="flex flex-row items-center">
                 <Avatar avatarProps={avatarProps} className="w-6" />
-                <span
-                  className={
-                    g.status === 'error'
-                      ? 'text-light-chalk-pink text-xs'
-                      : g.status
-                      ? 'text-light-chalk-green text-xs'
-                      : 'text-chalk-white text-xs'
-                  }
+                <Text
+                  color={g.status as 'error' | 'success'}
+                  className="text-xs"
                 >
                   {g.message}
-                </span>
+                </Text>
               </li>
             );
           })}

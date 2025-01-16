@@ -1,4 +1,4 @@
-import { ElementType } from 'react';
+import { ElementType, HTMLAttributes } from 'react';
 import { ColorType } from '../../types/styles';
 import { getVariantClass } from '../../utils/variants';
 import {
@@ -6,12 +6,12 @@ import {
   SecondaryTextVariantClasses,
 } from './utils';
 
-interface TextProps extends HTMLElement {
-  component: ElementType;
-  color: ColorType;
+interface TextProps extends HTMLAttributes<HTMLElement> {
+  component?: ElementType;
+  color?: ColorType;
 }
 
-const Text = ({ children, ...props }: TextProps) => {
+const Text = (props: TextProps) => {
   const {
     component: Component = 'p',
     color = 'primary',
@@ -24,11 +24,7 @@ const Text = ({ children, ...props }: TextProps) => {
     secondary: SecondaryTextVariantClasses,
   });
 
-  return (
-    <Component className={`${variantClass} ${className}`} {...rest}>
-      {children}
-    </Component>
-  );
+  return <Component className={`${variantClass} ${className}`} {...rest} />;
 };
 
 export default Text;
