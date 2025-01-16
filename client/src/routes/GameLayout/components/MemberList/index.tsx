@@ -1,4 +1,4 @@
-import Avatar from '../../../../components/Avatar/Avatar';
+import Avatar from '../../../../components/Avatar';
 import { useContext } from 'react';
 import { SocketContext } from '../../../../contexts/SocketContext';
 import { GameContext } from '../../../../contexts/GameContext';
@@ -11,8 +11,8 @@ const MemberList = () => {
   return (
     <div className="max-w-[96]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed">
-        <h1 className="text-lg whitespace-nowrap">doodlers</h1>
-        <hr className="my-2" />
+        <h1 className="text-lg whitespace-nowrap text-chalk-white">doodlers</h1>
+        <hr className="my-2 text-chalk-white" />
         <div className="mt-2">
           {members.map((member, index) => (
             <div key={index} className="flex items-center gap-1">

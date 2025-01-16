@@ -2,20 +2,27 @@ import {
   ChangeEventHandler,
   KeyboardEventHandler,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import { GameContext } from '../../../../contexts/GameContext';
-import Avatar from '../../../../components/Avatar/Avatar';
+import Avatar from '../../../../components/Avatar';
+import { SocketContext } from '../../../../contexts/SocketContext';
 
 const GuessArea = () => {
+  const socket = useContext(SocketContext);
   const { members } = useContext(GameContext);
+  const listRef = useRef<HTMLUListElement>(null);
   const [guess, setGuess] = useState('');
   const [guessList, setGuessList] = useState(
-    Array(5).fill({
-      senderId: 'oX8r62K9Ef1HOsvfAAAr',
-      message: 'abcdef',
-      status: 'error',
-    })
+    Array(5)
+      .fill({})
+      .map(() => ({
+        senderId: 'EoRnrDocCsRDSDx8AAAD',
+        message: 'abcdef',
+        status: Math.random() < 0.5 ? 'error' : 'success',
+      }))
   );
 
   const getAvatarBySenderId = (id: string) => {
@@ -26,7 +33,10 @@ const GuessArea = () => {
 
   const handleSendGuess: KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key !== 'Enter') return;
-    setGuessList((prev) => [...prev, guess]);
+    setGuessList((prev) => [
+      ...prev,
+      { message: guess, senderId: socket.id, status: 'success' },
+    ]);
     setGuess('');
   };
 
@@ -34,12 +44,24 @@ const GuessArea = () => {
     setGuess(e.target.value);
   };
 
+  useEffect(() => {
+    listRef.current?.scrollTo({
+      behavior: 'smooth',
+      top: listRef.current.scrollHeight,
+    });
+  }, [guessList]);
+
   return (
     <div className="max-w-[96]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex flex-col">
-        <h1 className="text-lg whitespace-nowrap">hunch time !</h1>
-        <hr className="my-2" />
-        <ul className="my-2 flex-grow h-[calc(100vh-326px)] overflow-y-scroll bg-scroll">
+        <h1 className="text-lg whitespace-nowrap text-chalk-white">
+          hunch time !
+        </h1>
+        <hr className="my-2 text-chalk-white" />
+        <ul
+          ref={listRef}
+          className="my-2 flex-grow h-[calc(100vh-326px)] overflow-y-scroll bg-scroll"
+        >
           {guessList.map((g, index) => {
             const avatarProps = getAvatarBySenderId(g.senderId);
             if (!avatarProps) return null;

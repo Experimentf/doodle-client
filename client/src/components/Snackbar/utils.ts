@@ -1,4 +1,4 @@
-import { ColorType } from '../../types/color';
+import { ColorType } from '../../types/styles';
 
 export const SnackbarClass = {
   primary: 'bg-chalk-white text-board-green',

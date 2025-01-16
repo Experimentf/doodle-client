@@ -1,6 +1,6 @@
 import { X } from 'react-feather';
-import { ColorType } from '../../types/color';
-import { getSnackbarColorClass } from './Snackbar.utils';
+import { ColorType } from '../../types/styles';
+import { getSnackbarColorClass } from './utils';
 import { useEffect, useRef } from 'react';
 
 interface SnackbarOptions {

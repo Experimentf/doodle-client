@@ -1,6 +1,4 @@
-import { ColorType } from '../../types/color';
-
-export type VariantType = 'primary' | 'secondary';
+import { ColorType, VariantType } from '../../types/styles';
 
 export interface ButtonType
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {

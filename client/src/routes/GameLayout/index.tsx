@@ -6,7 +6,7 @@ import { Events } from '../../constants/Events';
 import { GameStatus, MemberInterface, RoomType } from '../../types/game';
 import Lobby from './Lobby/Lobby';
 import End from './End/End';
-import Title from '../../components/Title/Title';
+import Title from '../../components/Title';
 import Game from './Game/Game';
 import MemberList from './components/MemberList';
 import GuessArea from './components/GuessArea';
