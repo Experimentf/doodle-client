@@ -1,11 +1,11 @@
 import React, {
-  PropsWithChildren,
   createContext,
+  PropsWithChildren,
   useContext,
   useEffect,
-  useState,
 } from 'react';
-import { Socket, io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
+
 import { SnackbarContext } from './SnackbarContext';
 
 const socket = io('http://localhost:5000', { autoConnect: false });

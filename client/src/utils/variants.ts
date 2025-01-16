@@ -1,6 +1,6 @@
 import {
-  VariantColorClassSource,
   ColorType,
+  VariantColorClassSource,
   VariantType,
 } from '../types/styles';
 

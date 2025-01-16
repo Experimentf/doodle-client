@@ -1,4 +1,5 @@
 import { ElementType, HTMLAttributes } from 'react';
+
 import { ColorType } from '../../types/styles';
 import { getVariantClass } from '../../utils/variants';
 import {

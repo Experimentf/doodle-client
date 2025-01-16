@@ -1,7 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { X } from 'react-feather';
+
 import { ColorType } from '../../types/styles';
 import { getSnackbarColorClass } from './utils';
-import { useEffect, useRef } from 'react';
 
 interface SnackbarOptions {
   open: boolean;

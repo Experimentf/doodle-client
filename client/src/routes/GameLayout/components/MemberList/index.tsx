@@ -1,7 +1,8 @@
-import Avatar from '../../../../components/Avatar';
 import { useContext } from 'react';
-import { SocketContext } from '../../../../contexts/SocketContext';
+
+import Avatar from '../../../../components/Avatar';
 import { GameContext } from '../../../../contexts/GameContext';
+import { SocketContext } from '../../../../contexts/SocketContext';
 
 const MemberList = () => {
   const socket = useContext(SocketContext);

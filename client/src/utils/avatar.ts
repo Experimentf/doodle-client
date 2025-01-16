@@ -1,5 +1,6 @@
 import {
   accessoryMap,
+  AvatarProps,
   bodyMap,
   clothingMap,
   eyebrowsMap,
@@ -8,7 +9,6 @@ import {
   hairMap,
   hatMap,
   mouthsMap,
-  AvatarProps,
   theme,
 } from '@bigheads/core';
 

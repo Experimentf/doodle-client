@@ -6,10 +6,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { GameContext } from '../../../../contexts/GameContext';
+
 import Avatar from '../../../../components/Avatar';
-import { SocketContext } from '../../../../contexts/SocketContext';
 import Text from '../../../../components/Text';
+import { GameContext } from '../../../../contexts/GameContext';
+import { SocketContext } from '../../../../contexts/SocketContext';
 
 const GuessArea = () => {
   const socket = useContext(SocketContext);

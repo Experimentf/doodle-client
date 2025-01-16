@@ -1,18 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { SocketContext } from '../../contexts/SocketContext';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { Events } from '../../constants/Events';
-import { GameStatus, MemberInterface, RoomType } from '../../types/game';
-import Lobby from './Lobby/Lobby';
-import End from './End/End';
-import Title from '../../components/Title';
-import Game from './Game/Game';
-import MemberList from './components/MemberList';
-import GuessArea from './components/GuessArea';
-import { GameContext } from '../../contexts/GameContext';
+
 import Loading from '../../components/Loading';
+import Title from '../../components/Title';
+import { Events } from '../../constants/Events';
+import { GameContext } from '../../contexts/GameContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
+import { SocketContext } from '../../contexts/SocketContext';
+import { GameStatus, MemberInterface, RoomType } from '../../types/game';
 import DetailBar from './components/DetailBar';
+import GuessArea from './components/GuessArea';
+import MemberList from './components/MemberList';
+import End from './End/End';
+import Game from './Game/Game';
+import Lobby from './Lobby/Lobby';
 
 const GameLayout = () => {
   const mountRef = useRef(false);

@@ -1,14 +1,15 @@
 import React, { ChangeEvent, FormEvent, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
+import { useNavigate } from 'react-router-dom';
+
+import CustomizableAvatar from '../../../../components/Avatar';
 import Button from '../../../../components/Button';
-import { UserContext } from '../../../../contexts/UserContext';
-import { SocketContext } from '../../../../contexts/SocketContext';
+import IconButton from '../../../../components/Button/IconButton';
 import { Events } from '../../../../constants/Events';
 import { SnackbarContext } from '../../../../contexts/SnackbarContext';
-import CustomizableAvatar from '../../../../components/Avatar';
+import { SocketContext } from '../../../../contexts/SocketContext';
+import { UserContext } from '../../../../contexts/UserContext';
 import { getRandomAvatarProps } from '../../../../utils/avatar';
-import IconButton from '../../../../components/Button/IconButton';
 
 interface UserFormProps extends React.HTMLAttributes<HTMLDivElement> {
   roomId: string | null;

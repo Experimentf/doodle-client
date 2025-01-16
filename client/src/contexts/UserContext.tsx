@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { AvatarProps } from '@bigheads/core';
 import React, {
-  PropsWithChildren,
   createContext,
+  PropsWithChildren,
   useEffect,
   useState,
 } from 'react';
+
 import { LocalStorageKeys } from '../constants/LocalStorage';
 import { getRandomAvatarProps } from '../utils/avatar';
-import { AvatarProps } from '@bigheads/core';
 
 export const UserContext = createContext({
   name: '',

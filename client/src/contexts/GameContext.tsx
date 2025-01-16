@@ -1,10 +1,11 @@
 import React, {
+  createContext,
   Dispatch,
   PropsWithChildren,
   SetStateAction,
-  createContext,
   useState,
 } from 'react';
+
 import { GameStatus, MemberInterface, Room, RoomType } from '../types/game';
 
 interface GameContextType {
@@ -19,6 +20,7 @@ interface GameContextType {
   round: number;
   setRound: Dispatch<SetStateAction<number>>;
   maxRounds: number;
+  setMaxRounds: Dispatch<SetStateAction<number>>;
 }
 
 const defaultValues: GameContextType = {
@@ -37,6 +39,7 @@ const defaultValues: GameContextType = {
   round: 0,
   setRound: () => 0,
   maxRounds: 3,
+  setMaxRounds: () => 3,
 };
 
 export const GameContext = createContext<GameContextType>(defaultValues);
@@ -65,6 +68,7 @@ const GameProvider = ({ children }: PropsWithChildren) => {
         round,
         setRound,
         maxRounds,
+        setMaxRounds,
       }}
     >
       {children}

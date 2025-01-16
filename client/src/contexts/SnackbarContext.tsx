@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  PropsWithChildren,
   createContext,
+  PropsWithChildren,
   useEffect,
   useRef,
   useState,
 } from 'react';
+
 import Snackbar from '../components/Snackbar';
 import { ColorType } from '../types/styles';
 
