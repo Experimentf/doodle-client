@@ -13,7 +13,7 @@ import { GameContext } from '@/contexts/GameContext';
 import { SocketContext } from '@/contexts/SocketContext';
 
 const GuessArea = () => {
-  const socket = useContext(SocketContext);
+  const { socket } = useContext(SocketContext);
   const { members } = useContext(GameContext);
   const listRef = useRef<HTMLUListElement>(null);
   const [guess, setGuess] = useState('');

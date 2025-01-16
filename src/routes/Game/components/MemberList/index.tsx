@@ -5,7 +5,7 @@ import { GameContext } from '@/contexts/GameContext';
 import { SocketContext } from '@/contexts/SocketContext';
 
 const MemberList = () => {
-  const socket = useContext(SocketContext);
+  const { socket } = useContext(SocketContext);
   const { members } = useContext(GameContext);
   const userId = socket.id;
 

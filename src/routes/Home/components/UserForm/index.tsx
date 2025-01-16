@@ -19,7 +19,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   const navigate = useNavigate();
   const { name, updateName, saveName, avatarProps, updateAvatarProps } =
     useContext(UserContext);
-  const socket = useContext(SocketContext);
+  const { socket, isSocketConnected } = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
 
   const validate = () => {
@@ -33,7 +33,6 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   const setup = () => {
     if (!validate()) return;
     saveName(name);
-    socket.connect();
     socket.emit(Events.SET_USER, { name, avatar: avatarProps });
   };
 
@@ -107,10 +106,16 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
             onChange={handleNameChange}
           />
         </div>
-        <Button variant="secondary" color="success" onClick={handlePlay}>
+        <Button
+          disabled={!isSocketConnected}
+          variant="secondary"
+          color="success"
+          onClick={handlePlay}
+        >
           Play!
         </Button>
         <Button
+          disabled={!isSocketConnected}
           variant="secondary"
           color="secondary"
           onClick={handleCreatePrivateRoom}

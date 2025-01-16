@@ -21,7 +21,7 @@ const GameLayout = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const socket = useContext(SocketContext);
+  const { socket } = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
   const game = useContext(GameContext);
 
