@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 
-import { GameStatus, MemberInterface, Room, RoomType } from '../types/game';
+import { GameStatus, MemberInterface, Room, RoomType } from '@/types/game';
 
 interface GameContextType {
   members: Array<MemberInterface>;

@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { FaArrowRotateRight } from 'react-icons/fa6';
 import { GiAlarmClock } from 'react-icons/gi';
 
-import { GameContext } from '../../../../contexts/GameContext';
+import { GameContext } from '@/contexts/GameContext';
 
 const DetailBar = () => {
   const game = useContext(GameContext);

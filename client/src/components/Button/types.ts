@@ -1,4 +1,4 @@
-import { ColorType, VariantType } from '../../types/styles';
+import { ColorType, VariantType } from '@/types/styles';
 
 export interface ButtonType
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {

@@ -6,7 +6,7 @@ import GameProvider from './contexts/GameContext';
 import SnackbarProvider from './contexts/SnackbarContext';
 import SocketProvider from './contexts/SocketContext';
 import UserProvider from './contexts/UserContext';
-import GameLayout from './routes/GameLayout';
+import Game from './routes/Game';
 import Home from './routes/Home';
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
       path: ':roomId',
       element: (
         <GameProvider>
-          <GameLayout />
+          <Game />
         </GameProvider>
       ),
     },

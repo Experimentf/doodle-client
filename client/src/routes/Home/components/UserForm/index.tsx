@@ -2,14 +2,14 @@ import React, { ChangeEvent, FormEvent, useContext } from 'react';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
 
-import CustomizableAvatar from '../../../../components/Avatar';
-import Button from '../../../../components/Button';
-import IconButton from '../../../../components/Button/IconButton';
-import { Events } from '../../../../constants/Events';
-import { SnackbarContext } from '../../../../contexts/SnackbarContext';
-import { SocketContext } from '../../../../contexts/SocketContext';
-import { UserContext } from '../../../../contexts/UserContext';
-import { getRandomAvatarProps } from '../../../../utils/avatar';
+import Avatar from '@/components/Avatar';
+import Button from '@/components/Button';
+import IconButton from '@/components/Button/IconButton';
+import { Events } from '@/constants/Events';
+import { SnackbarContext } from '@/contexts/SnackbarContext';
+import { SocketContext } from '@/contexts/SocketContext';
+import { UserContext } from '@/contexts/UserContext';
+import { getRandomAvatarProps } from '@/utils/avatar';
 
 interface UserFormProps extends React.HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
@@ -86,7 +86,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
       >
         <div>
           <div className="relative">
-            <CustomizableAvatar className="mb-8" avatarProps={avatarProps} />
+            <Avatar className="mb-8" avatarProps={avatarProps} />
             <IconButton
               variant="primary"
               color="warning"

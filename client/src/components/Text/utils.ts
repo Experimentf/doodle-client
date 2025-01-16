@@ -1,4 +1,4 @@
-import { ColorClassSource } from '../../types/styles';
+import { ColorClassSource } from '@/types/styles';
 
 export const PrimaryTextVariantClasses: ColorClassSource = {
   primary: 'text-chalk-white',

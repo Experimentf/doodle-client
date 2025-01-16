@@ -1,4 +1,5 @@
-import Title from '../../components/Title';
+import Title from '@/components/Title';
+
 import UserForm from './components/UserForm';
 
 const Home = () => {

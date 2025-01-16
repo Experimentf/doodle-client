@@ -7,10 +7,10 @@ import {
   useState,
 } from 'react';
 
-import Avatar from '../../../../components/Avatar';
-import Text from '../../../../components/Text';
-import { GameContext } from '../../../../contexts/GameContext';
-import { SocketContext } from '../../../../contexts/SocketContext';
+import Avatar from '@/components/Avatar';
+import Text from '@/components/Text';
+import { GameContext } from '@/contexts/GameContext';
+import { SocketContext } from '@/contexts/SocketContext';
 
 const GuessArea = () => {
   const socket = useContext(SocketContext);

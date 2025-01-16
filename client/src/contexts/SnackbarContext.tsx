@@ -7,8 +7,8 @@ import {
   useState,
 } from 'react';
 
-import Snackbar from '../components/Snackbar';
-import { ColorType } from '../types/styles';
+import Snackbar from '@/components/Snackbar';
+import { ColorType } from '@/types/styles';
 
 const DEFAULT_DURATION = 3000;
 const DEFAULT_COLOR = 'primary';

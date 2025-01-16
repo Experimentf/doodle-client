@@ -1,4 +1,5 @@
-import { getVariantClass } from '../../utils/variants';
+import { getVariantClass } from '@/utils/variants';
+
 import { ButtonType } from './types';
 import {
   PrimaryButtonVariantClasses,

@@ -1,4 +1,4 @@
-import { ColorClassSource } from '../../types/styles';
+import { ColorClassSource } from '@/types/styles';
 
 export const PrimaryButtonVariantClasses: ColorClassSource = {
   primary:

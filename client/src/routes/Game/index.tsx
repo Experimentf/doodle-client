@@ -1,19 +1,20 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import Loading from '../../components/Loading';
-import Title from '../../components/Title';
-import { Events } from '../../constants/Events';
-import { GameContext } from '../../contexts/GameContext';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { SocketContext } from '../../contexts/SocketContext';
-import { GameStatus, MemberInterface, RoomType } from '../../types/game';
+import Loading from '@/components/Loading';
+import Title from '@/components/Title';
+import { Events } from '@/constants/Events';
+import { GameContext } from '@/contexts/GameContext';
+import { SnackbarContext } from '@/contexts/SnackbarContext';
+import { SocketContext } from '@/contexts/SocketContext';
+import { GameStatus, MemberInterface, RoomType } from '@/types/game';
+
 import DetailBar from './components/DetailBar';
+import End from './components/End/End';
 import GuessArea from './components/GuessArea';
+import InGame from './components/InGame';
+import Lobby from './components/Lobby/Lobby';
 import MemberList from './components/MemberList';
-import End from './End/End';
-import Game from './Game/Game';
-import Lobby from './Lobby/Lobby';
 
 const GameLayout = () => {
   const mountRef = useRef(false);
@@ -113,7 +114,7 @@ const GameLayout = () => {
       <div className="flex flex-grow gap-4">
         <MemberList />
         <div className="flex-grow">
-          {game.room.status === GameStatus.IN_GAME && <Game />}
+          {game.room.status === GameStatus.IN_GAME && <InGame />}
           {game.room.status === GameStatus.LOBBY && <Lobby />}
           {game.room.status === GameStatus.END && <End />}
         </div>

@@ -1,7 +1,8 @@
 import { ElementType, HTMLAttributes } from 'react';
 
-import { ColorType } from '../../types/styles';
-import { getVariantClass } from '../../utils/variants';
+import { ColorType } from '@/types/styles';
+import { getVariantClass } from '@/utils/variants';
+
 import {
   PrimaryTextVariantClasses,
   SecondaryTextVariantClasses,

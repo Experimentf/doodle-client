@@ -7,8 +7,8 @@ import React, {
   useState,
 } from 'react';
 
-import { LocalStorageKeys } from '../constants/LocalStorage';
-import { getRandomAvatarProps } from '../utils/avatar';
+import { LocalStorageKeys } from '@/constants/LocalStorage';
+import { getRandomAvatarProps } from '@/utils/avatar';
 
 export const UserContext = createContext({
   name: '',

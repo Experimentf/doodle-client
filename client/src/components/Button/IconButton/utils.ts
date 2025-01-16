@@ -1,4 +1,4 @@
-import { ColorClassSource } from '../../../types/styles';
+import { ColorClassSource } from '@/types/styles';
 
 export const PrimaryIconButtonVariantClasses: ColorClassSource = {
   primary: 'bg-transparent text-chalk-white hover:text-dark-chalk-white',

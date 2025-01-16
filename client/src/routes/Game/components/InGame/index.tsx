@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 
-const Game = () => {
+const InGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   return (
@@ -18,4 +18,4 @@ const Game = () => {
   );
 };
 
-export default Game;
+export default InGame;

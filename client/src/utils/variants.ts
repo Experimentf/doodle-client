@@ -2,7 +2,7 @@ import {
   ColorType,
   VariantColorClassSource,
   VariantType,
-} from '../types/styles';
+} from '@/types/styles';
 
 export const getVariantClass = (
   variant: VariantType,
