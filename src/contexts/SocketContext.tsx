@@ -26,11 +26,13 @@ export const SocketContext = createContext<SocketContextType>({
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
-  const { open: openSnackbar } = useContext(SnackbarContext);
+  const { open: openSnackbar, close: closeSnackbar } =
+    useContext(SnackbarContext);
 
   const handleConnect = () => {
     console.info('Connected to server!');
     setIsSocketConnected(true);
+    closeSnackbar();
   };
 
   const handleConnectError = () => {

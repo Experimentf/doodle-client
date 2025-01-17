@@ -7,14 +7,14 @@ import { Events } from '@/constants/Events';
 import { GameContext } from '@/contexts/GameContext';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { SocketContext } from '@/contexts/SocketContext';
-import { GameStatus, MemberInterface, RoomType } from '@/types/game';
+import { GameStatus, Room } from '@/types/game';
 
 import DetailBar from './components/DetailBar';
-import End from './components/End/End';
-import GuessArea from './components/GuessArea';
+import Doodlers from './components/Doodlers';
+import End from './components/End';
+import HunchList from './components/HunchList';
 import InGame from './components/InGame';
-import Lobby from './components/Lobby/Lobby';
-import MemberList from './components/MemberList';
+import Lobby from './components/Lobby';
 
 const GameLayout = () => {
   const mountRef = useRef(false);
@@ -23,64 +23,43 @@ const GameLayout = () => {
   const [loading, setLoading] = useState(false);
   const { socket } = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
-  const game = useContext(GameContext);
+  const { gameState, gameMethods } = useContext(GameContext);
 
   const returnToHomePage = () => navigate('/', { replace: true });
 
   const getGameDetails = () => {
-    socket.emit(
-      Events.GET_GAME_DETAILS,
-      roomId,
-      (
-        data: {
-          capacity: number;
-          status: GameStatus;
-          type: RoomType;
-          members: [MemberInterface];
-        },
-        error: Error
-      ) => {
-        if (error) {
-          openSnackbar({ message: error.message, color: 'error' });
-          returnToHomePage();
-          return;
-        }
-        game.setRoom({
-          status: data.status,
-          type: data.type,
-          capacity: data.capacity,
-        });
-        game.setMembers(data.members);
+    socket.emit(Events.GET_GAME_DETAILS, roomId, (data: Room, error: Error) => {
+      if (error) {
+        openSnackbar({ message: error.message, color: 'error' });
+        returnToHomePage();
+        return;
       }
-    );
+      Object.keys(data).forEach((key) =>
+        gameMethods.updateRoom(key as keyof Room, data[key as keyof Room])
+      );
+    });
   };
 
   const handleEvents = () => {
     // When a new member joins the room
-    socket.on(Events.ON_NEW_USER, (newMember: MemberInterface) => {
-      game.setMembers((prev) => [...prev, newMember]);
-    });
+    socket.on(Events.ON_NEW_USER, gameMethods.addMember);
 
     // When a member leaves the room
-    socket.on(Events.ON_USER_LEAVE, (oldMember: MemberInterface) => {
-      game.setMembers((prev) =>
-        prev.filter((data) => data.id !== oldMember.id)
-      );
-    });
+    socket.on(Events.ON_USER_LEAVE, gameMethods.removeMember);
 
     // When a game starts
     socket.on(Events.ON_GAME_START, () => {
-      game.setRoom((prev) => ({ ...prev, status: GameStatus.IN_GAME }));
+      gameMethods.updateRoom('status', GameStatus.IN_GAME);
     });
 
     // When a game ends
     socket.on(Events.ON_GAME_END, () => {
-      game.setRoom((prev) => ({ ...prev, status: GameStatus.END }));
+      gameMethods.updateRoom('status', GameStatus.END);
     });
 
     // When a game comes to lobby
     socket.on(Events.ON_GAME_LOBBBY, () => {
-      game.setRoom((prev) => ({ ...prev, status: GameStatus.LOBBY }));
+      gameMethods.updateRoom('status', GameStatus.LOBBY);
     });
   };
 
@@ -91,7 +70,6 @@ const GameLayout = () => {
       return;
     }
     setLoading(true);
-
     socket.emit(Events.GET_USER, ({ name }: { name: string }, error: Error) => {
       if (error || !name) {
         openSnackbar({ message: error.message, color: 'error' });
@@ -112,13 +90,13 @@ const GameLayout = () => {
       <Title small />
       <DetailBar />
       <div className="flex flex-grow gap-4">
-        <MemberList />
+        <Doodlers />
         <div className="flex-grow">
-          {game.room.status === GameStatus.IN_GAME && <InGame />}
-          {game.room.status === GameStatus.LOBBY && <Lobby />}
-          {game.room.status === GameStatus.END && <End />}
+          {gameState.room.status === GameStatus.IN_GAME && <InGame />}
+          {gameState.room.status === GameStatus.LOBBY && <Lobby />}
+          {gameState.room.status === GameStatus.END && <End />}
         </div>
-        <GuessArea />
+        <HunchList />
       </div>
     </div>
   );

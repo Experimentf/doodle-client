@@ -4,9 +4,9 @@ import Avatar from '@/components/Avatar';
 import { GameContext } from '@/contexts/GameContext';
 import { SocketContext } from '@/contexts/SocketContext';
 
-const MemberList = () => {
+const Doodlers = () => {
   const { socket } = useContext(SocketContext);
-  const { members } = useContext(GameContext);
+  const { gameState } = useContext(GameContext);
   const userId = socket.id;
 
   return (
@@ -15,7 +15,7 @@ const MemberList = () => {
         <h1 className="text-lg whitespace-nowrap text-chalk-white">doodlers</h1>
         <hr className="my-2 text-chalk-white" />
         <div className="mt-2">
-          {members.map((member, index) => (
+          {gameState.room.members.map((member, index) => (
             <div key={index} className="flex items-center gap-1">
               <h1>{index + 1}.</h1>
               <Avatar
@@ -36,4 +36,4 @@ const MemberList = () => {
   );
 };
 
-export default MemberList;
+export default Doodlers;

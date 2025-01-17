@@ -3,9 +3,9 @@ import React, { useContext } from 'react';
 import { GameContext } from '@/contexts/GameContext';
 
 const Lobby = () => {
-  const game = useContext(GameContext);
+  const { gameState } = useContext(GameContext);
   const lobbyDetails = {
-    capacity: ['Maximum players', game.room.capacity],
+    capacity: ['Maximum players', gameState.room.capacity],
     lang: ['Language', 'English'],
     drawTime: ['Time to Draw', 120],
     rounds: ['Rounds', 3],
@@ -36,7 +36,7 @@ const Lobby = () => {
             })}
           </tbody>
         </table>
-        {game.room.type === 'public' && (
+        {gameState.room.type === 'public' && (
           <div className="mt-10 text-chalk-yellow">
             <p>Waiting for players to join . . .</p>
           </div>

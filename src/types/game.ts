@@ -22,4 +22,5 @@ export type Room = {
   capacity: number;
   status: GameStatus;
   type: RoomType;
+  members: MemberInterface[];
 };

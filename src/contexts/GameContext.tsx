@@ -1,74 +1,91 @@
-import React, {
-  createContext,
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
-  useState,
-} from 'react';
+import React, { createContext, PropsWithChildren, useState } from 'react';
 
 import { GameStatus, MemberInterface, Room, RoomType } from '@/types/game';
 
-interface GameContextType {
-  members: Array<MemberInterface>;
-  setMembers: Dispatch<SetStateAction<Array<MemberInterface>>>;
-  room: Room;
-  setRoom: Dispatch<SetStateAction<Room>>;
+interface GameOptions {
   time: number;
-  setTime: Dispatch<SetStateAction<number>>;
   word: string;
-  setWord: Dispatch<SetStateAction<string>>;
   round: number;
-  setRound: Dispatch<SetStateAction<number>>;
   maxRounds: number;
-  setMaxRounds: Dispatch<SetStateAction<number>>;
 }
 
-const defaultValues: GameContextType = {
-  members: [],
-  setMembers: () => [],
+interface GameState extends GameOptions {
+  room: Room;
+}
+
+interface GameMethods {
+  addMember: (member: MemberInterface) => void;
+  removeMember: (member: MemberInterface) => void;
+  updateRoom: <T extends keyof Room>(key: T, value: Room[T]) => void;
+  updateGameOptions: <T extends keyof GameOptions>(
+    key: T,
+    value: GameOptions[T]
+  ) => void;
+}
+
+interface GameContextType {
+  gameState: GameState;
+  gameMethods: GameMethods;
+}
+
+const defaultGameState: GameState = {
   room: {
     capacity: 0,
     status: GameStatus.LOBBY,
     type: RoomType.PUBLIC,
+    members: [],
   },
-  setRoom: () => ({} as Room),
   time: 0,
-  setTime: () => 0,
   word: 'DUMMY WORD',
-  setWord: () => '',
   round: 0,
-  setRound: () => 0,
   maxRounds: 3,
-  setMaxRounds: () => 3,
 };
 
-export const GameContext = createContext<GameContextType>(defaultValues);
+export const GameContext = createContext<GameContextType>({
+  gameState: defaultGameState,
+  gameMethods: {
+    addMember: () => {},
+    removeMember: () => {},
+    updateRoom: () => {},
+    updateGameOptions: () => {},
+  },
+});
 
 const GameProvider = ({ children }: PropsWithChildren) => {
-  const [members, setMembers] = useState<Array<MemberInterface>>(
-    defaultValues.members
-  );
-  const [room, setRoom] = useState<Room>(defaultValues.room);
-  const [time, setTime] = useState(defaultValues.time);
-  const [word, setWord] = useState(defaultValues.word);
-  const [round, setRound] = useState(defaultValues.round);
-  const [maxRounds, setMaxRounds] = useState(defaultValues.maxRounds);
+  const [gameState, setGameState] = useState<GameState>(defaultGameState);
+
+  // Member
+  const addMember: GameMethods['addMember'] = (member) => {
+    setGameState((prev) => ({
+      ...prev,
+      room: { ...prev.room, members: [...prev.room.members, member] },
+    }));
+  };
+  const removeMember: GameMethods['removeMember'] = (member) => {
+    setGameState((prev) => ({
+      ...prev,
+      room: {
+        ...prev.room,
+        members: prev.room.members.filter(({ id }) => id === member.id),
+      },
+    }));
+  };
+
+  // Room
+  const updateRoom: GameMethods['updateRoom'] = (key, value) => {
+    setGameState((prev) => ({ ...prev, room: { ...prev.room, [key]: value } }));
+  };
+
+  // Game Options
+  const updateGameOptions: GameMethods['updateGameOptions'] = (key, value) => {
+    setGameState((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <GameContext.Provider
       value={{
-        members,
-        setMembers,
-        room,
-        setRoom,
-        time,
-        setTime,
-        word,
-        setWord,
-        round,
-        setRound,
-        maxRounds,
-        setMaxRounds,
+        gameState,
+        gameMethods: { addMember, removeMember, updateRoom, updateGameOptions },
       }}
     >
       {children}

@@ -22,6 +22,7 @@ type OpenSnackbarAttributes = {
 
 export const SnackbarContext = createContext({
   open: (_: OpenSnackbarAttributes) => {},
+  close: () => {},
 });
 
 const SnackbarProvider = ({ children }: PropsWithChildren) => {
@@ -62,7 +63,7 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
   }, [isOpen, isInfinite, duration, timestamp, mount]);
 
   return (
-    <SnackbarContext.Provider value={{ open }}>
+    <SnackbarContext.Provider value={{ open, close }}>
       {children}
       <Snackbar
         message={message}

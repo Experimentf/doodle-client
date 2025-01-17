@@ -10,12 +10,20 @@ import React, {
 import { LocalStorageKeys } from '@/constants/LocalStorage';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
-export const UserContext = createContext({
+interface UserContextInterface {
+  name: string;
+  updateName: (newName: string) => void;
+  saveName: (newName: string) => void;
+  avatarProps: AvatarProps;
+  updateAvatarProps: (newProps: AvatarProps) => void;
+}
+
+export const UserContext = createContext<UserContextInterface>({
   name: '',
-  updateName: (newName: string) => {},
-  saveName: (newName: string) => {},
+  updateName: () => {},
+  saveName: () => {},
   avatarProps: {},
-  updateAvatarProps: (newProps: AvatarProps) => {},
+  updateAvatarProps: () => {},
 });
 
 const UserProvider = ({ children }: PropsWithChildren) => {
