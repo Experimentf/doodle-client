@@ -66,7 +66,7 @@ const GameProvider = ({ children }: PropsWithChildren) => {
       ...prev,
       room: {
         ...prev.room,
-        members: prev.room.members.filter(({ id }) => id === member.id),
+        members: prev.room.members.filter(({ id }) => id !== member.id),
       },
     }));
   };

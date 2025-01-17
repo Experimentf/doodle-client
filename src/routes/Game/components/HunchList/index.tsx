@@ -22,7 +22,7 @@ const HunchList = () => {
     if (e.key !== 'Enter' || !hunch) return;
     setHunchList((prev) => [
       ...prev,
-      { message: hunch, senderId: socket.id, status: '2' },
+      { message: hunch, senderId: socket.id, status: 'success' },
     ]);
     setHunch('');
   };
@@ -53,7 +53,7 @@ const HunchList = () => {
             <Hunch
               hunch={hunch}
               key={index}
-              className="flex flex-row items-center my-2"
+              className="flex flex-row items-center my-1"
             />
           ))}
         </ul>

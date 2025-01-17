@@ -8,6 +8,7 @@ import { TextClassSource } from './utils';
 interface TextProps extends HTMLAttributes<HTMLElement> {
   component?: ElementType;
   color?: ColorType;
+  disabled?: boolean;
 }
 
 const Text = (props: TextProps) => {
@@ -15,12 +16,20 @@ const Text = (props: TextProps) => {
     component: Component = 'p',
     color = 'primary',
     className,
+    disabled,
     ...rest
   } = props;
 
   const variantClass = getVariantClass('primary', color, TextClassSource);
 
-  return <Component className={`${variantClass} ${className}`} {...rest} />;
+  return (
+    <Component
+      className={`${
+        disabled ? 'text-light-chalk-white' : variantClass
+      } ${className}`}
+      {...rest}
+    />
+  );
 };
 
 export default Text;
