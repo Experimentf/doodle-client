@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import texts from '@/constants/texts';
-import { GameContext } from '@/contexts/GameContext';
+import { GameContext } from '@/contexts/game/GameContext';
 import { SocketContext } from '@/contexts/SocketContext';
 import { GameStatus } from '@/types/game';
 

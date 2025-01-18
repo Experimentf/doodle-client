@@ -3,7 +3,7 @@ import { FaUserSecret } from 'react-icons/fa6';
 
 import Avatar from '@/components/Avatar';
 import Text from '@/components/Text';
-import { GameContext } from '@/contexts/GameContext';
+import { GameContext } from '@/contexts/game/GameContext';
 import { ColorType } from '@/types/styles';
 import { getMemberById } from '@/utils/game';
 

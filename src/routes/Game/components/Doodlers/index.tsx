@@ -2,7 +2,7 @@ import { useContext } from 'react';
 
 import Avatar from '@/components/Avatar';
 import texts from '@/constants/texts';
-import { GameContext } from '@/contexts/GameContext';
+import { GameContext } from '@/contexts/game/GameContext';
 import { SocketContext } from '@/contexts/SocketContext';
 
 const Doodlers = () => {

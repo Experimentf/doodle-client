@@ -2,7 +2,7 @@ import './App.css';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import GameProvider from './contexts/GameContext';
+import GameProvider from './contexts/game/GameContext';
 import SnackbarProvider from './contexts/SnackbarContext';
 import SocketProvider from './contexts/SocketContext';
 import UserProvider from './contexts/UserContext';
