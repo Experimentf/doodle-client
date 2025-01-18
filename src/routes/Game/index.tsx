@@ -4,17 +4,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import { Events } from '@/constants/Events';
+import CanvasProvider from '@/contexts/CanvasContext';
 import { GameContext } from '@/contexts/GameContext';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { SocketContext } from '@/contexts/SocketContext';
 import { GameStatus, Room } from '@/types/game';
 
+import End from './components/CanvasMode/End';
+import InGame from './components/CanvasMode/InGame';
+import Lobby from './components/CanvasMode/Lobby';
 import DetailBar from './components/DetailBar';
 import Doodlers from './components/Doodlers';
-import End from './components/End';
 import HunchList from './components/HunchList';
-import InGame from './components/InGame';
-import Lobby from './components/Lobby';
 
 const GameLayout = () => {
   const mountRef = useRef(false);
@@ -92,9 +93,11 @@ const GameLayout = () => {
       <div className="flex flex-grow gap-4">
         <Doodlers />
         <div className="flex-grow">
-          {gameState.room.status === GameStatus.IN_GAME && <InGame />}
-          {gameState.room.status === GameStatus.LOBBY && <Lobby />}
-          {gameState.room.status === GameStatus.END && <End />}
+          <CanvasProvider>
+            {gameState.room.status === GameStatus.IN_GAME && <InGame />}
+            {gameState.room.status === GameStatus.LOBBY && <Lobby />}
+            {gameState.room.status === GameStatus.END && <End />}
+          </CanvasProvider>
         </div>
         <HunchList />
       </div>
