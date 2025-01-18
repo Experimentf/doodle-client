@@ -1,0 +1,16 @@
+{
+  "form": {
+    "buttons": {
+      "createPrivateRoom": "Create private room",
+      "playPublicGame": "Play!"
+    },
+    "input": {
+      "name": {
+        "placeholder": "Type your name"
+      }
+    },
+    "validation": {
+      "error": "Please enter your name"
+    }
+  }
+}

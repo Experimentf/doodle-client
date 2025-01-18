@@ -1,12 +1,14 @@
 import React from 'react';
 
+import texts from '@/constants/texts';
+
 interface TitleProps extends React.HTMLAttributes<HTMLDivElement> {
   small?: boolean;
 }
 
 const Title = ({ small, className, ...props }: TitleProps) => {
   const sizeClass = small ? 'text-5xl' : 'text-9xl';
-  const title = 'doodle';
+  const title = texts.common.metadata.title;
   const colors = [
     'text-chalk-white',
     'text-chalk-blue',

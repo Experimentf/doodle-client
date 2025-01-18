@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 
+import texts from '@/constants/texts';
 import { SocketContext } from '@/contexts/SocketContext';
 
 import Hunch from './Hunch';
@@ -42,7 +43,7 @@ const HunchList = () => {
     <div className="max-w-[96]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex flex-col">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
-          hunch time !
+          {texts.game.hunchList.sectionTitle}
         </h1>
         <hr className="my-2 text-chalk-white" />
         <ul
@@ -61,13 +62,13 @@ const HunchList = () => {
           <input
             type="text"
             value={hunch}
-            placeholder="Type your hunch ..."
+            placeholder={texts.game.hunchList.input.placeholder}
             className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-sm font-thin"
             onKeyDown={handleSendHunch}
             onChange={handleChangeHunch}
           />
           <p className="text-[0.2em] text-light-chalk-white">
-            Press enter to hunch
+            {texts.game.hunchList.input.caption}
           </p>
         </div>
       </div>

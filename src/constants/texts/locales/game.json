@@ -1,0 +1,25 @@
+{
+  "detailBar": {},
+  "doodlers": {
+    "sectionTitle": "doodlers",
+    "userMarker": "(You)"
+  },
+  "hunchList": {
+    "input": {
+      "caption": "Press enter to hunch",
+      "placeholder": "Type your hunch ..."
+    },
+    "sectionTitle": "hunch time !"
+  },
+  "lobby": {
+    "properties": {
+      "capacity": "Maximum players",
+      "drawTime": "Time to Draw",
+      "hints": "Hints",
+      "language": "Language",
+      "rounds": "Rounds"
+    },
+    "sectionTitle": "Lobby",
+    "waiting": "Waiting for players to join . . ."
+  }
+}

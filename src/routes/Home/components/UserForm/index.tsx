@@ -6,6 +6,7 @@ import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
 import { Events } from '@/constants/Events';
+import texts from '@/constants/texts';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { SocketContext } from '@/contexts/SocketContext';
 import { UserContext } from '@/contexts/UserContext';
@@ -24,7 +25,10 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
 
   const validate = () => {
     if (!name) {
-      openSnackbar({ message: 'Please enter your name', color: 'error' });
+      openSnackbar({
+        message: texts.home.form.validation.error,
+        color: 'error',
+      });
       return false;
     }
     return true;
@@ -99,7 +103,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
           <input
             autoFocus
             type="text"
-            placeholder="Type your name"
+            placeholder={texts.home.form.input.name.placeholder}
             className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
             value={name}
             required
@@ -112,7 +116,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
           color="success"
           onClick={handlePlay}
         >
-          Play!
+          {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
           disabled={!isSocketConnected}
@@ -120,7 +124,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
           color="secondary"
           onClick={handleCreatePrivateRoom}
         >
-          Create private room
+          {texts.home.form.buttons.createPrivateRoom}
         </Button>
       </form>
     </div>
