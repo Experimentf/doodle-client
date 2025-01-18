@@ -14,7 +14,7 @@ const Doodlers = () => {
     <div className="max-w-[96]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
-          {texts.game.doodlers.sectionTitle}
+          {texts.game.doodlers.sectionTitle} ({gameState.room.members.length})
         </h1>
         <hr className="my-2 text-chalk-white" />
         <div className="mt-2">

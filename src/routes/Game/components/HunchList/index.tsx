@@ -8,14 +8,18 @@ import {
 } from 'react';
 
 import texts from '@/constants/texts';
+import { GameContext } from '@/contexts/GameContext';
 import { SocketContext } from '@/contexts/SocketContext';
+import { GameStatus } from '@/types/game';
 
 import Hunch from './Hunch';
 import { HunchInterface } from './types';
 
 const HunchList = () => {
   const { socket } = useContext(SocketContext);
+  const { gameState } = useContext(GameContext);
   const listRef = useRef<HTMLUListElement>(null);
+  const isHunchDisabled = gameState.room.status !== GameStatus.IN_GAME;
   const [hunch, setHunch] = useState('');
   const [hunchList, setHunchList] = useState<HunchInterface[]>([]);
 
@@ -61,13 +65,17 @@ const HunchList = () => {
         <div className="flex flex-col items-end gap-1">
           <input
             type="text"
+            disabled={isHunchDisabled}
             value={hunch}
             placeholder={texts.game.hunchList.input.placeholder}
-            className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-sm font-thin"
+            className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-sm font-thin disabled:cursor-not-allowed"
             onKeyDown={handleSendHunch}
             onChange={handleChangeHunch}
           />
-          <p className="text-[0.2em] text-light-chalk-white">
+          <p
+            className="text-[0.2em] text-light-chalk-white"
+            style={{ visibility: isHunchDisabled ? 'hidden' : 'visible' }}
+          >
             {texts.game.hunchList.input.caption}
           </p>
         </div>
