@@ -1,5 +1,5 @@
-import { MemberInterface } from '@/types/game';
+import { DoodlerInterface } from '@/types/game';
 
-export const getMemberById = (members: MemberInterface[], id: string) => {
-  return members.find(({ id: mId }) => mId === id);
+export const getDoodlerById = (doodlers: DoodlerInterface[], id: string) => {
+  return doodlers.find(({ id: mId }) => mId === id);
 };

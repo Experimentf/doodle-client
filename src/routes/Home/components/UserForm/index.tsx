@@ -1,26 +1,28 @@
-import React, { ChangeEvent, FormEvent, useContext } from 'react';
+import {
+  ChangeEvent,
+  FormEventHandler,
+  HTMLAttributes,
+  useContext,
+} from 'react';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
-import { useNavigate } from 'react-router-dom';
 
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
-import { Events } from '@/constants/Events';
 import texts from '@/constants/texts';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
 import { SocketContext } from '@/contexts/SocketContext';
 import { UserContext } from '@/contexts/UserContext';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
-interface UserFormProps extends React.HTMLAttributes<HTMLDivElement> {
+interface UserFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
 }
 
 const UserForm = ({ roomId, ...props }: UserFormProps) => {
-  const navigate = useNavigate();
   const { name, updateName, saveName, avatarProps, updateAvatarProps } =
     useContext(UserContext);
-  const { socket, isSocketConnected } = useContext(SocketContext);
+  const { isSocketConnected } = useContext(SocketContext);
   const { open: openSnackbar } = useContext(SnackbarContext);
 
   const validate = () => {
@@ -34,42 +36,32 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
     return true;
   };
 
-  const setup = () => {
+  const handleSetUser = () => {
     if (!validate()) return;
     saveName(name);
-    socket.emit(Events.SET_USER, { name, avatar: avatarProps });
+    // TODO: TELL SERVER TO SET DOODLER INFO
   };
 
-  const handlePlayPublicGame = () => {
-    socket.emit(
-      Events.PLAY_PUBLIC_GAME,
-      (publicRoomId: string, error: Error) => {
-        if (error) {
-          openSnackbar({ message: error.message, color: 'error' });
-          return;
-        }
-        navigate(`/${publicRoomId}`, { replace: true });
-      }
-    );
+  // Join a Public Room
+  const handleJoinPublicRoom = () => {
+    // TODO: TELL SERVER TO ADD DOODLER TO PUBLIC ROOM
   };
 
-  // Play Game in Private Room when coming through a link
-  const handlePlayGame = () => {};
-
-  // Play Game in Public Room directly
-  const handlePlay = () => {
-    setup();
-    if (!roomId) handlePlayPublicGame();
-    else handlePlayGame();
+  // Join a Private Room
+  const handleJoinPrivateRoom = () => {
+    // TODO: TELL SERVER TO ADD DOODLER TO PRIVATE ROOM
   };
 
-  // Create a new room
-  const handleCreatePrivateRoom = () => {
-    setup();
-  };
-
-  const handleFormSubmit = (e: FormEvent) => {
+  const handlePlay: FormEventHandler = (e) => {
     e.preventDefault();
+    handleSetUser();
+    if (!roomId) handleJoinPublicRoom();
+    else handleJoinPrivateRoom();
+  };
+
+  const handleCreatePrivateRoom = () => {
+    handleSetUser();
+    // TODO: TELL SERVER TO CREATE A PRIVATE ROOM
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +77,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
       <form
         className="p-8 rounded-xl flex flex-col gap-8"
         noValidate
-        onSubmit={handleFormSubmit}
+        onSubmit={handlePlay}
       >
         <div>
           <div className="relative">
@@ -114,7 +106,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
           disabled={!isSocketConnected}
           variant="secondary"
           color="success"
-          onClick={handlePlay}
+          type="submit"
         >
           {texts.home.form.buttons.playPublicGame}
         </Button>

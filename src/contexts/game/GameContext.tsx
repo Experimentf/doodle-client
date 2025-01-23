@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useState } from 'react';
 
-import { GameStatus, MemberInterface, Room, RoomType } from '@/types/game';
+import { DoodlerInterface, GameStatus, Room, RoomType } from '@/types/game';
 
 interface GameOptions {
   time: number;
@@ -14,8 +14,8 @@ interface GameState extends GameOptions {
 }
 
 interface GameMethods {
-  addMember: (member: MemberInterface) => void;
-  removeMember: (member: MemberInterface) => void;
+  addDoodler: (doodler: DoodlerInterface) => void;
+  removeDoodler: (doodler: DoodlerInterface) => void;
   updateRoom: <T extends keyof Room>(key: T, value: Room[T]) => void;
   updateGameOptions: <T extends keyof GameOptions>(
     key: T,
@@ -33,7 +33,7 @@ const defaultGameState: GameState = {
     capacity: 0,
     status: GameStatus.LOBBY,
     type: RoomType.PUBLIC,
-    members: [],
+    doodlers: [],
   },
   time: 0,
   word: 'DUMMY WORD',
@@ -44,8 +44,8 @@ const defaultGameState: GameState = {
 export const GameContext = createContext<GameContextType>({
   gameState: defaultGameState,
   gameMethods: {
-    addMember: () => {},
-    removeMember: () => {},
+    addDoodler: () => {},
+    removeDoodler: () => {},
     updateRoom: () => {},
     updateGameOptions: () => {},
   },
@@ -54,19 +54,19 @@ export const GameContext = createContext<GameContextType>({
 const GameProvider = ({ children }: PropsWithChildren) => {
   const [gameState, setGameState] = useState<GameState>(defaultGameState);
 
-  // Member
-  const addMember: GameMethods['addMember'] = (member) => {
+  // Doodler
+  const addDoodler: GameMethods['addDoodler'] = (doodler) => {
     setGameState((prev) => ({
       ...prev,
-      room: { ...prev.room, members: [...prev.room.members, member] },
+      room: { ...prev.room, doodlers: [...prev.room.doodlers, doodler] },
     }));
   };
-  const removeMember: GameMethods['removeMember'] = (member) => {
+  const removeDoodler: GameMethods['removeDoodler'] = (doodler) => {
     setGameState((prev) => ({
       ...prev,
       room: {
         ...prev.room,
-        members: prev.room.members.filter(({ id }) => id !== member.id),
+        doodlers: prev.room.doodlers.filter(({ id }) => id !== doodler.id),
       },
     }));
   };
@@ -85,7 +85,12 @@ const GameProvider = ({ children }: PropsWithChildren) => {
     <GameContext.Provider
       value={{
         gameState,
-        gameMethods: { addMember, removeMember, updateRoom, updateGameOptions },
+        gameMethods: {
+          addDoodler,
+          removeDoodler,
+          updateRoom,
+          updateGameOptions,
+        },
       }}
     >
       {children}

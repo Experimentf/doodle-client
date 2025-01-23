@@ -5,7 +5,7 @@ import Avatar from '@/components/Avatar';
 import Text from '@/components/Text';
 import { GameContext } from '@/contexts/game/GameContext';
 import { ColorType } from '@/types/styles';
-import { getMemberById } from '@/utils/game';
+import { getDoodlerById } from '@/utils/game';
 
 import { HunchInterface } from '../types';
 
@@ -15,7 +15,7 @@ interface HunchProps extends HTMLAttributes<HTMLLIElement> {
 
 const Hunch = ({ hunch, ...props }: HunchProps) => {
   const { gameState } = useContext(GameContext);
-  const member = getMemberById(gameState.room.members, hunch.senderId);
+  const doodler = getDoodlerById(gameState.room.doodlers, hunch.senderId);
 
   const convertHunchStatusToColor = (
     status: HunchInterface['status']
@@ -32,13 +32,13 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
 
   return (
     <li {...props}>
-      {member ? (
-        <Avatar avatarProps={member.avatar} className="w-10" />
+      {doodler ? (
+        <Avatar avatarProps={doodler.avatar} className="w-10" />
       ) : (
         <FaUserSecret size={40} className="px-2 text-light-chalk-white" />
       )}
       <Text
-        disabled={!member}
+        disabled={!doodler}
         color={convertHunchStatusToColor(hunch.status)}
         className="text-sm"
       >

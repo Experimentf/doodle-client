@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
-import { Events } from '@/constants/Events';
+import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import CanvasProvider from '@/contexts/game/CanvasContext';
 import { GameContext } from '@/contexts/game/GameContext';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
@@ -29,37 +29,41 @@ const GameLayout = () => {
   const returnToHomePage = () => navigate('/', { replace: true });
 
   const getGameDetails = () => {
-    socket.emit(Events.GET_GAME_DETAILS, roomId, (data: Room, error: Error) => {
-      if (error) {
-        openSnackbar({ message: error.message, color: 'error' });
-        returnToHomePage();
-        return;
+    socket.emit(
+      GameEvents.EMIT_GET_GAME_DETAILS,
+      roomId,
+      (data: Room, error: Error) => {
+        if (error) {
+          openSnackbar({ message: error.message, color: 'error' });
+          returnToHomePage();
+          return;
+        }
+        Object.keys(data).forEach((key) =>
+          gameMethods.updateRoom(key as keyof Room, data[key as keyof Room])
+        );
       }
-      Object.keys(data).forEach((key) =>
-        gameMethods.updateRoom(key as keyof Room, data[key as keyof Room])
-      );
-    });
+    );
   };
 
   const handleEvents = () => {
-    // When a new member joins the room
-    socket.on(Events.ON_NEW_USER, gameMethods.addMember);
+    // When a new doodler joins the room
+    socket.on(RoomEvents.ON_DOODLER_JOIN, gameMethods.addDoodler);
 
-    // When a member leaves the room
-    socket.on(Events.ON_USER_LEAVE, gameMethods.removeMember);
+    // When a doodler leaves the room
+    socket.on(RoomEvents.ON_DOODLER_LEAVE, gameMethods.removeDoodler);
 
     // When a game starts
-    socket.on(Events.ON_GAME_START, () => {
+    socket.on(GameEvents.ON_GAME_START, () => {
       gameMethods.updateRoom('status', GameStatus.IN_GAME);
     });
 
     // When a game ends
-    socket.on(Events.ON_GAME_END, () => {
+    socket.on(GameEvents.ON_GAME_END, () => {
       gameMethods.updateRoom('status', GameStatus.END);
     });
 
     // When a game comes to lobby
-    socket.on(Events.ON_GAME_LOBBBY, () => {
+    socket.on(GameEvents.ON_GAME_LOBBY, () => {
       gameMethods.updateRoom('status', GameStatus.LOBBY);
     });
   };
@@ -71,16 +75,19 @@ const GameLayout = () => {
       return;
     }
     setLoading(true);
-    socket.emit(Events.GET_USER, ({ name }: { name: string }, error: Error) => {
-      if (error || !name) {
-        openSnackbar({ message: error.message, color: 'error' });
-        returnToHomePage();
-        return;
+    socket.emit(
+      DoodlerEvents.EMIT_GET_DOODLER,
+      ({ name }: { name: string }, error: Error) => {
+        if (error || !name) {
+          openSnackbar({ message: error.message, color: 'error' });
+          returnToHomePage();
+          return;
+        }
+        getGameDetails();
+        handleEvents();
+        setLoading(false);
       }
-      getGameDetails();
-      handleEvents();
-      setLoading(false);
-    });
+    );
     mountRef.current = true;
   }, [roomId, socket]);
 

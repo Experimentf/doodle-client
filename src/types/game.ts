@@ -1,10 +1,9 @@
 import { AvatarProps } from '@bigheads/core';
 
-export interface MemberInterface {
+export interface DoodlerInterface {
   id: string;
   name: string;
   avatar: AvatarProps;
-  isOwner: boolean;
 }
 
 export enum GameStatus {
@@ -22,5 +21,5 @@ export type Room = {
   capacity: number;
   status: GameStatus;
   type: RoomType;
-  members: MemberInterface[];
+  doodlers: DoodlerInterface[];
 };

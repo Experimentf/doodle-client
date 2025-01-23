@@ -7,6 +7,8 @@ import React, {
 } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+import { SocketEvents } from '@/constants/Events';
+
 import { SnackbarContext } from './SnackbarContext';
 
 const SERVER_URI =
@@ -45,20 +47,20 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   };
 
   const handleDisconnect = () => {
-    console.error('DisSocketConnected from server!');
+    console.error('Disconnected from server!');
     setIsSocketConnected(false);
   };
 
   useEffect(() => {
-    socket.on('connect', handleConnect);
-    socket.on('connect_error', handleConnectError);
-    socket.on('disconnect', handleDisconnect);
+    socket.on(SocketEvents.ON_CONNECT, handleConnect);
+    socket.on(SocketEvents.ON_CONNECT_ERROR, handleConnectError);
+    socket.on(SocketEvents.ON_DISCONNECT, handleDisconnect);
     socket.connect();
 
     return () => {
-      socket.off('connect', handleConnect);
-      socket.off('connect_error', handleConnectError);
-      socket.off('disconnect', handleDisconnect);
+      socket.off(SocketEvents.ON_CONNECT, handleConnect);
+      socket.off(SocketEvents.ON_CONNECT_ERROR, handleConnectError);
+      socket.off(SocketEvents.ON_DISCONNECT, handleDisconnect);
     };
   }, []);
 
