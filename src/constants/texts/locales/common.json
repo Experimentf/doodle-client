@@ -1,4 +1,10 @@
 {
+  "error": {
+    "badRequest": "Bad Request",
+    "fallbackText": "Something went wrong!",
+    "internalServerError": "InternalServerError",
+    "notFoundException": "Not Found Exception"
+  },
   "metadata": {
     "title": "doodle"
   }
