@@ -14,7 +14,7 @@ import End from './components/CanvasMode/End';
 import InGame from './components/CanvasMode/InGame';
 import Lobby from './components/CanvasMode/Lobby';
 import DetailBar from './components/DetailBar';
-import Doodlers from './components/Doodlers';
+import Doodlers from './components/DoodlerList';
 import HunchList from './components/HunchList';
 
 const GameLayout = () => {
