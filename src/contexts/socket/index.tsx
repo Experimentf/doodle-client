@@ -13,6 +13,7 @@ import {
   ServerToClientEvents,
   SocketType,
 } from '@/types/socket';
+import { ErrorFromServer } from '@/utils/error';
 
 import { useSnackbar } from '../snackbar';
 import { useUser } from '../user';
@@ -35,7 +36,7 @@ interface SocketContextType {
   emitEventAsync: <T extends keyof ClientToServerEvents>(
     event: T,
     payload: ClientToServerEventsArgumentMap[T]['payload']
-  ) => Promise<ClientToServerEventsArgumentMap[T]['response']>;
+  ) => Promise<ClientToServerEventsArgumentMap[T]['response']['data']>;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -83,16 +84,30 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     socket.emit(event, ...args);
   };
 
-  const emitEventAsync = <T extends keyof ClientToServerEvents>(
+  const emitEventAsync = async <T extends keyof ClientToServerEvents>(
     event: T,
     payload: ClientToServerEventsArgumentMap[T]['payload']
   ) => {
-    return new Promise((resolve) => {
-      const args = [payload, (response) => resolve(response)] as Parameters<
-        ClientToServerEvents[T]
-      >;
-      socket.emit(event, ...args);
-    }) as Promise<ClientToServerEventsArgumentMap[T]['response']>;
+    try {
+      const data = await (new Promise((resolve, reject) => {
+        const args = [
+          payload,
+          (response) => {
+            const { data, error } = response;
+            if (error || data === undefined)
+              reject(error ?? new ErrorFromServer());
+            else resolve(data);
+          },
+        ] as Parameters<ClientToServerEvents[T]>;
+        socket.emit(event, ...args);
+      }) as Promise<ClientToServerEventsArgumentMap[T]['response']['data']>);
+      return data;
+    } catch (e) {
+      if (e instanceof ErrorFromServer) {
+        openSnackbar({ message: e.message, color: 'error' });
+      } else openSnackbar({ color: 'error' });
+      return undefined;
+    }
   };
 
   useEffect(() => {

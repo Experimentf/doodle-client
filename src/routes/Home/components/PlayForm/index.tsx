@@ -6,11 +6,12 @@ import {
   useState,
 } from 'react';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
+import { useNavigate } from 'react-router-dom';
 
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
-import { DoodlerEvents } from '@/constants/Events';
+import { DoodlerEvents, RoomEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
@@ -23,7 +24,8 @@ interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
 
 const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
-  const { isConnected, emitEvent } = useSocket();
+  const { isConnected, emitEventAsync } = useSocket();
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     name: '',
     avatar: {},
@@ -41,40 +43,51 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     return true;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSetUser = (next?: () => void) => {
-    if (!validate()) return;
+  const handleSetUser = async () => {
+    if (!validate()) return false;
     updateUser('name', userInfo.name);
     updateUser('avatar', userInfo.avatar);
-    // TODO: MAKE IT PROMISE BASED
-    emitEvent(DoodlerEvents.EMIT_SET_DOODLER, userInfo, ({ data, error }) => {
-      if (error || !data) {
-        openSnackbar({ message: 'Please try again!', color: 'error' });
-        return;
-      }
-      next?.();
-    });
+    const data = await emitEventAsync(DoodlerEvents.EMIT_SET_DOODLER, userInfo);
+    return !!data;
   };
 
   // Join a Public Room
-  const handleJoinPublicRoom = () => {
-    // TODO: TELL SERVER TO ADD DOODLER TO PUBLIC ROOM
+  const handleJoinPublicRoom = async () => {
+    const data = await emitEventAsync(
+      RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM,
+      user
+    );
+    if (!data) openSnackbar({ color: 'error' });
+    else navigate(`/${data.roomId}`, { replace: true });
   };
 
   // Join a Private Room
-  const handleJoinPrivateRoom = () => {
-    // TODO: TELL SERVER TO ADD DOODLER TO PRIVATE ROOM
+  const handleJoinPrivateRoom = async () => {
+    const data = await emitEventAsync(
+      RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
+      user
+    );
+    if (!data) openSnackbar({ color: 'error' });
+    else navigate(`/${data.roomId}`, { replace: true });
   };
 
-  const handlePlay: FormEventHandler = (e) => {
+  const handlePlay: FormEventHandler = async (e) => {
     e.preventDefault();
-    const nextHandler = roomId ? handleJoinPrivateRoom : handleJoinPublicRoom;
-    handleSetUser(nextHandler);
+    const isSetUser = await handleSetUser();
+    if (!isSetUser) return;
+    if (roomId) handleJoinPrivateRoom();
+    else handleJoinPublicRoom();
   };
 
-  const handleCreatePrivateRoom = () => {
-    handleSetUser();
-    // TODO: TELL SERVER TO CREATE A PRIVATE ROOM
+  const handleCreatePrivateRoom = async () => {
+    const isSetUser = await handleSetUser();
+    if (!isSetUser) return;
+    const data = await emitEventAsync(
+      RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
+      undefined
+    );
+    if (!data) openSnackbar({ color: 'error' });
+    else navigate(`/${data.roomId}`, { replace: true });
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {

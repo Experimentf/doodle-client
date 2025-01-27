@@ -1,4 +1,3 @@
-import { AvatarProps } from '@bigheads/core';
 import React, {
   createContext,
   PropsWithChildren,
@@ -8,24 +7,19 @@ import React, {
 } from 'react';
 
 import { LocalStorageKeys } from '@/constants/LocalStorage';
+import { DoodlerInterface } from '@/types/models/doodler';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
-interface UserInterface {
-  id: string;
-  name: string;
-  avatar: AvatarProps;
-}
-
 interface UserContextInterface {
-  user: UserInterface;
-  updateUser: <T extends keyof UserInterface>(
+  user: DoodlerInterface;
+  updateUser: <T extends keyof DoodlerInterface>(
     key: T,
-    value: UserInterface[T]
+    value: DoodlerInterface[T]
   ) => void;
   resetUser: () => void;
 }
 
-const defaultUser: UserInterface = {
+const defaultUser: DoodlerInterface = {
   id: '',
   name: '',
   avatar: getRandomAvatarProps(),
@@ -38,7 +32,7 @@ const UserContext = createContext<UserContextInterface>({
 });
 
 const UserProvider = ({ children }: PropsWithChildren) => {
-  const [user, setUser] = useState<UserInterface>(defaultUser);
+  const [user, setUser] = useState<DoodlerInterface>(defaultUser);
 
   const updateUser: UserContextInterface['updateUser'] = (key, value) => {
     if (key === 'name') {
