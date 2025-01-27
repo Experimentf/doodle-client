@@ -10,6 +10,7 @@ import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
+import { DoodlerEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
@@ -22,7 +23,7 @@ interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
 
 const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
-  const { isConnected } = useSocket();
+  const { isConnected, emitEvent } = useSocket();
   const [userInfo, setUserInfo] = useState({
     name: '',
     avatar: {},
@@ -40,11 +41,19 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     return true;
   };
 
-  const handleSetUser = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSetUser = (next?: () => void) => {
     if (!validate()) return;
     updateUser('name', userInfo.name);
     updateUser('avatar', userInfo.avatar);
-    // TODO: TELL SERVER TO SET DOODLER INFO
+    // TODO: MAKE IT PROMISE BASED
+    emitEvent(DoodlerEvents.EMIT_SET_DOODLER, userInfo, ({ data, error }) => {
+      if (error || !data) {
+        openSnackbar({ message: 'Please try again!', color: 'error' });
+        return;
+      }
+      next?.();
+    });
   };
 
   // Join a Public Room
@@ -59,9 +68,8 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
 
   const handlePlay: FormEventHandler = (e) => {
     e.preventDefault();
-    handleSetUser();
-    if (!roomId) handleJoinPublicRoom();
-    else handleJoinPrivateRoom();
+    const nextHandler = roomId ? handleJoinPrivateRoom : handleJoinPublicRoom;
+    handleSetUser(nextHandler);
   };
 
   const handleCreatePrivateRoom = () => {
