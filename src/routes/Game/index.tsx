@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Loading from '@/components/Loading';
@@ -7,8 +7,8 @@ import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import CanvasProvider from '@/contexts/game/CanvasContext';
 import { GameContext } from '@/contexts/game/GameContext';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { SocketContext } from '@/contexts/SocketContext';
-import { GameStatus, Room } from '@/types/game';
+import { useSocket } from '@/contexts/socket/useSocket';
+import { GameStatus } from '@/types/game';
 
 import End from './components/CanvasMode/End';
 import InGame from './components/CanvasMode/InGame';
@@ -18,78 +18,77 @@ import Doodlers from './components/Doodlers';
 import HunchList from './components/HunchList';
 
 const GameLayout = () => {
-  const mountRef = useRef(false);
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { socket } = useContext(SocketContext);
+  const { registerEvent, emitEvent, isConnected } = useSocket();
   const { open: openSnackbar } = useContext(SnackbarContext);
   const { gameState, gameMethods } = useContext(GameContext);
 
   const returnToHomePage = () => navigate('/', { replace: true });
 
   const getGameDetails = () => {
-    socket.emit(
-      GameEvents.EMIT_GET_GAME_DETAILS,
-      roomId,
-      (data: Room, error: Error) => {
-        if (error) {
-          openSnackbar({ message: error.message, color: 'error' });
-          returnToHomePage();
-          return;
-        }
-        Object.keys(data).forEach((key) =>
-          gameMethods.updateRoom(key as keyof Room, data[key as keyof Room])
-        );
-      }
-    );
+    if (!roomId) return;
+    // emitEvent(
+    //   GameEvents.EMIT_GET_GAME_DETAILS,
+    //   roomId,
+    //   (data: Room, error: Error) => {
+    //     if (error) {
+    //       openSnackbar({ message: error.message, color: 'error' });
+    //       returnToHomePage();
+    //       return;
+    //     }
+    //     Object.keys(data).forEach((key) =>
+    //       gameMethods.updateRoom(key as keyof Room, data[key as keyof Room])
+    //     );
+    //   }
+    // );
   };
 
   const handleEvents = () => {
     // When a new doodler joins the room
-    socket.on(RoomEvents.ON_DOODLER_JOIN, gameMethods.addDoodler);
+    registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) =>
+      gameMethods.addDoodler(doodler)
+    );
 
     // When a doodler leaves the room
-    socket.on(RoomEvents.ON_DOODLER_LEAVE, gameMethods.removeDoodler);
+    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) =>
+      gameMethods.removeDoodler(doodler)
+    );
 
     // When a game starts
-    socket.on(GameEvents.ON_GAME_START, () => {
+    registerEvent(GameEvents.ON_GAME_START, () => {
       gameMethods.updateRoom('status', GameStatus.IN_GAME);
     });
 
     // When a game ends
-    socket.on(GameEvents.ON_GAME_END, () => {
+    registerEvent(GameEvents.ON_GAME_END, () => {
       gameMethods.updateRoom('status', GameStatus.END);
     });
 
     // When a game comes to lobby
-    socket.on(GameEvents.ON_GAME_LOBBY, () => {
+    registerEvent(GameEvents.ON_GAME_LOBBY, () => {
       gameMethods.updateRoom('status', GameStatus.LOBBY);
     });
   };
 
   useEffect(() => {
-    if (mountRef.current) return;
-    if (!socket || !socket.connected) {
+    if (!isConnected) {
       returnToHomePage();
       return;
     }
     setLoading(true);
-    socket.emit(
-      DoodlerEvents.EMIT_GET_DOODLER,
-      ({ name }: { name: string }, error: Error) => {
-        if (error || !name) {
-          openSnackbar({ message: error.message, color: 'error' });
-          returnToHomePage();
-          return;
-        }
-        getGameDetails();
-        handleEvents();
-        setLoading(false);
+    emitEvent(DoodlerEvents.EMIT_GET_DOODLER, undefined, ({ data, error }) => {
+      if (error || !data) {
+        openSnackbar({ message: error?.message, color: 'error' });
+        returnToHomePage();
+        return;
       }
-    );
-    mountRef.current = true;
-  }, [roomId, socket]);
+      getGameDetails();
+      handleEvents();
+      setLoading(false);
+    });
+  }, [roomId, isConnected]);
 
   if (loading) return <Loading />;
 

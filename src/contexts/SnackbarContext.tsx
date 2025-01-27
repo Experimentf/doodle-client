@@ -14,7 +14,7 @@ const DEFAULT_DURATION = 3000;
 const DEFAULT_COLOR = 'primary';
 
 type OpenSnackbarAttributes = {
-  message: string;
+  message?: string;
   color?: ColorType;
   duration?: number;
   isInfinite?: boolean;
@@ -36,7 +36,7 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
   const [isInfinite, setIsInfinite] = useState(false);
 
   const open = ({
-    message: newMessage,
+    message: newMessage = 'Something went wrong!',
     color: newColor,
     duration: newDuration,
     isInfinite: newIsInfinite,

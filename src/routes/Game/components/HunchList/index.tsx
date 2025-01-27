@@ -9,14 +9,14 @@ import {
 
 import texts from '@/constants/texts';
 import { GameContext } from '@/contexts/game/GameContext';
-import { SocketContext } from '@/contexts/SocketContext';
+import { useUser } from '@/contexts/user/useUser';
 import { GameStatus } from '@/types/game';
 
 import Hunch from './Hunch';
 import { HunchInterface } from './types';
 
 const HunchList = () => {
-  const { socket } = useContext(SocketContext);
+  const { user } = useUser();
   const { gameState } = useContext(GameContext);
   const listRef = useRef<HTMLUListElement>(null);
   const isHunchDisabled = gameState.room.status !== GameStatus.IN_GAME;
@@ -27,7 +27,7 @@ const HunchList = () => {
     if (e.key !== 'Enter' || !hunch) return;
     setHunchList((prev) => [
       ...prev,
-      { message: hunch, senderId: socket.id, status: 'success' },
+      { message: hunch, senderId: user.id, status: 'success' },
     ]);
     setHunch('');
   };

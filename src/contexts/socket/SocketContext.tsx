@@ -5,11 +5,13 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 import { SocketEvents } from '@/constants/Events';
+import { SocketType } from '@/types/socket';
 
-import { SnackbarContext } from './SnackbarContext';
+import { SnackbarContext } from '../SnackbarContext';
+import { useUser } from '../user/useUser';
 
 const SERVER_URI =
   process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
@@ -17,7 +19,7 @@ const SERVER_URI =
 const socket = io(SERVER_URI, { autoConnect: false });
 
 interface SocketContextType {
-  socket: Socket;
+  socket: SocketType;
   isSocketConnected: boolean;
 }
 
@@ -28,12 +30,15 @@ export const SocketContext = createContext<SocketContextType>({
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const { updateUser, resetUser } = useUser();
+
   const { open: openSnackbar, close: closeSnackbar } =
     useContext(SnackbarContext);
 
   const handleConnect = () => {
     console.info('Connected to server!');
     setIsSocketConnected(true);
+    updateUser('id', socket.id ?? '');
     closeSnackbar();
   };
 
@@ -44,11 +49,13 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       isInfinite: true,
     });
     setIsSocketConnected(false);
+    resetUser();
   };
 
   const handleDisconnect = () => {
     console.error('Disconnected from server!');
     setIsSocketConnected(false);
+    resetUser();
   };
 
   useEffect(() => {
@@ -66,7 +73,10 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <SocketContext.Provider
-      value={{ socket, isSocketConnected: isSocketConnected }}
+      value={{
+        socket,
+        isSocketConnected,
+      }}
     >
       {children}
     </SocketContext.Provider>

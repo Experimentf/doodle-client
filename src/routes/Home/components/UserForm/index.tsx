@@ -3,6 +3,8 @@ import {
   FormEventHandler,
   HTMLAttributes,
   useContext,
+  useEffect,
+  useState,
 } from 'react';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
 
@@ -11,8 +13,8 @@ import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
 import texts from '@/constants/texts';
 import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { SocketContext } from '@/contexts/SocketContext';
-import { UserContext } from '@/contexts/UserContext';
+import { useSocket } from '@/contexts/socket/useSocket';
+import { useUser } from '@/contexts/user/useUser';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
 interface UserFormProps extends HTMLAttributes<HTMLDivElement> {
@@ -20,13 +22,16 @@ interface UserFormProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const UserForm = ({ roomId, ...props }: UserFormProps) => {
-  const { name, updateName, saveName, avatarProps, updateAvatarProps } =
-    useContext(UserContext);
-  const { isSocketConnected } = useContext(SocketContext);
+  const { user, updateUser } = useUser();
+  const { isConnected } = useSocket();
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    avatarProps: {},
+  });
   const { open: openSnackbar } = useContext(SnackbarContext);
 
   const validate = () => {
-    if (!name) {
+    if (!userInfo.name) {
       openSnackbar({
         message: texts.home.form.validation.error,
         color: 'error',
@@ -38,7 +43,8 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
 
   const handleSetUser = () => {
     if (!validate()) return;
-    saveName(name);
+    updateUser('name', userInfo.name);
+    updateUser('avatarProps', userInfo.avatarProps);
     // TODO: TELL SERVER TO SET DOODLER INFO
   };
 
@@ -65,12 +71,16 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    updateName(e.target.value);
+    setUserInfo((prev) => ({ ...prev, name: e.target.value }));
   };
 
   const handleRandomizeAvatar = () => {
-    updateAvatarProps(getRandomAvatarProps());
+    setUserInfo((prev) => ({ ...prev, avatarProps: getRandomAvatarProps() }));
   };
+
+  useEffect(() => {
+    setUserInfo({ name: user.name, avatarProps: user.avatarProps });
+  }, [user]);
 
   return (
     <div {...props}>
@@ -81,7 +91,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
       >
         <div>
           <div className="relative">
-            <Avatar className="mb-8" avatarProps={avatarProps} />
+            <Avatar className="mb-8" avatarProps={userInfo.avatarProps} />
             <IconButton
               variant="primary"
               color="warning"
@@ -97,13 +107,13 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
             type="text"
             placeholder={texts.home.form.input.name.placeholder}
             className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
-            value={name}
+            value={userInfo.name}
             required
             onChange={handleNameChange}
           />
         </div>
         <Button
-          disabled={!isSocketConnected}
+          disabled={!isConnected}
           variant="secondary"
           color="success"
           type="submit"
@@ -111,7 +121,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
           {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
-          disabled={!isSocketConnected}
+          disabled={!isConnected}
           variant="secondary"
           color="secondary"
           onClick={handleCreatePrivateRoom}

@@ -3,12 +3,11 @@ import { useContext } from 'react';
 import Avatar from '@/components/Avatar';
 import texts from '@/constants/texts';
 import { GameContext } from '@/contexts/game/GameContext';
-import { SocketContext } from '@/contexts/SocketContext';
+import { useUser } from '@/contexts/user/useUser';
 
 const Doodlers = () => {
-  const { socket } = useContext(SocketContext);
+  const { user } = useUser();
   const { gameState } = useContext(GameContext);
-  const userId = socket.id;
 
   return (
     <div className="max-w-[96]">
@@ -28,7 +27,7 @@ const Doodlers = () => {
               <p className="text-light-chalk-white overflow-hidden text-ellipsis">
                 {doodler.name}
               </p>
-              {userId === doodler.id && (
+              {user.id === doodler.id && (
                 <span className="text-light-chalk-blue">
                   {texts.game.doodlers.userMarker}
                 </span>
