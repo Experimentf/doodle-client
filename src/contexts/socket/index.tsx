@@ -9,6 +9,7 @@ import { io } from 'socket.io-client';
 import { SocketEvents } from '@/constants/Events';
 import {
   ClientToServerEvents,
+  ClientToServerEventsArgumentMap,
   ServerToClientEvents,
   SocketType,
 } from '@/types/socket';
@@ -31,12 +32,18 @@ interface SocketContextType {
     event: T,
     ...args: Parameters<ClientToServerEvents[T]>
   ) => void;
+  emitEventAsync: <T extends keyof ClientToServerEvents>(
+    event: T,
+    payload: ClientToServerEventsArgumentMap[T]['payload']
+  ) => Promise<ClientToServerEventsArgumentMap[T]['response']>;
 }
 
 const SocketContext = createContext<SocketContextType>({
   isConnected: false,
   registerEvent: () => {},
   emitEvent: () => {},
+  emitEventAsync: () =>
+    Promise.reject(new Error('Emitter not initialized yet!')),
 });
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
@@ -64,19 +71,28 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     resetUser();
   };
 
-  const registerEvent = <T extends keyof ServerToClientEvents>(
-    event: T,
-    listener: ServerToClientEvents[T]
+  const registerEvent: SocketContextType['registerEvent'] = (
+    event,
+    listener
   ) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.on(event, listener as any);
   };
 
-  const emitEvent = <T extends keyof ClientToServerEvents>(
-    event: T,
-    ...args: Parameters<ClientToServerEvents[T]>
-  ) => {
+  const emitEvent: SocketContextType['emitEvent'] = (event, ...args) => {
     socket.emit(event, ...args);
+  };
+
+  const emitEventAsync = <T extends keyof ClientToServerEvents>(
+    event: T,
+    payload: ClientToServerEventsArgumentMap[T]['payload']
+  ) => {
+    return new Promise((resolve) => {
+      const args = [payload, (response) => resolve(response)] as Parameters<
+        ClientToServerEvents[T]
+      >;
+      socket.emit(event, ...args);
+    }) as Promise<ClientToServerEventsArgumentMap[T]['response']>;
   };
 
   useEffect(() => {
@@ -98,6 +114,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         isConnected: socket.connected,
         registerEvent,
         emitEvent,
+        emitEventAsync,
       }}
     >
       {children}

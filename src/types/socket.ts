@@ -3,8 +3,33 @@ import { Socket } from 'socket.io-client';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 
 import { DoodlerInterface } from './models/doodler';
+import { RoomInterface } from './models/room';
 
-type EmitResponse<T> = (args: { data?: T | null; error?: Error }) => void;
+type EmitResponse<T> = { data?: T | null; error?: Error };
+
+type ClientToServerEventsArgument<T, K> = {
+  payload: T;
+  response: EmitResponse<K>;
+};
+
+export interface ClientToServerEventsArgumentMap {
+  [DoodlerEvents.EMIT_GET_DOODLER]: ClientToServerEventsArgument<
+    undefined,
+    Pick<DoodlerInterface, 'name'>
+  >;
+  [DoodlerEvents.EMIT_SET_DOODLER]: ClientToServerEventsArgument<
+    Pick<DoodlerInterface, 'name' | 'avatar'>,
+    DoodlerInterface
+  >;
+  [RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM]: ClientToServerEventsArgument<
+    DoodlerInterface,
+    { roomId: RoomInterface['id'] }
+  >;
+  [GameEvents.EMIT_GET_GAME_DETAILS]: ClientToServerEventsArgument<
+    string,
+    null
+  >;
+}
 
 export interface ServerToClientEvents {
   [RoomEvents.ON_DOODLER_JOIN]: (args: { doodler: DoodlerInterface }) => void;
@@ -15,23 +40,11 @@ export interface ServerToClientEvents {
 }
 
 export type ClientToServerEvents = {
-  [DoodlerEvents.EMIT_GET_DOODLER]: (
-    payload: undefined,
-    responseHandler: EmitResponse<Pick<DoodlerInterface, 'name'>>
-  ) => void;
-  [DoodlerEvents.EMIT_SET_DOODLER]: (
-    payload: Pick<DoodlerInterface, 'name' | 'avatar'>,
-    responseHandler: EmitResponse<DoodlerInterface>
-  ) => void;
-  [RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM]: (
-    payload: DoodlerInterface,
-    responseHandler: EmitResponse<{
-      roomId: string;
-    }>
-  ) => void;
-  [GameEvents.EMIT_GET_GAME_DETAILS]: (
-    payload: string,
-    responseHandler: EmitResponse<null>
+  [Key in keyof ClientToServerEventsArgumentMap]: (
+    payload: ClientToServerEventsArgumentMap[Key]['payload'],
+    responseHandler: (
+      response: ClientToServerEventsArgumentMap[Key]['response']
+    ) => void
   ) => void;
 };
 
