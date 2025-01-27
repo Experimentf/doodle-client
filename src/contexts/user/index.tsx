@@ -13,7 +13,7 @@ import { getRandomAvatarProps } from '@/utils/avatar';
 interface UserInterface {
   id: string;
   name: string;
-  avatarProps: AvatarProps;
+  avatar: AvatarProps;
 }
 
 interface UserContextInterface {
@@ -28,7 +28,7 @@ interface UserContextInterface {
 const defaultUser: UserInterface = {
   id: '',
   name: '',
-  avatarProps: getRandomAvatarProps(),
+  avatar: getRandomAvatarProps(),
 };
 
 const UserContext = createContext<UserContextInterface>({

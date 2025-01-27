@@ -16,16 +16,16 @@ import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
-interface UserFormProps extends HTMLAttributes<HTMLDivElement> {
+interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
 }
 
-const UserForm = ({ roomId, ...props }: UserFormProps) => {
+const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { isConnected } = useSocket();
   const [userInfo, setUserInfo] = useState({
     name: '',
-    avatarProps: {},
+    avatar: {},
   });
   const { openSnackbar } = useSnackbar();
 
@@ -43,7 +43,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   const handleSetUser = () => {
     if (!validate()) return;
     updateUser('name', userInfo.name);
-    updateUser('avatarProps', userInfo.avatarProps);
+    updateUser('avatar', userInfo.avatar);
     // TODO: TELL SERVER TO SET DOODLER INFO
   };
 
@@ -78,7 +78,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   };
 
   useEffect(() => {
-    setUserInfo({ name: user.name, avatarProps: user.avatarProps });
+    setUserInfo({ name: user.name, avatar: user.avatar });
   }, [user]);
 
   return (
@@ -90,7 +90,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
       >
         <div>
           <div className="relative">
-            <Avatar className="mb-8" avatarProps={userInfo.avatarProps} />
+            <Avatar className="mb-8" avatarProps={userInfo.avatar} />
             <IconButton
               variant="primary"
               color="warning"
@@ -132,4 +132,4 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
   );
 };
 
-export default UserForm;
+export default PlayForm;

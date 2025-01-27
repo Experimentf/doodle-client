@@ -1,6 +1,6 @@
 import Title from '@/components/Title';
 
-import UserForm from './components/UserForm';
+import PlayForm from './components/PlayForm';
 
 const Home = () => {
   const searchParams = new URLSearchParams(document.location.search);
@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-between">
       <Title className="mt-16" />
-      <UserForm roomId={roomIdFromLink} className="mb-40" />
+      <PlayForm roomId={roomIdFromLink} className="mb-40" />
     </div>
   );
 };
