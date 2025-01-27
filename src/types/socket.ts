@@ -2,7 +2,7 @@ import { Socket } from 'socket.io-client';
 
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 
-import { DoodlerInterface } from './game';
+import { DoodlerInterface } from './models/doodler';
 
 type EmitResponse<T> = (args: { data?: T | null; error?: Error }) => void;
 

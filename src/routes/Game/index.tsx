@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
-import CanvasProvider from '@/contexts/game/CanvasContext';
-import { GameContext } from '@/contexts/game/GameContext';
-import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { useSocket } from '@/contexts/socket/useSocket';
-import { GameStatus } from '@/types/game';
+import { useGame } from '@/contexts/game';
+import CanvasProvider from '@/contexts/game/canvas';
+import { useSnackbar } from '@/contexts/snackbar';
+import { useSocket } from '@/contexts/socket';
+import { GameStatus } from '@/types/models/game';
 
 import End from './components/CanvasMode/End';
 import InGame from './components/CanvasMode/InGame';
@@ -22,8 +22,8 @@ const GameLayout = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { registerEvent, emitEvent, isConnected } = useSocket();
-  const { open: openSnackbar } = useContext(SnackbarContext);
-  const { gameState, gameMethods } = useContext(GameContext);
+  const { openSnackbar } = useSnackbar();
+  const { game } = useGame();
 
   const returnToHomePage = () => navigate('/', { replace: true });
 
@@ -47,28 +47,30 @@ const GameLayout = () => {
 
   const handleEvents = () => {
     // When a new doodler joins the room
-    registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) =>
-      gameMethods.addDoodler(doodler)
-    );
+    registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
+      console.log(doodler);
+      // gameMethods.addDoodler(doodler)
+    });
 
     // When a doodler leaves the room
-    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) =>
-      gameMethods.removeDoodler(doodler)
-    );
+    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) => {
+      console.log(doodler);
+      // gameMethods.removeDoodler(doodler)
+    });
 
     // When a game starts
     registerEvent(GameEvents.ON_GAME_START, () => {
-      gameMethods.updateRoom('status', GameStatus.IN_GAME);
+      // gameMethods.updateRoom('status', GameStatus.IN_GAME);
     });
 
     // When a game ends
     registerEvent(GameEvents.ON_GAME_END, () => {
-      gameMethods.updateRoom('status', GameStatus.END);
+      // gameMethods.updateRoom('status', GameStatus.END);
     });
 
     // When a game comes to lobby
     registerEvent(GameEvents.ON_GAME_LOBBY, () => {
-      gameMethods.updateRoom('status', GameStatus.LOBBY);
+      // gameMethods.updateRoom('status', GameStatus.LOBBY);
     });
   };
 
@@ -100,9 +102,9 @@ const GameLayout = () => {
         <Doodlers />
         <div className="flex-grow">
           <CanvasProvider>
-            {gameState.room.status === GameStatus.IN_GAME && <InGame />}
-            {gameState.room.status === GameStatus.LOBBY && <Lobby />}
-            {gameState.room.status === GameStatus.END && <End />}
+            {game.status === GameStatus.GAME && <InGame />}
+            {game.status === GameStatus.LOBBY && <Lobby />}
+            {game.status === GameStatus.END && <End />}
           </CanvasProvider>
         </div>
         <HunchList />

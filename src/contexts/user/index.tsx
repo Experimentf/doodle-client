@@ -2,6 +2,7 @@ import { AvatarProps } from '@bigheads/core';
 import React, {
   createContext,
   PropsWithChildren,
+  useContext,
   useEffect,
   useState,
 } from 'react';
@@ -30,7 +31,7 @@ const defaultUser: UserInterface = {
   avatarProps: getRandomAvatarProps(),
 };
 
-export const UserContext = createContext<UserContextInterface>({
+const UserContext = createContext<UserContextInterface>({
   user: defaultUser,
   updateUser: () => {},
   resetUser: () => {},
@@ -59,5 +60,7 @@ const UserProvider = ({ children }: PropsWithChildren) => {
     </UserContext.Provider>
   );
 };
+
+export const useUser = () => useContext(UserContext);
 
 export default UserProvider;

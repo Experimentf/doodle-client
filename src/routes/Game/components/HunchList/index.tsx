@@ -1,25 +1,24 @@
 import {
   ChangeEventHandler,
   KeyboardEventHandler,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 
 import texts from '@/constants/texts';
-import { GameContext } from '@/contexts/game/GameContext';
-import { useUser } from '@/contexts/user/useUser';
-import { GameStatus } from '@/types/game';
+import { useGame } from '@/contexts/game';
+import { useUser } from '@/contexts/user';
+import { GameStatus } from '@/types/models/game';
+import { HunchInterface, HunchStatus } from '@/types/models/hunch';
 
 import Hunch from './Hunch';
-import { HunchInterface } from './types';
 
 const HunchList = () => {
   const { user } = useUser();
-  const { gameState } = useContext(GameContext);
+  const { game } = useGame();
   const listRef = useRef<HTMLUListElement>(null);
-  const isHunchDisabled = gameState.room.status !== GameStatus.IN_GAME;
+  const isHunchDisabled = game.status !== GameStatus.GAME;
   const [hunch, setHunch] = useState('');
   const [hunchList, setHunchList] = useState<HunchInterface[]>([]);
 
@@ -27,7 +26,7 @@ const HunchList = () => {
     if (e.key !== 'Enter' || !hunch) return;
     setHunchList((prev) => [
       ...prev,
-      { message: hunch, senderId: user.id, status: 'success' },
+      { message: hunch, senderId: user.id, status: HunchStatus.CLOSE },
     ]);
     setHunch('');
   };

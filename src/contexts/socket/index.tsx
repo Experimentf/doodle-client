@@ -3,41 +3,49 @@ import React, {
   PropsWithChildren,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import { io } from 'socket.io-client';
 
 import { SocketEvents } from '@/constants/Events';
-import { SocketType } from '@/types/socket';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  SocketType,
+} from '@/types/socket';
 
-import { SnackbarContext } from '../SnackbarContext';
-import { useUser } from '../user/useUser';
+import { useSnackbar } from '../snackbar';
+import { useUser } from '../user';
 
 const SERVER_URI =
   process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
 
-const socket = io(SERVER_URI, { autoConnect: false });
+const socket: SocketType = io(SERVER_URI, { autoConnect: false });
 
 interface SocketContextType {
-  socket: SocketType;
-  isSocketConnected: boolean;
+  isConnected: boolean;
+  registerEvent: <T extends keyof ServerToClientEvents>(
+    event: T,
+    listener: ServerToClientEvents[T]
+  ) => void;
+  emitEvent: <T extends keyof ClientToServerEvents>(
+    event: T,
+    ...args: Parameters<ClientToServerEvents[T]>
+  ) => void;
 }
 
-export const SocketContext = createContext<SocketContextType>({
-  socket,
-  isSocketConnected: false,
+const SocketContext = createContext<SocketContextType>({
+  isConnected: false,
+  registerEvent: () => {},
+  emitEvent: () => {},
 });
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
   const { updateUser, resetUser } = useUser();
 
-  const { open: openSnackbar, close: closeSnackbar } =
-    useContext(SnackbarContext);
+  const { openSnackbar, closeSnackbar } = useSnackbar();
 
   const handleConnect = () => {
     console.info('Connected to server!');
-    setIsSocketConnected(true);
     updateUser('id', socket.id ?? '');
     closeSnackbar();
   };
@@ -48,14 +56,27 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       color: 'error',
       isInfinite: true,
     });
-    setIsSocketConnected(false);
     resetUser();
   };
 
   const handleDisconnect = () => {
     console.error('Disconnected from server!');
-    setIsSocketConnected(false);
     resetUser();
+  };
+
+  const registerEvent = <T extends keyof ServerToClientEvents>(
+    event: T,
+    listener: ServerToClientEvents[T]
+  ) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on(event, listener as any);
+  };
+
+  const emitEvent = <T extends keyof ClientToServerEvents>(
+    event: T,
+    ...args: Parameters<ClientToServerEvents[T]>
+  ) => {
+    socket.emit(event, ...args);
   };
 
   useEffect(() => {
@@ -74,13 +95,16 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   return (
     <SocketContext.Provider
       value={{
-        socket,
-        isSocketConnected,
+        isConnected: socket.connected,
+        registerEvent,
+        emitEvent,
       }}
     >
       {children}
     </SocketContext.Provider>
   );
 };
+
+export const useSocket = () => useContext(SocketContext);
 
 export default SocketProvider;

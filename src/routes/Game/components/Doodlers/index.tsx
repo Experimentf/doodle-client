@@ -1,23 +1,21 @@
-import { useContext } from 'react';
-
 import Avatar from '@/components/Avatar';
 import texts from '@/constants/texts';
-import { GameContext } from '@/contexts/game/GameContext';
-import { useUser } from '@/contexts/user/useUser';
+import { useRoom } from '@/contexts/room';
+import { useUser } from '@/contexts/user';
 
 const Doodlers = () => {
   const { user } = useUser();
-  const { gameState } = useContext(GameContext);
+  const { room } = useRoom();
 
   return (
     <div className="max-w-[96]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
-          {texts.game.doodlers.sectionTitle} ({gameState.room.doodlers.length})
+          {texts.game.doodlers.sectionTitle} ({room.doodlers.length})
         </h1>
         <hr className="my-2 text-chalk-white" />
         <div className="mt-2">
-          {gameState.room.doodlers.map((doodler, index) => (
+          {room.doodlers.map((doodler, index) => (
             <div key={index} className="flex items-center gap-1">
               <h1>{index + 1}.</h1>
               <Avatar

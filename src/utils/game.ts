@@ -1,4 +1,4 @@
-import { DoodlerInterface } from '@/types/game';
+import { DoodlerInterface } from '@/types/models/doodler';
 
 export const getDoodlerById = (doodlers: DoodlerInterface[], id?: string) => {
   if (!id) return undefined;

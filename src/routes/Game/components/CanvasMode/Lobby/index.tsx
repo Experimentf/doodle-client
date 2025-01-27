@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import texts from '@/constants/texts';
-import { GameContext } from '@/contexts/game/GameContext';
+import { useRoom } from '@/contexts/room';
 
 const Lobby = () => {
-  const { gameState } = useContext(GameContext);
+  const { room } = useRoom();
 
   return (
     <>
-      {gameState.room.type === 'public' && (
+      {!room.isPrivate && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-chalk-yellow">
           <p>{texts.game.lobby.waiting}</p>
         </div>

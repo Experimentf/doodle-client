@@ -1,29 +1,28 @@
-import { HTMLAttributes, useContext } from 'react';
+import { HTMLAttributes } from 'react';
 import { FaUserSecret } from 'react-icons/fa6';
 
 import Avatar from '@/components/Avatar';
 import Text from '@/components/Text';
-import { GameContext } from '@/contexts/game/GameContext';
+import { useRoom } from '@/contexts/room';
+import { HunchInterface, HunchStatus } from '@/types/models/hunch';
 import { ColorType } from '@/types/styles';
 import { getDoodlerById } from '@/utils/game';
-
-import { HunchInterface } from '../types';
 
 interface HunchProps extends HTMLAttributes<HTMLLIElement> {
   hunch: HunchInterface;
 }
 
 const Hunch = ({ hunch, ...props }: HunchProps) => {
-  const { gameState } = useContext(GameContext);
-  const doodler = getDoodlerById(gameState.room.doodlers, hunch.senderId);
+  const { room } = useRoom();
+  const doodler = getDoodlerById(room.doodlers, hunch.senderId);
 
   const convertHunchStatusToColor = (
     status: HunchInterface['status']
   ): ColorType => {
     switch (status) {
-      case 'success':
+      case HunchStatus.CORRECT:
         return 'success';
-      case 'close':
+      case HunchStatus.CLOSE:
         return 'warning';
       default:
         return 'primary';

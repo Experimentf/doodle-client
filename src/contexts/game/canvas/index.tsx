@@ -1,6 +1,7 @@
 import React, {
   createContext,
   PropsWithChildren,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -13,7 +14,7 @@ interface CanvasContextInterface {
   canvasContext: CanvasRenderingContext2D | null;
 }
 
-export const CanvasContext = createContext<CanvasContextInterface>({
+const CanvasContext = createContext<CanvasContextInterface>({
   canvasContext: null,
 });
 
@@ -40,5 +41,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     </CanvasContext.Provider>
   );
 };
+
+export const useCanvas = () => useContext(CanvasContext);
 
 export default CanvasProvider;

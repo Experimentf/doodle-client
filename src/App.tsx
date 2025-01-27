@@ -4,10 +4,11 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import ErrorBoundary from './components/Error/ErrorBoundary';
 import texts from './constants/texts';
-import GameProvider from './contexts/game/GameContext';
-import SnackbarProvider from './contexts/SnackbarContext';
-import SocketProvider from './contexts/socket/SocketContext';
-import UserProvider from './contexts/user/UserContext';
+import GameProvider from './contexts/game';
+import RoomProvider from './contexts/room';
+import SnackbarProvider from './contexts/snackbar';
+import SocketProvider from './contexts/socket';
+import UserProvider from './contexts/user';
 import Game from './routes/Game';
 import Home from './routes/Home';
 
@@ -20,9 +21,11 @@ function App() {
     {
       path: ':roomId',
       element: (
-        <GameProvider>
-          <Game />
-        </GameProvider>
+        <RoomProvider>
+          <GameProvider>
+            <Game />
+          </GameProvider>
+        </RoomProvider>
       ),
     },
   ]);

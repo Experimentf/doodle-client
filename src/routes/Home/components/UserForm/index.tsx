@@ -2,7 +2,6 @@ import {
   ChangeEvent,
   FormEventHandler,
   HTMLAttributes,
-  useContext,
   useEffect,
   useState,
 } from 'react';
@@ -12,9 +11,9 @@ import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
 import texts from '@/constants/texts';
-import { SnackbarContext } from '@/contexts/SnackbarContext';
-import { useSocket } from '@/contexts/socket/useSocket';
-import { useUser } from '@/contexts/user/useUser';
+import { useSnackbar } from '@/contexts/snackbar';
+import { useSocket } from '@/contexts/socket';
+import { useUser } from '@/contexts/user';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
 interface UserFormProps extends HTMLAttributes<HTMLDivElement> {
@@ -28,7 +27,7 @@ const UserForm = ({ roomId, ...props }: UserFormProps) => {
     name: '',
     avatarProps: {},
   });
-  const { open: openSnackbar } = useContext(SnackbarContext);
+  const { openSnackbar } = useSnackbar();
 
   const validate = () => {
     if (!userInfo.name) {

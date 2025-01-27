@@ -2,6 +2,7 @@
 import {
   createContext,
   PropsWithChildren,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -20,9 +21,9 @@ type OpenSnackbarAttributes = {
   isInfinite?: boolean;
 };
 
-export const SnackbarContext = createContext({
-  open: (_: OpenSnackbarAttributes) => {},
-  close: () => {},
+const SnackbarContext = createContext({
+  openSnackbar: (_: OpenSnackbarAttributes) => {},
+  closeSnackbar: () => {},
 });
 
 const SnackbarProvider = ({ children }: PropsWithChildren) => {
@@ -63,7 +64,9 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
   }, [isOpen, isInfinite, duration, timestamp, mount]);
 
   return (
-    <SnackbarContext.Provider value={{ open, close }}>
+    <SnackbarContext.Provider
+      value={{ openSnackbar: open, closeSnackbar: close }}
+    >
       {children}
       <Snackbar
         message={message}
@@ -77,5 +80,7 @@ const SnackbarProvider = ({ children }: PropsWithChildren) => {
     </SnackbarContext.Provider>
   );
 };
+
+export const useSnackbar = () => useContext(SnackbarContext);
 
 export default SnackbarProvider;
