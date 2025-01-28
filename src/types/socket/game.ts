@@ -4,7 +4,7 @@ import { GameInterface } from '../models/game';
 import { ClientToServerEventsArgument } from './helper';
 
 export interface GameClientToServerEventsArgumentMap {
-  [GameEvents.EMIT_GET_GAME_DETAILS]: ClientToServerEventsArgument<
+  [GameEvents.EMIT_GET_GAME]: ClientToServerEventsArgument<
     string,
     GameInterface
   >;

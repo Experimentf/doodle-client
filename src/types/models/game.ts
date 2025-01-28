@@ -18,6 +18,7 @@ export interface GameOptions {
 }
 
 export interface GameInterface {
+  id: string;
   status: GameStatus;
   options: GameOptions;
 }

@@ -57,8 +57,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM,
       user
     );
-    if (!data) openSnackbar({ color: 'error' });
-    else navigate(`/${data.roomId}`, { replace: true });
+    navigate(`/${data.roomId}`, { replace: true });
   };
 
   // Join a Private Room
@@ -67,8 +66,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
       user
     );
-    if (!data) openSnackbar({ color: 'error' });
-    else navigate(`/${data.roomId}`, { replace: true });
+    navigate(`/${data.roomId}`, { replace: true });
   };
 
   const handlePlay: FormEventHandler = async (e) => {
@@ -86,8 +84,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
       undefined
     );
-    if (!data) openSnackbar({ color: 'error' });
-    else navigate(`/${data.roomId}`, { replace: true });
+    navigate(`/${data.roomId}`, { replace: true });
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {

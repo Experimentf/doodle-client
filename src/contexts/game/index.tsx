@@ -15,6 +15,7 @@ interface GameContextInterface {
 }
 
 const defaultGame: GameInterface = {
+  id: '',
   status: GameStatus.LOBBY,
   options: {
     round: { current: 0, max: 0 },

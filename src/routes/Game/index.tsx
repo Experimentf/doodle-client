@@ -6,8 +6,10 @@ import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import { useGame } from '@/contexts/game';
 import CanvasProvider from '@/contexts/game/canvas';
+import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
+import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 
 import End from './components/CanvasMode/End';
@@ -21,9 +23,11 @@ const GameLayout = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { registerEvent, emitEvent, isConnected } = useSocket();
+  const { user } = useUser();
+  const { registerEvent, emitEventAsync, isConnected } = useSocket();
   const { openSnackbar } = useSnackbar();
-  const { game } = useGame();
+  const { game, setGame } = useGame();
+  const { room, setRoom } = useRoom();
 
   const returnToHomePage = () => navigate('/', { replace: true });
 
@@ -74,22 +78,53 @@ const GameLayout = () => {
     });
   };
 
+  const handleValidate = async () => {
+    const data = await emitEventAsync(
+      DoodlerEvents.EMIT_GET_DOODLER,
+      undefined
+    );
+    if (data.id !== user.id) {
+      openSnackbar({ color: 'error' });
+      returnToHomePage();
+      return;
+    }
+    getGameDetails();
+    handleEvents();
+  };
+
+  const handleGetRoom = async () => {
+    const data = await emitEventAsync(RoomEvents.EMIT_GET_ROOM, undefined);
+    if (data.id !== roomId) {
+      openSnackbar({ color: 'error' });
+      returnToHomePage();
+      return;
+    }
+    setRoom(data);
+  };
+
+  const handleGetGame = async () => {
+    if (!room.gameId) return;
+    const data = await emitEventAsync(GameEvents.EMIT_GET_GAME, room.gameId);
+    setGame(data);
+  };
+
+  const handleSetup = async () => {
+    handleValidate();
+    handleGetRoom();
+    handleGetGame();
+  };
+
   useEffect(() => {
     if (!isConnected) {
       returnToHomePage();
       return;
     }
     setLoading(true);
-    emitEvent(DoodlerEvents.EMIT_GET_DOODLER, undefined, ({ data, error }) => {
-      if (error || !data) {
-        openSnackbar({ message: error?.message, color: 'error' });
-        returnToHomePage();
-        return;
-      }
-      getGameDetails();
-      handleEvents();
-      setLoading(false);
-    });
+    handleSetup()
+      .catch(() => openSnackbar({ color: 'error' }))
+      .finally(() => {
+        setLoading(false);
+      });
   }, [roomId, isConnected]);
 
   if (loading) return <Loading />;

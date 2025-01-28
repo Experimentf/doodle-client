@@ -7,7 +7,7 @@ interface ErrorBoundaryProps extends PropsWithChildren {
 }
 
 interface ErrorBoundaryState {
-  error: ErrorFromServer | null;
+  error: ErrorFromServer | Error | null;
 }
 
 export class ErrorBoundary extends Component<
@@ -18,7 +18,7 @@ export class ErrorBoundary extends Component<
     error: null,
   };
 
-  static getDerivedStateFromError(error: ErrorFromServer) {
+  static getDerivedStateFromError(error: ErrorBoundaryState['error']) {
     return { error };
   }
 
