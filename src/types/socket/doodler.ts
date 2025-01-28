@@ -10,7 +10,7 @@ export interface DoodlerClientToServerEventsArgumentMap {
   >;
   [DoodlerEvents.EMIT_SET_DOODLER]: ClientToServerEventsArgument<
     Pick<DoodlerInterface, 'name' | 'avatar'>,
-    DoodlerInterface
+    Pick<DoodlerInterface, 'id'>
   >;
 }
 
