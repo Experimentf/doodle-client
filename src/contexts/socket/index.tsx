@@ -95,9 +95,15 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         payload,
         (response) => {
           const { data, error } = response;
-          if (error || data === undefined)
+          if (error || data === undefined) {
+            if (process.env.NODE_ENV === 'development') {
+              console.groupCollapsed('EMIT ERROR');
+              console.log(event);
+              console.log(error?.message);
+              console.groupEnd();
+            }
             reject(error ?? new ErrorFromServer());
-          else resolve(data);
+          } else resolve(data);
         },
       ] as Parameters<ClientToServerEvents[T]>;
       socket.emit(event, ...args);
