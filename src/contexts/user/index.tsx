@@ -43,11 +43,6 @@ const UserProvider = ({ children }: PropsWithChildren) => {
 
   const resetUser = () => setUser(defaultUser);
 
-  useEffect(() => {
-    const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
-    if (storedName) setUser((prev) => ({ ...prev, name: storedName }));
-  }, []);
-
   return (
     <UserContext.Provider value={{ user, updateUser, resetUser }}>
       {children}

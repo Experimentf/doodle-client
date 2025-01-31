@@ -97,9 +97,9 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
           const { data, error } = response;
           if (error || data === undefined) {
             if (process.env.NODE_ENV === 'development') {
-              console.groupCollapsed('EMIT ERROR');
-              console.log(event);
-              console.log(error?.message);
+              console.groupCollapsed('EMIT INFO :', event);
+              console.error(error);
+              console.dir(data);
               console.groupEnd();
             }
             reject(error ?? new ErrorFromServer());

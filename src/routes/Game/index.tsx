@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
@@ -21,7 +21,7 @@ import HunchList from './components/HunchList';
 
 const GameLayout = () => {
   const { roomId } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { registerEvent, emitEventAsync, isConnected } = useSocket();
@@ -29,7 +29,9 @@ const GameLayout = () => {
   const { game, setGame } = useGame();
   const { room, setRoom } = useRoom();
 
-  const returnToHomePage = () => navigate('/', { replace: true });
+  const returnToHomePage = () => {
+    // navigate('/', { replace: true });
+  };
 
   const getGameDetails = () => {
     if (!roomId) return;
@@ -109,9 +111,9 @@ const GameLayout = () => {
   };
 
   const handleSetup = async () => {
-    handleValidate();
-    handleGetRoom();
-    handleGetGame();
+    await handleValidate();
+    await handleGetRoom();
+    await handleGetGame();
   };
 
   useEffect(() => {

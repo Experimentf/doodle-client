@@ -12,6 +12,7 @@ import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
 import { DoodlerEvents, RoomEvents } from '@/constants/Events';
+import { LocalStorageKeys } from '@/constants/LocalStorage';
 import texts from '@/constants/texts';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
@@ -27,10 +28,13 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { isConnected, emitEventAsync } = useSocket();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
-    name: '',
-    avatar: {},
+    name: user.name,
+    avatar: user.avatar,
   });
   const { openSnackbar } = useSnackbar();
+
+  console.log(user);
+  console.log(userInfo);
 
   const validate = () => {
     if (!userInfo.name) {
@@ -57,7 +61,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM,
       user
     );
-    navigate(`/${data.roomId}`, { replace: true });
+    navigate(`/${data.roomId}`);
   };
 
   // Join a Private Room
@@ -66,7 +70,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
       user
     );
-    navigate(`/${data.roomId}`, { replace: true });
+    navigate(`/${data.roomId}`);
   };
 
   const handlePlay: FormEventHandler = async (e) => {
@@ -84,7 +88,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
       undefined
     );
-    navigate(`/${data.roomId}`, { replace: true });
+    navigate(`/${data.roomId}`);
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -96,8 +100,9 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   };
 
   useEffect(() => {
-    setUserInfo({ name: user.name, avatar: user.avatar });
-  }, [user]);
+    const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
+    if (storedName) updateUser('name', storedName);
+  }, []);
 
   return (
     <div {...props}>
@@ -124,6 +129,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
             type="text"
             placeholder={texts.home.form.input.name.placeholder}
             className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
+            defaultValue={user.name}
             value={userInfo.name}
             required
             onChange={handleNameChange}
