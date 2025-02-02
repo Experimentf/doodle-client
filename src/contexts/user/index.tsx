@@ -2,11 +2,9 @@ import React, {
   createContext,
   PropsWithChildren,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 
-import { LocalStorageKeys } from '@/constants/LocalStorage';
 import { DoodlerInterface } from '@/types/models/doodler';
 import { getRandomAvatarProps } from '@/utils/avatar';
 
@@ -35,9 +33,6 @@ const UserProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<DoodlerInterface>(defaultUser);
 
   const updateUser: UserContextInterface['updateUser'] = (key, value) => {
-    if (key === 'name') {
-      localStorage.setItem(LocalStorageKeys.USER_NAME, value as string);
-    }
     setUser((prev) => ({ ...prev, [key]: value }));
   };
 

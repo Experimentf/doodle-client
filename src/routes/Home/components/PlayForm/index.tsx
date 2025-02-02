@@ -101,7 +101,9 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
 
   useEffect(() => {
     const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
-    if (storedName) updateUser('name', storedName);
+    if (storedName) {
+      setUserInfo((prev) => ({ ...prev, name: storedName }));
+    }
   }, []);
 
   return (
