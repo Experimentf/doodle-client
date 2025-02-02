@@ -102,13 +102,13 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
               console.dir(data);
               console.groupEnd();
             }
-            reject(error ?? new ErrorFromServer());
+            reject(new ErrorFromServer(error?.message));
           } else resolve(data);
         },
       ] as Parameters<ClientToServerEvents[T]>;
       socket.emit(event, ...args);
     }) as Promise<ClientToServerEventsArgumentMap[T]['response']['data']>);
-    if (!data) throw new Error('Something went wrong!');
+    if (!data) throw new ErrorFromServer('Something went wrong!');
     return data;
   };
 

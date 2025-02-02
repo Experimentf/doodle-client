@@ -18,6 +18,7 @@ import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { getRandomAvatarProps } from '@/utils/avatar';
+import { ErrorFromServer } from '@/utils/error';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
@@ -71,21 +72,33 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   };
 
   const handlePlay: FormEventHandler = async (e) => {
-    e.preventDefault();
-    const isSetUser = await handleSetUser();
-    if (!isSetUser) return;
-    if (roomId) handleJoinPrivateRoom();
-    else handleJoinPublicRoom();
+    try {
+      e.preventDefault();
+      const isSetUser = await handleSetUser();
+      if (!isSetUser) return;
+      if (roomId) handleJoinPrivateRoom();
+      else handleJoinPublicRoom();
+    } catch (e) {
+      if (e instanceof ErrorFromServer) {
+        openSnackbar({ message: e.message, color: 'error' });
+      }
+    }
   };
 
   const handleCreatePrivateRoom = async () => {
-    const isSetUser = await handleSetUser();
-    if (!isSetUser) return;
-    const data = await emitEventAsync(
-      RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
-      undefined
-    );
-    navigate(`/${data.roomId}`);
+    try {
+      const isSetUser = await handleSetUser();
+      if (!isSetUser) return;
+      const data = await emitEventAsync(
+        RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
+        undefined
+      );
+      navigate(`/${data.roomId}`);
+    } catch (e) {
+      if (e instanceof ErrorFromServer) {
+        openSnackbar({ message: e.message, color: 'error' });
+      }
+    }
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {

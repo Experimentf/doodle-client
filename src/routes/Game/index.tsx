@@ -11,6 +11,7 @@ import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
+import { ErrorFromServer } from '@/utils/error';
 
 import End from './components/CanvasMode/End';
 import InGame from './components/CanvasMode/InGame';
@@ -123,7 +124,15 @@ const GameLayout = () => {
     }
     setLoading(true);
     handleSetup()
-      .catch(() => openSnackbar({ color: 'error' }))
+      .catch((e) => {
+        if (e instanceof ErrorFromServer) {
+          openSnackbar({
+            message: e.message,
+            color: 'error',
+            isInfinite: true,
+          });
+        }
+      })
       .finally(() => {
         setLoading(false);
       });
