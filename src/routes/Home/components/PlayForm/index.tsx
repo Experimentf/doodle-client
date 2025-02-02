@@ -128,7 +128,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
             type="text"
             placeholder={texts.home.form.input.name.placeholder}
             className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
-            defaultValue={user.name}
             value={userInfo.name}
             required
             onChange={handleNameChange}
