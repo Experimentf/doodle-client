@@ -33,9 +33,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   });
   const { openSnackbar } = useSnackbar();
 
-  console.log(user);
-  console.log(userInfo);
-
   const validate = () => {
     if (!userInfo.name) {
       openSnackbar({
