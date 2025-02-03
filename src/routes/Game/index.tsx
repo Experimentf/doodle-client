@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
@@ -22,7 +22,7 @@ import HunchList from './components/HunchList';
 
 const GameLayout = () => {
   const { roomId } = useParams();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { registerEvent, emitEventAsync, isConnected } = useSocket();
@@ -31,7 +31,7 @@ const GameLayout = () => {
   const { room, setRoom } = useRoom();
 
   const returnToHomePage = () => {
-    // navigate('/', { replace: true });
+    navigate('/', { replace: true });
   };
 
   const getGameDetails = () => {
@@ -132,6 +132,7 @@ const GameLayout = () => {
             isInfinite: true,
           });
         }
+        returnToHomePage();
       })
       .finally(() => {
         setLoading(false);
