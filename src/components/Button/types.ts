@@ -10,5 +10,6 @@ export interface ButtonProps
 
 export interface IconButtonProps extends ButtonProps {
   icon: ReactNode;
+  tooltip?: string;
   anchor?: 'front' | 'back';
 }

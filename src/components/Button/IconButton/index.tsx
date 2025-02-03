@@ -1,3 +1,6 @@
+import { Fragment } from 'react';
+
+import Tooltip from '@/components/Tooltip';
 import { getVariantClass } from '@/utils/variants';
 
 import { IconButtonProps } from '../types';
@@ -9,22 +12,27 @@ const IconButton = ({
   anchor = 'front',
   className,
   children,
+  tooltip,
   icon,
   ...props
 }: IconButtonProps) => {
   const variantClass = getVariantClass(variant, color, IconButtonClassSource);
 
+  const Wrapper = tooltip ? Tooltip : Fragment;
+
   return (
-    <button
-      className={`${className} rounded-full transition-all hover:scale-125 ${variantClass}`}
-      {...props}
-    >
-      <>
-        {anchor === 'front' && icon}
-        {children}
-        {anchor === 'back' && icon}
-      </>
-    </button>
+    <Wrapper label={tooltip ?? ''}>
+      <button
+        className={`${className} rounded-full transition-all hover:scale-125 ${variantClass}`}
+        {...props}
+      >
+        <>
+          {anchor === 'front' && icon}
+          {children}
+          {anchor === 'back' && icon}
+        </>
+      </button>
+    </Wrapper>
   );
 };
 
