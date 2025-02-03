@@ -72,27 +72,29 @@ const GameLayout = () => {
       undefined
     );
     if (data.id !== user.id) {
-      openSnackbar({ color: 'error' });
-      returnToHomePage();
-      return;
+      throw new Error('Verification failed!');
     }
     handleEventsRegistration();
   };
 
   const handleGetRoom = async () => {
-    const data = await emitEventAsync(RoomEvents.EMIT_GET_ROOM, undefined);
-    if (data.id !== roomId) {
-      openSnackbar({ color: 'error' });
-      returnToHomePage();
-      return;
+    if (!roomId) {
+      throw new Error('Invalid Room ID!');
     }
-    setRoom(data);
+    const { room } = await emitEventAsync(RoomEvents.EMIT_GET_ROOM, roomId);
+    if (room.id !== roomId) {
+      throw new Error('Invalid Room ID!');
+    }
+    setRoom(room);
   };
 
   const handleGetGame = async () => {
     if (!room.gameId) return;
-    const data = await emitEventAsync(GameEvents.EMIT_GET_GAME, room.gameId);
-    setGame(data.game);
+    const { game } = await emitEventAsync(
+      GameEvents.EMIT_GET_GAME,
+      room.gameId
+    );
+    setGame(game);
   };
 
   const handleSetup = async () => {

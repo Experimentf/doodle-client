@@ -18,8 +18,8 @@ export interface RoomClientToServerEventsArgumentMap {
     { roomId: RoomInterface['id'] }
   >;
   [RoomEvents.EMIT_GET_ROOM]: ClientToServerEventsArgument<
-    undefined,
-    RoomInterface
+    string,
+    { room: RoomInterface }
   >;
 }
 

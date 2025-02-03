@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { HTMLAttributes, PropsWithChildren } from 'react';
 
 import useScreenSize from '@/hooks/useScreenSize';
 
@@ -11,10 +11,21 @@ interface LoadingProps {
 const LoadingParent = ({
   fullScreen,
   children,
-}: LoadingProps & PropsWithChildren) => {
+  ...rest
+}: LoadingProps &
+  PropsWithChildren &
+  Omit<HTMLAttributes<HTMLElement>, 'className'>) => {
   if (fullScreen)
-    return <div className="w-screen h-screen bg-board-green">{children}</div>;
-  return <div className="w-full h-full">{children}</div>;
+    return (
+      <div className="w-screen h-screen bg-board-green" {...rest}>
+        {children}
+      </div>
+    );
+  return (
+    <div className="w-full h-full" {...rest}>
+      {children}
+    </div>
+  );
 };
 
 const LoadingChild = ({ fullScreen }: LoadingProps) => {
@@ -46,9 +57,12 @@ const LoadingChild = ({ fullScreen }: LoadingProps) => {
   );
 };
 
-const Loading = ({ fullScreen = false }: LoadingProps) => {
+const Loading = ({
+  fullScreen = false,
+  ...rest
+}: LoadingProps & Omit<HTMLAttributes<HTMLElement>, 'className'>) => {
   return (
-    <LoadingParent fullScreen={fullScreen}>
+    <LoadingParent fullScreen={fullScreen} {...rest}>
       <LoadingChild fullScreen={fullScreen} />
     </LoadingParent>
   );
