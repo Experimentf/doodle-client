@@ -30,10 +30,6 @@ interface SocketContextType {
     event: T,
     listener: ServerToClientEvents[T]
   ) => void;
-  emitEvent: <T extends keyof ClientToServerEvents>(
-    event: T,
-    ...args: Parameters<ClientToServerEvents[T]>
-  ) => void;
   emitEventAsync: <T extends keyof ClientToServerEvents>(
     event: T,
     payload: ClientToServerEventsArgumentMap[T]['payload']
@@ -45,7 +41,6 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType>({
   isConnected: false,
   registerEvent: () => {},
-  emitEvent: () => {},
   emitEventAsync: () =>
     Promise.reject(new Error('Emitter not initialized yet!')),
 });
@@ -81,10 +76,6 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   ) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.on(event, listener as any);
-  };
-
-  const emitEvent: SocketContextType['emitEvent'] = (event, ...args) => {
-    socket.emit(event, ...args);
   };
 
   const emitEventAsync = async <T extends keyof ClientToServerEvents>(
@@ -126,7 +117,6 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       value={{
         isConnected: socket.connected,
         registerEvent,
-        emitEvent,
         emitEventAsync,
       }}
     >
