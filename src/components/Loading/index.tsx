@@ -1,7 +1,5 @@
 import { HTMLAttributes, PropsWithChildren } from 'react';
 
-import useScreenSize from '@/hooks/useScreenSize';
-
 import Text from '../Text';
 
 interface LoadingProps {
@@ -29,15 +27,11 @@ const LoadingParent = ({
 };
 
 const LoadingChild = ({ fullScreen }: LoadingProps) => {
-  const isDesktop = useScreenSize('desktop');
-
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       {fullScreen && <Text className="mb-4">Loading...</Text>}
       <svg
-        className={`${
-          fullScreen ? (!isDesktop ? 'w-1/5' : 'w-36') : 'w-8'
-        } aspect-square`}
+        className={`${fullScreen ? 'w-1/5 lg:w-36' : 'w-8'} aspect-square`}
         viewBox="0 0 100 100"
       >
         <circle
