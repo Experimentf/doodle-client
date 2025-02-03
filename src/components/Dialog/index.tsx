@@ -17,7 +17,7 @@ const Dialog = ({ visible, onClose, title, footer, children }: DialogProps) => {
       className="z-40 w-screen h-screen fixed top-0 left-0 bg-[rgba(0,0,0,0.5)] flex justify-center items-center"
       onClick={onClose}
     >
-      <div
+      <dialog
         className="w-full md:w-[600px] m-10 p-5 bg-light-board-green rounded flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}
       >
@@ -34,7 +34,7 @@ const Dialog = ({ visible, onClose, title, footer, children }: DialogProps) => {
             {footer}
           </div>
         )}
-      </div>
+      </dialog>
     </div>
   );
 };

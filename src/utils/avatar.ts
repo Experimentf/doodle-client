@@ -12,6 +12,29 @@ import {
   theme,
 } from '@bigheads/core';
 
+export const avatarPropToOptionsMap = {
+  accessory: Object.keys(accessoryMap),
+  body: Object.keys(bodyMap),
+  clothing: Object.keys(clothingMap),
+  eyebrows: Object.keys(eyebrowsMap),
+  eyes: Object.keys(eyesMap),
+  facialHair: Object.keys(facialHairMap),
+  graphic: ['none'],
+  hair: Object.keys(hairMap),
+  hat: Object.keys(hatMap),
+  mouth: Object.keys(mouthsMap),
+  skinTone: Object.keys(theme.colors.skin),
+  hairColor: Object.keys(theme.colors.hair),
+  clothingColor: Object.keys(theme.colors.clothing),
+  circleColor: Object.keys(theme.colors.bgColors),
+  lipColor: Object.keys(theme.colors.lipColors),
+  hatColor: Object.keys(theme.colors.clothing),
+  faceMaskColor: Object.keys(theme.colors.clothing),
+  faceMask: [true, false],
+  mask: [true, false],
+  lashes: [true, false],
+};
+
 const getRandomProp = <T extends object>(prop: T) => {
   const keys = Object.keys(prop) as Array<keyof T>;
   return keys[Math.round(Math.random() * (keys.length - 1))];
