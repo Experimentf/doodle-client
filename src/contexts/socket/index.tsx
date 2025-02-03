@@ -7,6 +7,7 @@ import React, {
 import { io } from 'socket.io-client';
 
 import { SocketEvents } from '@/constants/Events';
+import useLogger from '@/hooks/useLogger';
 import {
   ClientToServerEvents,
   ClientToServerEventsArgumentMap,
@@ -51,8 +52,8 @@ const SocketContext = createContext<SocketContextType>({
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
   const { updateUser, resetUser } = useUser();
-
   const { openSnackbar, closeSnackbar } = useSnackbar();
+  const { logEmit } = useLogger();
 
   const handleConnect = () => {
     console.info('Connected to server!');
@@ -95,13 +96,8 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         payload,
         (response) => {
           const { data, error } = response;
+          if (process.env.NODE_ENV === 'development') logEmit(event, response);
           if (error || data === undefined) {
-            if (process.env.NODE_ENV === 'development') {
-              console.groupCollapsed('EMIT INFO :', event);
-              console.error(error);
-              console.dir(data);
-              console.groupEnd();
-            }
             reject(new ErrorFromServer(error?.message));
           } else resolve(data);
         },
