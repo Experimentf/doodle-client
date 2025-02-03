@@ -28,7 +28,9 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { isConnected, emitEventAsync } = useSocket();
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState({
+  const [userInfo, setUserInfo] = useState<
+    Pick<typeof user, 'name' | 'avatar'>
+  >({
     name: user.name,
     avatar: user.avatar,
   });
@@ -106,14 +108,12 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   };
 
   const handleRandomizeAvatar = () => {
-    setUserInfo((prev) => ({ ...prev, avatarProps: getRandomAvatarProps() }));
+    setUserInfo((prev) => ({ ...prev, avatar: getRandomAvatarProps() }));
   };
 
   useEffect(() => {
     const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
-    if (storedName) {
-      setUserInfo((prev) => ({ ...prev, name: storedName }));
-    }
+    if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
   }, []);
 
   return (
