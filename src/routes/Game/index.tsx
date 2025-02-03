@@ -139,7 +139,7 @@ const GameLayout = () => {
       });
   }, [roomId, isConnected]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading fullScreen />;
 
   return (
     <div className="p-4 h-screen flex flex-col gap-4">

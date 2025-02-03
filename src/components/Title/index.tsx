@@ -2,6 +2,8 @@ import React from 'react';
 
 import texts from '@/constants/texts';
 
+import Text from '../Text';
+
 interface TitleProps extends React.HTMLAttributes<HTMLDivElement> {
   small?: boolean;
 }
@@ -19,7 +21,7 @@ const Title = ({ small, className, ...props }: TitleProps) => {
 
   return (
     <div className={`${className} ${sizeClass} font-sketch-chalk`} {...props}>
-      <h1 className={sizeClass}>
+      <Text component={'h1'} className={sizeClass}>
         {title.split('').map((ch, index) => (
           <span
             key={index}
@@ -29,7 +31,7 @@ const Title = ({ small, className, ...props }: TitleProps) => {
             {ch}
           </span>
         ))}
-      </h1>
+      </Text>
     </div>
   );
 };

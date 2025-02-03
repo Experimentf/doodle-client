@@ -46,7 +46,7 @@ const Snackbar = ({
 
   return (
     <div
-      className={`fixed left-0 bottom-0 m-5 max-w-full transition-all rounded-lg overflow-hidden ${variantClass} ${
+      className={`fixed left-0 bottom-0 m-5 z-50 max-w-full transition-all rounded-lg overflow-hidden ${variantClass} ${
         open
           ? 'visible opacity-100 translate-y-0 pointer-events-auto'
           : 'invisible opacity-0 translate-y-full pointer-events-none'
