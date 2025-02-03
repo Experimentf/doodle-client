@@ -6,7 +6,7 @@ import { ClientToServerEventsArgument } from './helper';
 export interface GameClientToServerEventsArgumentMap {
   [GameEvents.EMIT_GET_GAME]: ClientToServerEventsArgument<
     string,
-    GameInterface
+    { game: GameInterface }
   >;
 }
 

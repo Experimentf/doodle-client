@@ -21,38 +21,23 @@ import Doodlers from './components/DoodlerList';
 import HunchList from './components/HunchList';
 
 const GameLayout = () => {
-  const { roomId } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { roomId } = useParams();
+
   const { user } = useUser();
   const { registerEvent, emitEventAsync, isConnected } = useSocket();
-  const { openSnackbar } = useSnackbar();
   const { game, setGame } = useGame();
   const { room, setRoom } = useRoom();
+
+  const { openSnackbar } = useSnackbar();
+
+  const [loading, setLoading] = useState(true);
 
   const returnToHomePage = () => {
     navigate('/', { replace: true });
   };
 
-  const getGameDetails = () => {
-    if (!roomId) return;
-    // emitEvent(
-    //   GameEvents.EMIT_GET_GAME_DETAILS,
-    //   roomId,
-    //   (data: Room, error: Error) => {
-    //     if (error) {
-    //       openSnackbar({ message: error.message, color: 'error' });
-    //       returnToHomePage();
-    //       return;
-    //     }
-    //     Object.keys(data).forEach((key) =>
-    //       gameMethods.updateRoom(key as keyof Room, data[key as keyof Room])
-    //     );
-    //   }
-    // );
-  };
-
-  const handleEvents = () => {
+  const handleEventsRegistration = () => {
     // When a new doodler joins the room
     registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
       console.log(doodler);
@@ -81,7 +66,7 @@ const GameLayout = () => {
     });
   };
 
-  const handleValidate = async () => {
+  const handleValidateUser = async () => {
     const data = await emitEventAsync(
       DoodlerEvents.EMIT_GET_DOODLER,
       undefined
@@ -91,8 +76,7 @@ const GameLayout = () => {
       returnToHomePage();
       return;
     }
-    getGameDetails();
-    handleEvents();
+    handleEventsRegistration();
   };
 
   const handleGetRoom = async () => {
@@ -108,13 +92,26 @@ const GameLayout = () => {
   const handleGetGame = async () => {
     if (!room.gameId) return;
     const data = await emitEventAsync(GameEvents.EMIT_GET_GAME, room.gameId);
-    setGame(data);
+    setGame(data.game);
   };
 
   const handleSetup = async () => {
-    await handleValidate();
-    await handleGetRoom();
-    await handleGetGame();
+    try {
+      await handleValidateUser();
+      await handleGetRoom();
+      await handleGetGame();
+    } catch (e) {
+      if (e instanceof ErrorFromServer || e instanceof Error) {
+        openSnackbar({
+          message: e.message,
+          color: 'error',
+          isInfinite: true,
+        });
+      }
+      returnToHomePage();
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -122,21 +119,7 @@ const GameLayout = () => {
       returnToHomePage();
       return;
     }
-    setLoading(true);
-    handleSetup()
-      .catch((e) => {
-        if (e instanceof ErrorFromServer) {
-          openSnackbar({
-            message: e.message,
-            color: 'error',
-            isInfinite: true,
-          });
-        }
-        returnToHomePage();
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    handleSetup();
   }, [roomId, isConnected]);
 
   if (loading) return <Loading fullScreen />;
