@@ -1,23 +1,29 @@
 import { getVariantClass } from '@/utils/variants';
 
-import { ButtonType } from '../types';
+import { IconButtonProps } from '../types';
 import { IconButtonClassSource } from './utils';
 
 const IconButton = ({
   variant = 'primary',
   color = 'primary',
+  anchor = 'front',
   className,
   children,
+  icon,
   ...props
-}: ButtonType) => {
+}: IconButtonProps) => {
   const variantClass = getVariantClass(variant, color, IconButtonClassSource);
 
   return (
     <button
-      className={`${className} rounded-full transition-all ${variantClass}`}
+      className={`${className} rounded-full transition-all hover:scale-125 ${variantClass}`}
       {...props}
     >
-      {children}
+      <>
+        {anchor === 'front' && icon}
+        {children}
+        {anchor === 'back' && icon}
+      </>
     </button>
   );
 };

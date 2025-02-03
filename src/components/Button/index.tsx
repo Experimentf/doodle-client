@@ -1,6 +1,6 @@
 import { getVariantClass } from '@/utils/variants';
 
-import { ButtonType } from './types';
+import { ButtonProps } from './types';
 import { ButtonClassSource } from './utils';
 
 const Button = ({
@@ -9,12 +9,12 @@ const Button = ({
   className,
   children,
   ...props
-}: ButtonType) => {
+}: ButtonProps) => {
   const variantClass = getVariantClass(variant, color, ButtonClassSource);
 
   return (
     <button
-      className={`${className} py-3 px-8 rounded-lg transition-all ${variantClass}`}
+      className={`${className} py-3 px-8 rounded-lg transition-all hover:scale-105 ${variantClass}`}
       {...props}
     >
       {children}

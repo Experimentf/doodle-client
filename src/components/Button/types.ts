@@ -1,7 +1,14 @@
+import { ReactNode } from 'react';
+
 import { ColorType, VariantType } from '@/types/styles';
 
-export interface ButtonType
+export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: VariantType;
   color?: ColorType;
+}
+
+export interface IconButtonProps extends ButtonProps {
+  icon: ReactNode;
+  anchor?: 'front' | 'back';
 }

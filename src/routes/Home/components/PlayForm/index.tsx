@@ -132,15 +132,14 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
               className="absolute right-0 bottom-0 text-2xl"
               onClick={handleRandomizeAvatar}
               type="button"
-            >
-              <GiPerspectiveDiceSixFacesRandom />
-            </IconButton>
+              icon={<GiPerspectiveDiceSixFacesRandom />}
+            />
           </div>
           <input
             autoFocus
             type="text"
             placeholder={texts.home.form.input.name.placeholder}
-            className="bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
+            className="transition-colors bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
             value={userInfo.name}
             required
             onChange={handleNameChange}
