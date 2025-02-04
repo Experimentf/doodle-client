@@ -1,5 +1,5 @@
 import { AvatarProps } from '@bigheads/core';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
@@ -31,6 +31,10 @@ const AvatarCustomizer = ({
     setCustomAvatar((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  useEffect(() => {
+    setCustomAvatar(avatar);
+  }, [avatar]);
+
   return (
     <Dialog
       visible={visible}
@@ -48,12 +52,12 @@ const AvatarCustomizer = ({
       }
     >
       <Avatar className="w-64" avatarProps={customAvatar} />
-      <div className="grid grid-cols-3 grid-flow-row gap-4">
+      <form className="grid grid-cols-3 grid-flow-row gap-4">
         {Object.keys(avatarPropToOptionsMap).map((key) => (
           <div key={key}>
             <Text>{key.toUpperCase()}:</Text>
             <select
-              name="key"
+              name={key}
               onChange={handlePropChange}
               value={customAvatar[key as keyof AvatarProps] as string}
             >
@@ -67,7 +71,7 @@ const AvatarCustomizer = ({
             </select>
           </div>
         ))}
-      </div>
+      </form>
     </Dialog>
   );
 };
