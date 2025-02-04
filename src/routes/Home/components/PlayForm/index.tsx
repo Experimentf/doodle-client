@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { AiFillSetting } from 'react-icons/ai';
 import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,8 +20,6 @@ import { useUser } from '@/contexts/user';
 import { getRandomAvatarProps } from '@/utils/avatar';
 import { ErrorFromServer } from '@/utils/error';
 
-import AvatarCustomizer from './AvatarCustomizer';
-
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
 }
@@ -31,8 +28,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { isConnected, emitEventAsync } = useSocket();
   const navigate = useNavigate();
-  const [isAvatarCustomizeOpened, setIsAvatarCustomizerOpened] =
-    useState(false);
   const [userInfo, setUserInfo] = useState<
     Pick<typeof user, 'name' | 'avatar'>
   >({
@@ -116,10 +111,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     setUserInfo((prev) => ({ ...prev, avatar: getRandomAvatarProps() }));
   };
 
-  // Avatar Customizer Visibility Handlers
-  const handleOpenAvatarCustomizer = () => setIsAvatarCustomizerOpened(true);
-  const handleCloseAvatarCustomizer = () => setIsAvatarCustomizerOpened(false);
-
   useEffect(() => {
     const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
     if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
@@ -134,7 +125,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
       >
         <div>
           <div className="relative">
-            <div className="absolute left-0 bottom-0">
+            <div className="absolute right-0 bottom-0">
               <IconButton
                 variant="primary"
                 color="warning"
@@ -146,17 +137,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
               />
             </div>
             <Avatar className="mb-8" avatarProps={userInfo.avatar} />
-            <div className="absolute right-0 bottom-0">
-              <IconButton
-                variant="primary"
-                color="warning"
-                className="text-2xl"
-                onClick={handleOpenAvatarCustomizer}
-                type="button"
-                tooltip="Customize"
-                icon={<AiFillSetting />}
-              />
-            </div>
           </div>
           <input
             autoFocus
@@ -185,12 +165,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           {texts.home.form.buttons.createPrivateRoom}
         </Button>
       </form>
-      <AvatarCustomizer
-        avatar={userInfo.avatar}
-        onSave={(avatar) => setUserInfo((prev) => ({ ...prev, avatar }))}
-        visible={isAvatarCustomizeOpened}
-        onClose={handleCloseAvatarCustomizer}
-      />
     </div>
   );
 };
