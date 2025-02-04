@@ -81,11 +81,17 @@ const GameLayout = () => {
     if (!roomId) {
       throw new Error('Invalid Room ID!');
     }
-    const { room } = await emitEventAsync(RoomEvents.EMIT_GET_ROOM, roomId);
+    const { room, doodlers } = await emitEventAsync(
+      RoomEvents.EMIT_GET_ROOM,
+      roomId
+    );
     if (room.id !== roomId) {
       throw new Error('Invalid Room ID!');
     }
-    setRoom(room);
+    setRoom({
+      ...room,
+      doodlers,
+    });
   };
 
   const handleGetGame = async () => {

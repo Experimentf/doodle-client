@@ -6,7 +6,7 @@ import { ClientToServerEventsArgument } from './helper';
 export interface DoodlerClientToServerEventsArgumentMap {
   [DoodlerEvents.EMIT_GET_DOODLER]: ClientToServerEventsArgument<
     undefined,
-    Pick<DoodlerInterface, 'id'>
+    DoodlerInterface
   >;
   [DoodlerEvents.EMIT_SET_DOODLER]: ClientToServerEventsArgument<
     Pick<DoodlerInterface, 'name' | 'avatar'>,
