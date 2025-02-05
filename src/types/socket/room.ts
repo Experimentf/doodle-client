@@ -25,5 +25,7 @@ export interface RoomClientToServerEventsArgumentMap {
 
 export interface RoomServerToClientEvents {
   [RoomEvents.ON_DOODLER_JOIN]: (args: { doodler: DoodlerInterface }) => void;
-  [RoomEvents.ON_DOODLER_LEAVE]: (args: { doodler: DoodlerInterface }) => void;
+  [RoomEvents.ON_DOODLER_LEAVE]: (args: {
+    doodlerId: DoodlerInterface['id'];
+  }) => void;
 }

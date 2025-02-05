@@ -40,14 +40,17 @@ const GameLayout = () => {
   const handleEventsRegistration = () => {
     // When a new doodler joins the room
     registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
-      console.log(doodler);
-      // gameMethods.addDoodler(doodler)
+      setRoom((prev) => ({ ...prev, doodlers: [...prev.doodlers, doodler] }));
     });
 
     // When a doodler leaves the room
-    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) => {
-      console.log(doodler);
-      // gameMethods.removeDoodler(doodler)
+    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodlerId }) => {
+      console.log(doodlerId);
+
+      setRoom((prev) => ({
+        ...prev,
+        doodlers: prev.doodlers.filter(({ id }) => id !== doodlerId),
+      }));
     });
 
     // When a game starts
