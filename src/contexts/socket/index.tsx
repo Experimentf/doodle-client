@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, {
   createContext,
   PropsWithChildren,
