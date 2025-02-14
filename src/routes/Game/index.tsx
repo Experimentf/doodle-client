@@ -45,8 +45,6 @@ const GameLayout = () => {
 
     // When a doodler leaves the room
     registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodlerId }) => {
-      console.log(doodlerId);
-
       setRoom((prev) => ({
         ...prev,
         doodlers: prev.doodlers.filter(({ id }) => id !== doodlerId),
