@@ -49,7 +49,7 @@ const SocketContext = createContext<SocketContextType>({
 const SocketProvider = ({ children }: PropsWithChildren) => {
   const { updateUser, resetUser } = useUser();
   const { openSnackbar, closeSnackbar } = useSnackbar();
-  const { logEmit } = useLogger();
+  const { logClientEmit } = useLogger();
 
   const handleConnect = () => {
     console.info('Connected to server!');
@@ -88,7 +88,8 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         payload,
         (response) => {
           const { data, error } = response;
-          if (process.env.NODE_ENV === 'development') logEmit(event, response);
+          if (process.env.NODE_ENV === 'development')
+            logClientEmit(event, response);
           if (error || data === undefined) {
             reject(new ErrorFromServer(error?.message));
           } else resolve(data);

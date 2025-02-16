@@ -53,17 +53,17 @@ const GameLayout = () => {
 
     // When a game starts
     registerEvent(GameEvents.ON_GAME_START, () => {
-      // gameMethods.updateRoom('status', GameStatus.IN_GAME);
+      setGame((prev) => ({ ...prev, status: GameStatus.GAME }));
     });
 
     // When a game ends
     registerEvent(GameEvents.ON_GAME_END, () => {
-      // gameMethods.updateRoom('status', GameStatus.END);
+      setGame((prev) => ({ ...prev, status: GameStatus.END }));
     });
 
     // When a game comes to lobby
     registerEvent(GameEvents.ON_GAME_LOBBY, () => {
-      // gameMethods.updateRoom('status', GameStatus.LOBBY);
+      setGame((prev) => ({ ...prev, status: GameStatus.LOBBY }));
     });
   };
 

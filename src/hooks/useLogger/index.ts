@@ -2,20 +2,30 @@
 import {
   ClientToServerEvents,
   ClientToServerEventsArgumentMap,
+  ServerToClientEvents,
 } from '@/types/socket';
 
 const useLogger = () => {
-  const logEmit = <T extends keyof ClientToServerEvents>(
+  const logClientEmit = <T extends keyof ClientToServerEvents>(
     event: T,
     response: ClientToServerEventsArgumentMap[T]['response']
   ) => {
-    console.groupCollapsed('EMIT INFO :', event);
+    console.groupCollapsed('CLIENT EMIT INFO :', event);
     if (response.error) console.error(response.error);
     console.dir(response.data);
     console.groupEnd();
   };
 
-  return { logEmit };
+  const logServerEmit = <T extends keyof ServerToClientEvents>(
+    event: T,
+    extraParams: Parameters<ServerToClientEvents[T]>
+  ) => {
+    console.groupCollapsed('SERVER EMIT INFO :', event);
+    console.dir(extraParams);
+    console.groupEnd();
+  };
+
+  return { logClientEmit, logServerEmit };
 };
 
 export default useLogger;
