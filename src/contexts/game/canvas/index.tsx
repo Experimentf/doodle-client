@@ -22,9 +22,18 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
 
+  const drawLine = (ctx: CanvasRenderingContext2D | null) => {
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.stroke();
+  };
+
   useEffect(() => {
     if (!canvasRef.current) return;
     setContext(canvasRef.current?.getContext('2d'));
+    drawLine(canvasRef.current.getContext('2d'));
   }, []);
 
   return (
@@ -34,7 +43,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
           ref={canvasRef}
-          className="bg-dark-board-green rounded-xl w-full h-full"
+          className="bg-dark-board-green rounded-xl w-full h-full aspect-video"
         />
         {children}
       </div>
