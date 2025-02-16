@@ -27,6 +27,7 @@ const GameLayout = () => {
   const { user } = useUser();
   const { registerEvent, emitEventAsync, isConnected } = useSocket();
   const { game, setGame } = useGame();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { room, setRoom } = useRoom();
 
   const { openSnackbar } = useSnackbar();
@@ -52,8 +53,9 @@ const GameLayout = () => {
     });
 
     // When a game starts
-    registerEvent(GameEvents.ON_GAME_START, () => {
+    registerEvent(GameEvents.ON_GAME_START, ({ drawerId }) => {
       setGame((prev) => ({ ...prev, status: GameStatus.GAME }));
+      setRoom((prev) => ({ ...prev, drawerId }));
     });
 
     // When a game ends
@@ -82,33 +84,34 @@ const GameLayout = () => {
     if (!roomId) {
       throw new Error('Invalid Room ID!');
     }
-    const { room, doodlers } = await emitEventAsync(
+    const { room: roomData, doodlers } = await emitEventAsync(
       RoomEvents.EMIT_GET_ROOM,
       roomId
     );
-    if (room.id !== roomId) {
+    if (roomData.id !== roomId) {
       throw new Error('Invalid Room ID!');
     }
     setRoom({
-      ...room,
+      ...roomData,
       doodlers,
     });
+    return roomData;
   };
 
-  const handleGetGame = async () => {
-    if (!room.gameId) return;
-    const { game } = await emitEventAsync(
-      GameEvents.EMIT_GET_GAME,
-      room.gameId
-    );
+  const handleGetGame = async (gameId?: string) => {
+    if (!gameId) return;
+    const { game } = await emitEventAsync(GameEvents.EMIT_GET_GAME, gameId);
+    // eslint-disable-next-line no-console
+    console.log(game);
+
     setGame(game);
   };
 
   const handleSetup = async () => {
     try {
       await handleValidateUser();
-      await handleGetRoom();
-      await handleGetGame();
+      const roomData = await handleGetRoom();
+      await handleGetGame(roomData.gameId);
     } catch (e) {
       if (e instanceof ErrorFromServer || e instanceof Error) {
         openSnackbar({

@@ -15,7 +15,12 @@ const DoodlerList = () => {
         <hr className="my-2 text-chalk-white" />
         <div className="mt-2">
           {room.doodlers.map((doodler, index) => (
-            <Doodler key={doodler.id} doodler={doodler} position={index} />
+            <Doodler
+              key={doodler.id}
+              doodler={doodler}
+              position={index}
+              isDrawing={room.drawerId === doodler.id}
+            />
           ))}
         </div>
       </div>

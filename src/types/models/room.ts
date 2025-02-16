@@ -7,4 +7,5 @@ export interface RoomInterface {
   capacity: number;
   ownerId?: string;
   gameId?: string;
+  drawerId?: string;
 }

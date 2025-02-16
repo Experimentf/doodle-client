@@ -1,5 +1,6 @@
 import { GameEvents } from '@/constants/Events';
 
+import { DoodlerInterface } from '../models/doodler';
 import { GameInterface } from '../models/game';
 import { ClientToServerEventsArgument } from './helper';
 
@@ -11,7 +12,9 @@ export interface GameClientToServerEventsArgumentMap {
 }
 
 export interface GameServerToClientEvents {
-  [GameEvents.ON_GAME_START]: () => void;
+  [GameEvents.ON_GAME_START]: (args: {
+    drawerId: DoodlerInterface['id'];
+  }) => void;
   [GameEvents.ON_GAME_LOBBY]: () => void;
   [GameEvents.ON_GAME_END]: () => void;
 }

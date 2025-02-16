@@ -21,6 +21,7 @@ const defaultRoom: RoomInterface = {
   isPrivate: true,
   ownerId: '',
   gameId: '',
+  drawerId: '',
 };
 
 const RoomContext = createContext<RoomContextInterface>({
