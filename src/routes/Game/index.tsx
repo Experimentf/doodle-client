@@ -101,9 +101,6 @@ const GameLayout = () => {
   const handleGetGame = async (gameId?: string) => {
     if (!gameId) return;
     const { game } = await emitEventAsync(GameEvents.EMIT_GET_GAME, gameId);
-    // eslint-disable-next-line no-console
-    console.log(game);
-
     setGame(game);
   };
 
