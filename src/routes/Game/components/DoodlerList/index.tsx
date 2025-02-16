@@ -7,7 +7,7 @@ const DoodlerList = () => {
   const { room } = useRoom();
 
   return (
-    <div className="max-w-[96]">
+    <div className="max-w-[15rem]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
           {texts.game.doodlers.sectionTitle} ({room.doodlers.length})
