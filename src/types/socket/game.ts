@@ -1,7 +1,7 @@
 import { GameEvents } from '@/constants/Events';
 
-import { DoodlerInterface } from '../models/doodler';
 import { GameInterface } from '../models/game';
+import { RoomInterface } from '../models/room';
 import { ClientToServerEventsArgument } from './helper';
 
 export interface GameClientToServerEventsArgumentMap {
@@ -12,11 +12,8 @@ export interface GameClientToServerEventsArgumentMap {
 }
 
 export interface GameServerToClientEvents {
-  [GameEvents.ON_GAME_START]: (args: {
-    drawerId: DoodlerInterface['id'];
+  [GameEvents.ON_GAME_STATUS_UPDATED]: (args: {
+    room: RoomInterface;
+    game?: GameInterface;
   }) => void;
-  [GameEvents.ON_GAME_LOBBY]: (args: {
-    drawerId: DoodlerInterface['id'] | undefined;
-  }) => void;
-  [GameEvents.ON_GAME_END]: (args: { drawerId: undefined }) => void;
 }

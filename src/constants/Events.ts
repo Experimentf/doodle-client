@@ -25,7 +25,5 @@ export enum DoodlerEvents {
 
 export enum GameEvents {
   EMIT_GET_GAME = 'get-game',
-  ON_GAME_START = 'game-start',
-  ON_GAME_LOBBY = 'game-lobby',
-  ON_GAME_END = 'game-end',
+  ON_GAME_STATUS_UPDATED = 'game-status-updated',
 }

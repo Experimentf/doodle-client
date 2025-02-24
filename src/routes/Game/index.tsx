@@ -53,21 +53,9 @@ const GameLayout = () => {
     });
 
     // When a game starts
-    registerEvent(GameEvents.ON_GAME_START, ({ drawerId }) => {
-      setRoom((prev) => ({ ...prev, drawerId }));
-      setGame((prev) => ({ ...prev, status: GameStatus.GAME }));
-    });
-
-    // When a game ends
-    registerEvent(GameEvents.ON_GAME_END, ({ drawerId }) => {
-      setRoom((prev) => ({ ...prev, drawerId }));
-      setGame((prev) => ({ ...prev, status: GameStatus.END }));
-    });
-
-    // When a game comes to lobby
-    registerEvent(GameEvents.ON_GAME_LOBBY, ({ drawerId }) => {
-      setRoom((prev) => ({ ...prev, drawerId }));
-      setGame((prev) => ({ ...prev, status: GameStatus.LOBBY }));
+    registerEvent(GameEvents.ON_GAME_STATUS_UPDATED, ({ room, game }) => {
+      setRoom((prev) => ({ ...room, doodlers: prev.doodlers }));
+      if (game) setGame(game);
     });
   };
 
