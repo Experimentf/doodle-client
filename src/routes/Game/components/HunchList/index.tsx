@@ -26,7 +26,7 @@ const HunchList = () => {
     if (e.key !== 'Enter' || !hunch) return;
     setHunchList((prev) => [
       ...prev,
-      { message: hunch, senderId: user.id, status: HunchStatus.CLOSE },
+      { message: hunch, senderId: user.id, status: HunchStatus.NEARBY },
     ]);
     setHunch('');
   };

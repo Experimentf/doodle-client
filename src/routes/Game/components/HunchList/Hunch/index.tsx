@@ -22,7 +22,7 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
     switch (status) {
       case HunchStatus.CORRECT:
         return 'success';
-      case HunchStatus.CLOSE:
+      case HunchStatus.NEARBY:
         return 'warning';
       default:
         return 'primary';

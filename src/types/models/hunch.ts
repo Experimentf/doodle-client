@@ -2,7 +2,7 @@ import { DoodlerInterface } from './doodler';
 
 export enum HunchStatus {
   CORRECT = 'correct',
-  CLOSE = 'close',
+  NEARBY = 'nearby',
   WRONG = 'wrong',
 }
 
