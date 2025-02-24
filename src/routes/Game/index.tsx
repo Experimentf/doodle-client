@@ -13,9 +13,9 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { ErrorFromServer } from '@/utils/error';
 
-import End from './components/CanvasMode/End';
 import InGame from './components/CanvasMode/InGame';
 import Lobby from './components/CanvasMode/Lobby';
+import Result from './components/CanvasMode/Result';
 import DetailBar from './components/DetailBar';
 import Doodlers from './components/DoodlerList';
 import HunchList from './components/HunchList';
@@ -133,7 +133,7 @@ const GameLayout = () => {
           <CanvasProvider>
             {game.status === GameStatus.GAME && <InGame />}
             {game.status === GameStatus.LOBBY && <Lobby />}
-            {game.status === GameStatus.END && <End />}
+            {game.status === GameStatus.END && <Result />}
           </CanvasProvider>
         </div>
         <HunchList />
