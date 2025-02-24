@@ -51,6 +51,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     if (!validate()) return false;
     updateUser('name', userInfo.name);
     updateUser('avatar', userInfo.avatar);
+    localStorage.setItem(LocalStorageKeys.USER_NAME, userInfo.name);
     const data = await emitEventAsync(DoodlerEvents.EMIT_SET_DOODLER, userInfo);
     return !!data;
   };
