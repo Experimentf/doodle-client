@@ -30,7 +30,7 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
       <Text
         component={'span'}
         color="secondary"
-        className={`${isDrawing ? 'opacity-0' : 'opacity-100'} ml-2`}
+        className={`${isDrawing ? 'opacity-100' : 'opacity-0'} ml-2`}
       >
         <FaPencil className="animate-bounce" />
       </Text>
