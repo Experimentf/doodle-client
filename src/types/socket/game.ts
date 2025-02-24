@@ -15,6 +15,8 @@ export interface GameServerToClientEvents {
   [GameEvents.ON_GAME_START]: (args: {
     drawerId: DoodlerInterface['id'];
   }) => void;
-  [GameEvents.ON_GAME_LOBBY]: () => void;
-  [GameEvents.ON_GAME_END]: () => void;
+  [GameEvents.ON_GAME_LOBBY]: (args: {
+    drawerId: DoodlerInterface['id'] | undefined;
+  }) => void;
+  [GameEvents.ON_GAME_END]: (args: { drawerId: undefined }) => void;
 }

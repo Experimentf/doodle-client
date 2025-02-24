@@ -26,7 +26,7 @@ interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
 
 const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
-  const { isConnected, emitEventAsync } = useSocket();
+  const { isConnected, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState<
     Pick<typeof user, 'name' | 'avatar'>
@@ -52,13 +52,13 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     updateUser('name', userInfo.name);
     updateUser('avatar', userInfo.avatar);
     localStorage.setItem(LocalStorageKeys.USER_NAME, userInfo.name);
-    const data = await emitEventAsync(DoodlerEvents.EMIT_SET_DOODLER, userInfo);
+    const data = await asyncEmitEvent(DoodlerEvents.EMIT_SET_DOODLER, userInfo);
     return !!data;
   };
 
   // Join a Public Room
   const handleJoinPublicRoom = async () => {
-    const data = await emitEventAsync(
+    const data = await asyncEmitEvent(
       RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM,
       user
     );
@@ -67,7 +67,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
 
   // Join a Private Room
   const handleJoinPrivateRoom = async () => {
-    const data = await emitEventAsync(
+    const data = await asyncEmitEvent(
       RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
       user
     );
@@ -92,7 +92,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     try {
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
-      const data = await emitEventAsync(
+      const data = await asyncEmitEvent(
         RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
         undefined
       );

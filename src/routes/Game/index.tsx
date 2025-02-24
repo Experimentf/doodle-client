@@ -25,7 +25,7 @@ const GameLayout = () => {
   const { roomId } = useParams();
 
   const { user } = useUser();
-  const { registerEvent, emitEventAsync, isConnected } = useSocket();
+  const { registerEvent, asyncEmitEvent, isConnected } = useSocket();
   const { game, setGame } = useGame();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { room, setRoom } = useRoom();
@@ -54,23 +54,25 @@ const GameLayout = () => {
 
     // When a game starts
     registerEvent(GameEvents.ON_GAME_START, ({ drawerId }) => {
-      setGame((prev) => ({ ...prev, status: GameStatus.GAME }));
       setRoom((prev) => ({ ...prev, drawerId }));
+      setGame((prev) => ({ ...prev, status: GameStatus.GAME }));
     });
 
     // When a game ends
-    registerEvent(GameEvents.ON_GAME_END, () => {
+    registerEvent(GameEvents.ON_GAME_END, ({ drawerId }) => {
+      setRoom((prev) => ({ ...prev, drawerId }));
       setGame((prev) => ({ ...prev, status: GameStatus.END }));
     });
 
     // When a game comes to lobby
-    registerEvent(GameEvents.ON_GAME_LOBBY, () => {
+    registerEvent(GameEvents.ON_GAME_LOBBY, ({ drawerId }) => {
+      setRoom((prev) => ({ ...prev, drawerId }));
       setGame((prev) => ({ ...prev, status: GameStatus.LOBBY }));
     });
   };
 
   const handleValidateUser = async () => {
-    const data = await emitEventAsync(
+    const data = await asyncEmitEvent(
       DoodlerEvents.EMIT_GET_DOODLER,
       undefined
     );
@@ -84,7 +86,7 @@ const GameLayout = () => {
     if (!roomId) {
       throw new Error('Invalid Room ID!');
     }
-    const { room: roomData, doodlers } = await emitEventAsync(
+    const { room: roomData, doodlers } = await asyncEmitEvent(
       RoomEvents.EMIT_GET_ROOM,
       roomId
     );
@@ -100,7 +102,7 @@ const GameLayout = () => {
 
   const handleGetGame = async (gameId?: string) => {
     if (!gameId) return;
-    const { game } = await emitEventAsync(GameEvents.EMIT_GET_GAME, gameId);
+    const { game } = await asyncEmitEvent(GameEvents.EMIT_GET_GAME, gameId);
     setGame(game);
   };
 
