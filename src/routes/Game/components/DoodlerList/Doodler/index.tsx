@@ -20,13 +20,12 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
       <Avatar className="min-w-[80px] w-20" avatarProps={doodler.avatar} />
       <p className="text-light-chalk-white overflow-hidden text-ellipsis">
         {doodler.name}
-        {user.id === doodler.id && (
-          <Text component={'span'} className="text-light-chalk-blue">
-            {' '}
-            {texts.game.doodlers.userMarker}
-          </Text>
-        )}
       </p>
+      {user.id === doodler.id && (
+        <Text component={'span'} className="text-light-chalk-blue">
+          {texts.game.doodlers.userMarker}
+        </Text>
+      )}
       <Text
         component={'span'}
         color="secondary"
