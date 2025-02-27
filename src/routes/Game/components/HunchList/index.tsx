@@ -43,7 +43,7 @@ const HunchList = () => {
   }, [hunchList]);
 
   return (
-    <div className="min-w-[18rem]">
+    <div className="min-w-[18rem] w-[18rem]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex flex-col">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
           {texts.game.hunchList.sectionTitle}

@@ -7,7 +7,7 @@
   "hunchList": {
     "input": {
       "caption": "Press enter to hunch",
-      "placeholder": "Type your hunch ..."
+      "placeholder": "Type your hunch . . ."
     },
     "sectionTitle": "hunch time !"
   },
