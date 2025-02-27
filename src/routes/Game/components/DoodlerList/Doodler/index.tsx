@@ -17,7 +17,7 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
 
   return (
     <div className="flex items-center gap-1">
-      <Avatar className="min-w-[80px] w-20" avatarProps={doodler.avatar} />
+      <Avatar className="min-w-[80px]" avatarProps={doodler.avatar} />
       <p className="text-light-chalk-white overflow-hidden text-ellipsis">
         {doodler.name}
       </p>
