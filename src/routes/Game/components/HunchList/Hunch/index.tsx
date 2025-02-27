@@ -32,14 +32,14 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
   return (
     <li {...props}>
       {doodler ? (
-        <Avatar avatarProps={doodler.avatar} className="w-10" />
+        <Avatar avatarProps={doodler.avatar} className="min-w-[2.5rem]" />
       ) : (
         <FaUserSecret size={40} className="px-2 text-light-chalk-white" />
       )}
       <Text
         disabled={!doodler}
         color={convertHunchStatusToColor(hunch.status)}
-        className="text-sm"
+        className="text-sm mt-[0.5rem]"
       >
         {hunch.message}
       </Text>

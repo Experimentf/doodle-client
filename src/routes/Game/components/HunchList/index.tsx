@@ -43,7 +43,7 @@ const HunchList = () => {
   }, [hunchList]);
 
   return (
-    <div className="max-w-[96]">
+    <div className="min-w-[18rem]">
       <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex flex-col">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
           {texts.game.hunchList.sectionTitle}
@@ -51,13 +51,13 @@ const HunchList = () => {
         <hr className="my-2 text-chalk-white" />
         <ul
           ref={listRef}
-          className="my-2 flex-grow h-[calc(100vh-326px)] overflow-y-scroll bg-scroll"
+          className="my-2 flex-grow h-[calc(100vh-326px)] overflow-y-scroll overflow-x-hidden bg-scroll"
         >
           {hunchList.map((hunch, index) => (
             <Hunch
               hunch={hunch}
               key={index}
-              className="flex flex-row items-center my-1"
+              className="flex flex-row items-start my-1 whitespace-pre-wrap break-all hyphens-none"
             />
           ))}
         </ul>
