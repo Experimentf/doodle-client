@@ -18,12 +18,12 @@ const IconButton = ({
 }: IconButtonProps) => {
   const variantClass = getVariantClass(variant, color, IconButtonClassSource);
 
-  const Wrapper = tooltip ? Tooltip : Fragment;
+  const Wrapper = tooltip && !props.disabled ? Tooltip : Fragment;
 
   return (
     <Wrapper label={tooltip ?? ''}>
       <button
-        className={`${className} rounded-full transition-all hover:scale-125 ${variantClass}`}
+        className={`rounded-full transition-all hover:scale-125 disabled:hover:scale-100 ${variantClass} ${className}`}
         {...props}
       >
         <>
