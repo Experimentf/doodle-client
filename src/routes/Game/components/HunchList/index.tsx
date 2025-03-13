@@ -26,7 +26,12 @@ const HunchList = () => {
     if (e.key !== 'Enter' || !hunch) return;
     setHunchList((prev) => [
       ...prev,
-      { message: hunch, senderId: user.id, status: HunchStatus.NEARBY },
+      {
+        message: hunch,
+        senderId: user.id,
+        status: HunchStatus.NEARBY,
+        isSystemMessage: true,
+      },
     ]);
     setHunch('');
   };
@@ -57,7 +62,11 @@ const HunchList = () => {
             <Hunch
               hunch={hunch}
               key={index}
-              className="flex flex-row items-start my-1 whitespace-pre-wrap break-all hyphens-none"
+              className={`flex flex-row items-start my-1 rounded-lg whitespace-pre-wrap break-all hyphens-none ${
+                hunch.isSystemMessage
+                  ? 'justify-center bg-light-chalk-green [&>p]:text-dark-board-green px-2'
+                  : 'justify-start'
+              }`}
             />
           ))}
         </ul>

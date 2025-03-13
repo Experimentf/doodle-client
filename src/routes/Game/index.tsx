@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
+import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
-import CanvasProvider from '@/contexts/game/canvas';
 import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
@@ -121,6 +121,19 @@ const GameLayout = () => {
     handleSetup();
   }, [roomId, isConnected]);
 
+  const gameComponent = useMemo(() => {
+    switch (game.status) {
+      case GameStatus.GAME:
+        return <InGame />;
+      case GameStatus.LOBBY:
+        return <Lobby />;
+      case GameStatus.RESULT:
+        return <Result />;
+      default:
+        return null;
+    }
+  }, [game.status]);
+
   if (loading) return <Loading fullScreen />;
 
   return (
@@ -130,11 +143,7 @@ const GameLayout = () => {
       <div className="flex flex-grow gap-4">
         <Doodlers />
         <div className="flex-grow">
-          <CanvasProvider>
-            {game.status === GameStatus.GAME && <InGame />}
-            {game.status === GameStatus.LOBBY && <Lobby />}
-            {game.status === GameStatus.END && <Result />}
-          </CanvasProvider>
+          <CanvasProvider>{gameComponent}</CanvasProvider>
         </div>
         <HunchList />
       </div>

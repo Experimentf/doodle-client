@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, useMemo } from 'react';
 import { FaUserSecret } from 'react-icons/fa6';
 
 import Avatar from '@/components/Avatar';
@@ -16,10 +16,8 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
   const { room } = useRoom();
   const doodler = getDoodlerById(room.doodlers, hunch.senderId);
 
-  const convertHunchStatusToColor = (
-    status: HunchInterface['status']
-  ): ColorType => {
-    switch (status) {
+  const color = useMemo((): ColorType => {
+    switch (hunch.status) {
       case HunchStatus.CORRECT:
         return 'success';
       case HunchStatus.NEARBY:
@@ -27,20 +25,17 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
       default:
         return 'primary';
     }
-  };
+  }, [hunch.status]);
 
   return (
     <li {...props}>
-      {doodler ? (
-        <Avatar avatarProps={doodler.avatar} className="min-w-[2.5rem]" />
-      ) : (
-        <FaUserSecret size={40} className="px-2 text-light-chalk-white" />
-      )}
-      <Text
-        disabled={!doodler}
-        color={convertHunchStatusToColor(hunch.status)}
-        className="text-sm mt-[0.5rem]"
-      >
+      {!hunch.isSystemMessage &&
+        (doodler ? (
+          <Avatar avatarProps={doodler.avatar} className="min-w-[2.5rem]" />
+        ) : (
+          <FaUserSecret size={40} className="px-2 text-light-chalk-white" />
+        ))}
+      <Text disabled={!doodler} color={color} className="text-sm my-[0.5rem]">
         {hunch.message}
       </Text>
     </li>

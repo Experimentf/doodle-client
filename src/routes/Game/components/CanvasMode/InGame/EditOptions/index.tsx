@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaEraser, FaPencilAlt, FaTrash, FaUndo } from 'react-icons/fa';
 import {} from 'react-icons/fa6';
 
+import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
 import { useUser } from '@/contexts/user';
 
@@ -14,10 +15,9 @@ const EditOptions = () => {
   const {
     user: { id },
   } = useUser();
+  const { setCursorVisibility } = useCanvas();
   const isDrawing = id === drawerId;
-  const [selectedOption, setSelectedOption] = useState<number | null>(
-    isDrawing ? 0 : null
-  );
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const handlePencil = () => {};
   const handleEraser = () => {};
@@ -50,6 +50,10 @@ const EditOptions = () => {
       handler: handleUndo,
     },
   ];
+
+  useEffect(() => {
+    setCursorVisibility(!isDrawing);
+  }, [isDrawing]);
 
   return (
     <div className="flex flex-auto justify-center mt-2 gap-2">

@@ -10,4 +10,5 @@ export interface HunchInterface {
   senderId: DoodlerInterface['id'];
   message: string;
   status: HunchStatus;
+  isSystemMessage: boolean;
 }

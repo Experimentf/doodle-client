@@ -1,6 +1,8 @@
 import React, {
   createContext,
+  Dispatch,
   PropsWithChildren,
+  SetStateAction,
   useContext,
   useEffect,
   useRef,
@@ -11,39 +13,40 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 
 interface CanvasContextInterface {
-  canvasContext: CanvasRenderingContext2D | null;
+  setCursorVisibility: Dispatch<SetStateAction<boolean>>;
 }
 
 const CanvasContext = createContext<CanvasContextInterface>({
-  canvasContext: null,
+  setCursorVisibility: () => {},
 });
 
 const CanvasProvider = ({ children }: PropsWithChildren) => {
+  const [cursorVisibility, setCursorVisibility] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+  const canvasContext = canvasRef.current?.getContext('2d');
 
-  const drawLine = (ctx: CanvasRenderingContext2D | null) => {
-    if (!ctx) return;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-    ctx.stroke();
+  const drawLine = () => {
+    if (!canvasContext) return;
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+    canvasContext.stroke();
   };
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    setContext(canvasRef.current?.getContext('2d'));
-    drawLine(canvasRef.current.getContext('2d'));
+    drawLine();
   }, []);
 
   return (
-    <CanvasContext.Provider value={{ canvasContext: context }}>
+    <CanvasContext.Provider value={{ setCursorVisibility }}>
       <div className="w-full relative">
         <canvas
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
           ref={canvasRef}
-          className="bg-dark-board-green rounded-xl w-full h-full aspect-video"
+          className={`bg-dark-board-green rounded-xl w-full h-full aspect-video ${
+            cursorVisibility ? 'cursor-default' : 'cursor-none'
+          }`}
         />
         {children}
       </div>
