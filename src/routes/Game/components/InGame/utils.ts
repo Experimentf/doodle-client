@@ -5,6 +5,7 @@ export enum OptionKey {
   ERASER = 'Eraser',
   CLEAR = 'Clear',
   UNDO = 'Undo',
+  REDO = 'Redo',
 }
 
 export interface Option {
@@ -29,6 +30,10 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   },
   {
     key: OptionKey.UNDO,
+    isSelectable: false,
+  },
+  {
+    key: OptionKey.REDO,
     isSelectable: false,
   },
 ];

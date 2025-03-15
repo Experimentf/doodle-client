@@ -1,5 +1,5 @@
 import React, { ChangeEvent, ReactElement, useRef, useState } from 'react';
-import { FaEraser, FaPencilAlt, FaTrash, FaUndo } from 'react-icons/fa';
+import { FaEraser, FaPencilAlt, FaRedo, FaTrash, FaUndo } from 'react-icons/fa';
 import { IoMdColorPalette } from 'react-icons/io';
 
 import Tooltip from '@/components/Tooltip';
@@ -17,6 +17,7 @@ const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.ERASER]: <FaEraser />,
   [OptionKey.CLEAR]: <FaTrash />,
   [OptionKey.UNDO]: <FaUndo />,
+  [OptionKey.REDO]: <FaRedo />,
 };
 
 const InGame = () => {
@@ -33,7 +34,7 @@ const InGame = () => {
     user: { id },
   } = useUser();
   const {
-    action: { clear, undo },
+    action: { clear, undo, redo },
   } = useCanvas();
   const isDrawing = id === drawerId;
 
@@ -53,6 +54,7 @@ const InGame = () => {
     [OptionKey.ERASER]: () => {},
     [OptionKey.CLEAR]: clear,
     [OptionKey.UNDO]: undo,
+    [OptionKey.REDO]: redo,
   };
   const editOptions = options.map((option) => ({
     ...option,

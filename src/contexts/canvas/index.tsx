@@ -120,7 +120,15 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
 
   const redo = withRequestAnimationFrame<
     CanvasContextInterface['action']['redo']
-  >(() => {});
+  >(() => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ref.current || !ctx) return;
+    const isUnpopped = operationsStack.current.unpop();
+    if (!isUnpopped) return;
+    const newImageData = operationsStack.current.top;
+    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
+    if (newImageData) ctx.putImageData(newImageData, 0, 0);
+  });
 
   const pushAsOperation = () => {
     const ctx = ref.current?.getContext('2d');

@@ -22,21 +22,22 @@ class Stack<T> {
   }
 
   pop() {
-    if (this._top === -1) return;
+    if (this._top === -1) return false;
     this._top = this._top - 1;
+    return true;
   }
 
   unpop() {
-    if (!this.isActualTop()) this._top = this._top + 1;
+    if (this.isActualTop()) return false;
+    this._top = this._top + 1;
+    return true;
   }
 
   isEmpty() {
     return this.size === 0;
   }
 
-  toArray() {
-    return this.container.slice(0, this._top + 1);
-  }
+  toArray() {}
 
   private isActualTop() {
     return this.container.length === this._top + 1;
