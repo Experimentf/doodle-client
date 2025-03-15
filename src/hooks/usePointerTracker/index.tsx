@@ -6,6 +6,7 @@ import { pointerEventToCoordinate } from './utils';
 
 interface PointerTrackerConfig {
   onPointerDrag?: (from: Coordinate, to: Coordinate) => void;
+  onPointerDragEnd?: () => void;
   onPointerClick?: () => void;
 }
 
@@ -14,9 +15,11 @@ const usePointerTracker = <T extends HTMLElement>(
   config?: PointerTrackerConfig
 ) => {
   const pointerDownCoordinate = useRef<Coordinate>();
+  const isDragging = useRef(false);
 
   const handlePointerMovement = (ev: PointerEvent) => {
     if (!pointerDownCoordinate.current) return;
+    isDragging.current = true;
     const currentCoordinate = pointerEventToCoordinate(ev);
     config?.onPointerDrag?.(pointerDownCoordinate.current, currentCoordinate);
     pointerDownCoordinate.current = currentCoordinate;
@@ -27,8 +30,10 @@ const usePointerTracker = <T extends HTMLElement>(
   };
 
   const handlePointerUp = () => {
+    if (isDragging.current) config?.onPointerDragEnd?.();
+    else config?.onPointerClick?.();
     pointerDownCoordinate.current = undefined;
-    config?.onPointerClick?.();
+    isDragging.current = false;
   };
 
   useEffect(() => {

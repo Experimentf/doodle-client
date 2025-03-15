@@ -10,7 +10,7 @@ export interface OptionConfig {
 }
 
 const useCanvasActions = (optionConfig?: OptionConfig) => {
-  const { action } = useCanvas();
+  const { action, pushAsOperation } = useCanvas();
 
   const onPointerDrag = (from: Coordinate, to: Coordinate) => {
     switch (optionConfig?.type) {
@@ -25,6 +25,10 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     }
   };
 
+  const onPointerDragEnd = () => {
+    pushAsOperation();
+  };
+
   const onPointerClick = () => {
     switch (optionConfig?.type) {
       default:
@@ -32,7 +36,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     }
   };
 
-  return { onPointerDrag, onPointerClick };
+  return { onPointerDrag, onPointerDragEnd, onPointerClick };
 };
 
 export default useCanvasActions;

@@ -14,7 +14,7 @@ class Stack<T> {
   }
 
   push(item: T) {
-    this._top += 1;
+    this._top = this._top + 1;
     if (this._top === this.container.length) this.container.push(item);
     else this.container[this._top] = item;
     if (!this.isActualTop())
@@ -23,11 +23,11 @@ class Stack<T> {
 
   pop() {
     if (this._top === -1) return;
-    this._top -= 1;
+    this._top = this._top - 1;
   }
 
   unpop() {
-    if (!this.isActualTop()) this._top += 1;
+    if (!this.isActualTop()) this._top = this._top + 1;
   }
 
   isEmpty() {
