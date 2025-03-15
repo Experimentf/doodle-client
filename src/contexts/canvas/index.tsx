@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createContext,
   MutableRefObject,
@@ -34,26 +35,40 @@ const CanvasContext = createContext<CanvasContextInterface>({
 
 const CanvasProvider = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLCanvasElement>(null);
+  const animationFrameID = useRef<number>();
 
-  const line: CanvasContextInterface['action']['line'] = (from, to, color) => {
-    const ctx = ref.current?.getContext('2d');
-    if (!ctx) return;
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
+  const withRequestAnimationFrame = <T extends (...args: any[]) => void>(
+    fn: T
+  ) => {
+    return (...args: Parameters<T>) => {
+      if (animationFrameID.current)
+        cancelAnimationFrame(animationFrameID.current);
+      animationFrameID.current = requestAnimationFrame(() => {
+        fn(...args);
+      });
+    };
   };
 
-  const fill = () => {};
+  const line: CanvasContextInterface['action']['line'] =
+    withRequestAnimationFrame((from, to, color) => {
+      const ctx = ref.current?.getContext('2d');
+      if (!ctx) return;
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+    });
 
-  const erase = () => {};
+  const fill = withRequestAnimationFrame(() => {});
 
-  const clear = () => {};
+  const erase = withRequestAnimationFrame(() => {});
 
-  const undo = () => {};
+  const clear = withRequestAnimationFrame(() => {});
 
-  const redo = () => {};
+  const undo = withRequestAnimationFrame(() => {});
+
+  const redo = withRequestAnimationFrame(() => {});
 
   return (
     <CanvasContext.Provider
