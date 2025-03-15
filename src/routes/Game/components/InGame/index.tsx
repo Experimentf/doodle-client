@@ -1,11 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import {
-  FaEraser,
-  FaFillDrip,
-  FaPencilAlt,
-  FaTrash,
-  FaUndo,
-} from 'react-icons/fa';
+import { FaEraser, FaPencilAlt, FaTrash } from 'react-icons/fa';
 
 import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
@@ -18,9 +12,7 @@ import { OptionKey, options } from './utils';
 const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.PENCIL]: <FaPencilAlt />,
   [OptionKey.ERASER]: <FaEraser />,
-  [OptionKey.FILL]: <FaFillDrip />,
   [OptionKey.CLEAR]: <FaTrash />,
-  [OptionKey.UNDO]: <FaUndo />,
 };
 
 const InGame = () => {
@@ -32,16 +24,14 @@ const InGame = () => {
     user: { id },
   } = useUser();
   const {
-    action: { clear, undo },
+    action: { clear },
   } = useCanvas();
   const isDrawing = id === drawerId;
 
   const handlers: Record<OptionKey, () => void> = {
     [OptionKey.PENCIL]: () => {},
     [OptionKey.ERASER]: () => {},
-    [OptionKey.FILL]: () => {},
     [OptionKey.CLEAR]: clear,
-    [OptionKey.UNDO]: undo,
   };
   const editOptions = options.map((option) => ({
     ...option,
