@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
-import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
@@ -13,12 +12,12 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { ErrorFromServer } from '@/utils/error';
 
-import InGame from './components/CanvasMode/InGame';
-import Lobby from './components/CanvasMode/Lobby';
-import Result from './components/CanvasMode/Result';
 import DetailBar from './components/DetailBar';
 import Doodlers from './components/DoodlerList';
 import HunchList from './components/HunchList';
+import InGame from './components/InGame';
+import Lobby from './components/Lobby';
+import Result from './components/Result';
 
 const GameLayout = () => {
   const navigate = useNavigate();
@@ -27,8 +26,7 @@ const GameLayout = () => {
   const { user } = useUser();
   const { registerEvent, asyncEmitEvent, isConnected } = useSocket();
   const { game, setGame } = useGame();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { room, setRoom } = useRoom();
+  const { setRoom } = useRoom();
 
   const { openSnackbar } = useSnackbar();
 
@@ -142,9 +140,7 @@ const GameLayout = () => {
       <DetailBar />
       <div className="flex flex-grow gap-4">
         <Doodlers />
-        <div className="flex-grow">
-          <CanvasProvider>{gameComponent}</CanvasProvider>
-        </div>
+        <div className="flex-grow">{gameComponent}</div>
         <HunchList />
       </div>
     </div>

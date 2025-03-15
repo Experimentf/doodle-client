@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 
 import IconButton from '@/components/Button/IconButton';
 
-interface EditOptionProps {
+interface OptionProps {
   icon: ReactElement;
   label: string;
   isSelected?: boolean;
@@ -10,7 +10,7 @@ interface EditOptionProps {
   disabled: boolean;
 }
 
-const EditOption = ({ icon, label, isSelected, ...rest }: EditOptionProps) => {
+const Option = ({ icon, label, isSelected, ...rest }: OptionProps) => {
   return (
     <IconButton
       icon={icon}
@@ -26,4 +26,4 @@ const EditOption = ({ icon, label, isSelected, ...rest }: EditOptionProps) => {
     />
   );
 };
-export default EditOption;
+export default Option;
