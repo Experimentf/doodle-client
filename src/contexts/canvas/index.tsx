@@ -12,7 +12,12 @@ import { Coordinate } from '@/types/common';
 interface CanvasContextInterface {
   ref: MutableRefObject<HTMLCanvasElement | null>;
   action: {
-    line: (from: Coordinate, to: Coordinate, color: string) => void;
+    line: (
+      from: Coordinate,
+      to: Coordinate,
+      color: string,
+      size: number
+    ) => void;
     fill: () => void;
     erase: () => void;
     clear: () => void;
@@ -38,7 +43,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
   const animationFrameID = useRef<number>();
 
   const withRequestAnimationFrame = <T extends (...args: any[]) => void>(
-    fn: T
+    fn: (...args: Parameters<T>) => void
   ) => {
     return (...args: Parameters<T>) => {
       if (animationFrameID.current)
@@ -49,16 +54,19 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     };
   };
 
-  const line: CanvasContextInterface['action']['line'] =
-    withRequestAnimationFrame((from, to, color) => {
-      const ctx = ref.current?.getContext('2d');
-      if (!ctx) return;
-      ctx.beginPath();
-      ctx.strokeStyle = color;
-      ctx.moveTo(from.x, from.y);
-      ctx.lineTo(to.x, to.y);
-      ctx.stroke();
-    });
+  const line = withRequestAnimationFrame<
+    CanvasContextInterface['action']['line']
+  >((from, to, color, size) => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = color;
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  });
 
   const fill = withRequestAnimationFrame(() => {});
 

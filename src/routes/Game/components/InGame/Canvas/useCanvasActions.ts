@@ -7,6 +7,7 @@ import { OptionKey } from '../utils';
 export interface OptionConfig {
   type?: OptionKey;
   color: string;
+  brushSize: number;
 }
 
 const useCanvasActions = (optionConfig?: OptionConfig) => {
@@ -15,10 +16,10 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const onPointerDrag = (from: Coordinate, to: Coordinate) => {
     switch (optionConfig?.type) {
       case OptionKey.PENCIL:
-        action.line(from, to, optionConfig.color);
+        action.line(from, to, optionConfig.color, optionConfig.brushSize);
         break;
       case OptionKey.ERASER:
-        action.line(from, to, DARK_BOARD_GREEN_HEX);
+        action.line(from, to, DARK_BOARD_GREEN_HEX, optionConfig.brushSize);
         break;
       default:
         break;
