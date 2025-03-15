@@ -1,13 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-import useCanvasActions from '@/hooks/useCanvasActions';
-import usePointerMovement from '@/hooks/usePointerMovement';
+import { useCanvas } from '@/contexts/canvas';
 
 const Canvas = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasContext = canvasRef.current?.getContext('2d');
-  const {} = usePointerMovement(canvasRef);
-  const {} = useCanvasActions(canvasContext);
+  const { ref: canvasRef } = useCanvas();
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -18,7 +14,7 @@ const Canvas = () => {
   return (
     <canvas
       ref={canvasRef}
-      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video cursor-none`}
+      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video`}
     />
   );
 };

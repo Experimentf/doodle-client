@@ -19,7 +19,7 @@ const Option = ({ icon, label, isSelected, ...rest }: OptionProps) => {
         !rest.disabled ? 'text-dark-chalk-white' : 'text-chalk-white'
       } ${
         isSelected
-          ? '!bg-chalk-yellow'
+          ? '!bg-chalk-yellow scale-125'
           : 'bg-white disabled:bg-dark-chalk-white'
       }`}
       {...rest}

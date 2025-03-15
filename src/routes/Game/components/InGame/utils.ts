@@ -3,6 +3,7 @@ import { ReactElement } from 'react';
 export enum OptionKey {
   PENCIL = 'Pencil',
   ERASER = 'Eraser',
+  FILL = 'Fill',
   CLEAR = 'Clear',
   UNDO = 'Undo',
 }
@@ -21,6 +22,10 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   },
   {
     key: OptionKey.ERASER,
+    isSelectable: true,
+  },
+  {
+    key: OptionKey.FILL,
     isSelectable: true,
   },
   {

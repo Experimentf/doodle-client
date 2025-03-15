@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
+import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
@@ -122,7 +123,11 @@ const GameLayout = () => {
   const gameComponent = useMemo(() => {
     switch (game.status) {
       case GameStatus.GAME:
-        return <InGame />;
+        return (
+          <CanvasProvider>
+            <InGame />
+          </CanvasProvider>
+        );
       case GameStatus.LOBBY:
         return <Lobby />;
       case GameStatus.RESULT:
