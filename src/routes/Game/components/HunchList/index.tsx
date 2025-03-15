@@ -20,7 +20,9 @@ const HunchList = () => {
   const listRef = useRef<HTMLUListElement>(null);
   const isHunchDisabled = game.status !== GameStatus.GAME;
   const [hunch, setHunch] = useState('');
-  const [hunchList, setHunchList] = useState<HunchInterface[]>([]);
+  const [hunchList, setHunchList] = useState<HunchInterface[]>([
+    { isSystemMessage: true, message: 'Your guesses go here.' },
+  ]);
 
   const handleSendHunch: KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key !== 'Enter' || !hunch) return;

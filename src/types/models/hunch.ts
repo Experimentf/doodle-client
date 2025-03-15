@@ -7,8 +7,8 @@ export enum HunchStatus {
 }
 
 export interface HunchInterface {
-  senderId: DoodlerInterface['id'];
+  senderId?: DoodlerInterface['id'];
   message: string;
-  status: HunchStatus;
+  status?: HunchStatus;
   isSystemMessage: boolean;
 }

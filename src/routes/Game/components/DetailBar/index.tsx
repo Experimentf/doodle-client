@@ -1,6 +1,6 @@
-import { FaArrowRotateRight } from 'react-icons/fa6';
 import { GiAlarmClock } from 'react-icons/gi';
 
+import Text from '@/components/Text';
 import { useGame } from '@/contexts/game';
 
 const DetailBar = () => {
@@ -17,7 +17,7 @@ const DetailBar = () => {
           <h1 className="text-2xl">{game.options.word}</h1>
         </div>
         <div className="flex flex-row items-center gap-2">
-          <FaArrowRotateRight size={28} />
+          <Text>Round - </Text>
           <h1>
             {game.options.round.current} / {game.options.round.max}
           </h1>
