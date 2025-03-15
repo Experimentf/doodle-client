@@ -1,3 +1,4 @@
+import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { useCanvas } from '@/contexts/canvas';
 import { Coordinate } from '@/types/common';
 
@@ -17,15 +18,17 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
         action.line(from, to, optionConfig.color);
         break;
       case OptionKey.ERASER:
+        action.line(from, to, DARK_BOARD_GREEN_HEX);
+        break;
       default:
-        return;
+        break;
     }
   };
 
   const onPointerClick = () => {
     switch (optionConfig?.type) {
       default:
-        return;
+        break;
     }
   };
 
