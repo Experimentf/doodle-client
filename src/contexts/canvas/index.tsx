@@ -93,6 +93,8 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     const ctx = ref.current?.getContext('2d');
     if (!ref.current || !ctx) return;
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
+    ctx.fillStyle = DARK_BOARD_GREEN_HEX;
+    ctx.fillRect(0, 0, ref.current.width, ref.current.height);
   });
 
   const undo = withRequestAnimationFrame<

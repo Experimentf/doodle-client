@@ -10,7 +10,10 @@ interface CanvasProps {
 }
 
 const Canvas = ({ optionConfig }: CanvasProps) => {
-  const { ref: canvasRef } = useCanvas();
+  const {
+    ref: canvasRef,
+    action: { clear },
+  } = useCanvas();
   const pointerConfig = useCanvasActions(optionConfig);
   usePointerTracker(canvasRef, pointerConfig);
 
@@ -18,6 +21,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     if (!canvasRef.current) return;
     canvasRef.current.width = canvasRef.current.clientWidth;
     canvasRef.current.height = canvasRef.current.clientHeight;
+    clear();
   };
 
   useEffect(() => {
