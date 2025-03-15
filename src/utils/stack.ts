@@ -34,6 +34,10 @@ class Stack<T> {
     return this.size === 0;
   }
 
+  toArray() {
+    return this.container.slice(0, this._top + 1);
+  }
+
   private isActualTop() {
     return this.container.length === this._top + 1;
   }
