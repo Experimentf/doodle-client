@@ -7,6 +7,7 @@ import {
   useRef,
 } from 'react';
 
+import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { Coordinate } from '@/types/common';
 
 interface CanvasContextInterface {
@@ -19,7 +20,7 @@ interface CanvasContextInterface {
       size: number
     ) => void;
     fill: () => void;
-    erase: () => void;
+    erase: (from: Coordinate, to: Coordinate, size: number) => void;
     clear: () => void;
     undo: () => void;
     redo: () => void;
@@ -70,9 +71,23 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
 
   const fill = withRequestAnimationFrame(() => {});
 
-  const erase = withRequestAnimationFrame(() => {});
+  const erase = withRequestAnimationFrame((from, to, size) => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = DARK_BOARD_GREEN_HEX;
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  });
 
-  const clear = withRequestAnimationFrame(() => {});
+  const clear = withRequestAnimationFrame(() => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ref.current || !ctx) return;
+    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
+  });
 
   const undo = withRequestAnimationFrame(() => {});
 

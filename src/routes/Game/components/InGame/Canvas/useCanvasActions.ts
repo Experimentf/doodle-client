@@ -1,4 +1,3 @@
-import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { useCanvas } from '@/contexts/canvas';
 import { Coordinate } from '@/types/common';
 
@@ -19,7 +18,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
         action.line(from, to, optionConfig.color, optionConfig.brushSize);
         break;
       case OptionKey.ERASER:
-        action.line(from, to, DARK_BOARD_GREEN_HEX, optionConfig.brushSize);
+        action.erase(from, to, optionConfig.brushSize);
         break;
       default:
         break;
