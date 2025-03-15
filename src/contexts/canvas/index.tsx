@@ -11,7 +11,7 @@ import { Coordinate } from '@/types/common';
 interface CanvasContextInterface {
   ref: MutableRefObject<HTMLCanvasElement | null>;
   action: {
-    line: (from: Coordinate, to: Coordinate) => void;
+    line: (from: Coordinate, to: Coordinate, color: string) => void;
     fill: () => void;
     erase: () => void;
     clear: () => void;
@@ -34,11 +34,12 @@ const CanvasContext = createContext<CanvasContextInterface>({
 
 const CanvasProvider = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLCanvasElement>(null);
-  const ctx = ref.current?.getContext('2d');
 
-  const line = (from: Coordinate, to: Coordinate) => {
+  const line: CanvasContextInterface['action']['line'] = (from, to, color) => {
+    const ctx = ref.current?.getContext('2d');
     if (!ctx) return;
     ctx.beginPath();
+    ctx.strokeStyle = color;
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
     ctx.stroke();

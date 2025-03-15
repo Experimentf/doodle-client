@@ -1,14 +1,31 @@
 import { useEffect } from 'react';
 
 import { useCanvas } from '@/contexts/canvas';
+import usePointerTracker from '@/hooks/usePointerTracker';
 
-const Canvas = () => {
+import useCanvasActions, { OptionConfig } from './useCanvasActions';
+
+interface CanvasProps {
+  optionConfig: OptionConfig;
+}
+
+const Canvas = ({ optionConfig }: CanvasProps) => {
   const { ref: canvasRef } = useCanvas();
+  const pointerConfig = useCanvasActions(optionConfig);
+  usePointerTracker(canvasRef, pointerConfig);
 
-  useEffect(() => {
+  const handleCanvasResize = () => {
     if (!canvasRef.current) return;
     canvasRef.current.width = canvasRef.current.clientWidth;
     canvasRef.current.height = canvasRef.current.clientHeight;
+  };
+
+  useEffect(() => {
+    handleCanvasResize();
+    window.addEventListener('resize', handleCanvasResize);
+    return () => {
+      window.removeEventListener('resize', handleCanvasResize);
+    };
   }, []);
 
   return (
