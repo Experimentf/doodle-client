@@ -1,10 +1,18 @@
-import React, { ChangeEvent, ReactElement, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { FaEraser, FaPencilAlt, FaRedo, FaTrash, FaUndo } from 'react-icons/fa';
 import { IoMdColorPalette } from 'react-icons/io';
 
 import Tooltip from '@/components/Tooltip';
+import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
+import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
 
@@ -28,24 +36,60 @@ const InGame = () => {
     type: undefined,
     brushSize: 20,
   });
+
+  const { registerEvent, asyncEmitEvent } = useSocket();
   const {
-    room: { drawerId },
+    room: { drawerId, id: roomId },
   } = useRoom();
   const {
     user: { id },
   } = useUser();
   const {
     action: { clear, undo, redo },
+    bulkLineAction,
+    bulkEraseAction,
     isActionAllowed,
   } = useCanvas();
   const isDrawing = id === drawerId;
 
-  const isDisabledOption: Record<OptionKey, boolean> = {
-    [OptionKey.PENCIL]: !isDrawing,
-    [OptionKey.ERASER]: !isDrawing,
-    [OptionKey.CLEAR]: !isDrawing,
-    [OptionKey.UNDO]: !isDrawing || !isActionAllowed[CanvasAction.UNDO],
-    [OptionKey.REDO]: !isDrawing || !isActionAllowed[CanvasAction.REDO],
+  const registerCanvasOperation = () => {
+    registerEvent(
+      GameEvents.ON_GAME_CANVAS_OPERATION,
+      ({ canvasOperation }) => {
+        const { points, actionType, color, size } = canvasOperation;
+        switch (actionType) {
+          case CanvasAction.LINE:
+            if (points && color && size) bulkLineAction(points, color, size);
+            break;
+          case CanvasAction.ERASE:
+            if (points && size) bulkEraseAction(points, size);
+            break;
+          case CanvasAction.CLEAR:
+            clear();
+            break;
+          case CanvasAction.UNDO:
+            undo();
+            break;
+          case CanvasAction.REDO:
+            redo();
+            break;
+          default:
+            return;
+        }
+      }
+    );
+  };
+
+  useEffect(() => {
+    if (!isDrawing) registerCanvasOperation();
+  }, [isDrawing]);
+
+  const handleClear = async () => {
+    clear();
+    await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
+      canvasOperation: { actionType: CanvasAction.CLEAR },
+      roomId,
+    });
   };
 
   const handleOptionConfigChange = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -62,9 +106,17 @@ const InGame = () => {
   const handlers: Record<OptionKey, () => void> = {
     [OptionKey.PENCIL]: () => {},
     [OptionKey.ERASER]: () => {},
-    [OptionKey.CLEAR]: clear,
+    [OptionKey.CLEAR]: handleClear,
     [OptionKey.UNDO]: undo,
     [OptionKey.REDO]: redo,
+  };
+
+  const isDisabledOption: Record<OptionKey, boolean> = {
+    [OptionKey.PENCIL]: !isDrawing,
+    [OptionKey.ERASER]: !isDrawing,
+    [OptionKey.CLEAR]: !isDrawing,
+    [OptionKey.UNDO]: !isDrawing || !isActionAllowed[CanvasAction.UNDO],
+    [OptionKey.REDO]: !isDrawing || !isActionAllowed[CanvasAction.REDO],
   };
 
   const editOptions = options.map((option) => ({

@@ -1,4 +1,8 @@
+import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
+import { useRoom } from '@/contexts/room';
+import { useSocket } from '@/contexts/socket';
+import { CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 
 import { convertOptionKeyToCanvasActionKey, OptionKey } from '../utils';
@@ -10,6 +14,10 @@ export interface OptionConfig {
 }
 
 const useCanvasActions = (optionConfig?: OptionConfig) => {
+  const { asyncEmitEvent } = useSocket();
+  const {
+    room: { id: roomId },
+  } = useRoom();
   const { action, pushAsOperation } = useCanvas();
 
   const onPointerDrag = (from: Coordinate, to: Coordinate) => {
@@ -25,13 +33,18 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     }
   };
 
-  const onPointerDragEnd = (dragPoints: Array<Coordinate>) => {
+  const onPointerDragEnd = async (dragPoints: Array<Coordinate>) => {
     const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
-    pushAsOperation({
+    const canvasOperation: Partial<CanvasOperation> = {
       points: dragPoints,
       actionType: canvasAction,
       color: optionConfig?.color,
       size: optionConfig?.brushSize,
+    };
+    pushAsOperation(canvasOperation);
+    await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
+      canvasOperation,
+      roomId,
     });
   };
 

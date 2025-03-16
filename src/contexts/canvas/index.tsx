@@ -31,6 +31,8 @@ interface CanvasContextInterface {
     [CanvasAction.UNDO]: () => void;
     [CanvasAction.REDO]: () => void;
   };
+  bulkLineAction: (points: Coordinate[], color: string, size: number) => void;
+  bulkEraseAction: (points: Coordinate[], size: number) => void;
   pushAsOperation: (action: Partial<CanvasOperation>) => void;
   isActionAllowed: Partial<Record<CanvasAction, boolean>>;
 }
@@ -45,6 +47,8 @@ const CanvasContext = createContext<CanvasContextInterface>({
     undo: () => {},
     redo: () => {},
   },
+  bulkLineAction: () => {},
+  bulkEraseAction: () => {},
   pushAsOperation: () => {},
   isActionAllowed: {},
 });
@@ -146,6 +150,43 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     recheckAllowedActions();
   });
 
+  const bulkLineAction = withRequestAnimationFrame<
+    CanvasContextInterface['bulkLineAction']
+  >((points, color, size) => {
+    const nPoints = points.length;
+    if (nPoints === 0) return;
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = color;
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < nPoints; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.stroke();
+  });
+
+  const bulkEraseAction: CanvasContextInterface['bulkEraseAction'] = (
+    points,
+    size
+  ) => {
+    const nPoints = points.length;
+    if (nPoints === 0) return;
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = DARK_BOARD_GREEN_HEX;
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < nPoints; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.stroke();
+  };
+
   const pushAsOperation: CanvasContextInterface['pushAsOperation'] = ({
     points,
     actionType,
@@ -179,6 +220,8 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
       value={{
         ref,
         action: { line, fill, erase, clear, undo, redo },
+        bulkLineAction,
+        bulkEraseAction,
         pushAsOperation,
         isActionAllowed,
       }}
