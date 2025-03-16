@@ -1,5 +1,7 @@
 import { ReactElement } from 'react';
 
+import { CanvasAction } from '@/types/canvas';
+
 export enum OptionKey {
   PENCIL = 'Pencil',
   ERASER = 'Eraser',
@@ -15,6 +17,19 @@ export interface Option {
   handler: () => void;
   disabled: boolean;
 }
+
+const optionToCanvasActionMap = {
+  [OptionKey.PENCIL]: CanvasAction.LINE,
+  [OptionKey.ERASER]: CanvasAction.ERASE,
+  [OptionKey.CLEAR]: CanvasAction.CLEAR,
+  [OptionKey.UNDO]: CanvasAction.UNDO,
+  [OptionKey.REDO]: CanvasAction.REDO,
+};
+
+export const convertOptionKeyToCanvasActionKey = (key?: OptionKey) => {
+  if (!key) return undefined;
+  return optionToCanvasActionMap[key];
+};
 
 export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   {

@@ -1,3 +1,5 @@
+import { Coordinate } from './common';
+
 export enum CanvasAction {
   LINE = 'line',
   FILL = 'fill',
@@ -5,4 +7,11 @@ export enum CanvasAction {
   CLEAR = 'clear',
   UNDO = 'undo',
   REDO = 'redo',
+}
+
+export interface CanvasOperation {
+  actionType: CanvasAction;
+  points: Array<Coordinate>;
+  color: string;
+  size: number;
 }

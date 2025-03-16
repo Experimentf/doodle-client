@@ -1,7 +1,7 @@
 import { useCanvas } from '@/contexts/canvas';
 import { Coordinate } from '@/types/common';
 
-import { OptionKey } from '../utils';
+import { convertOptionKeyToCanvasActionKey, OptionKey } from '../utils';
 
 export interface OptionConfig {
   type?: OptionKey;
@@ -25,8 +25,14 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     }
   };
 
-  const onPointerDragEnd = () => {
-    pushAsOperation();
+  const onPointerDragEnd = (dragPoints: Array<Coordinate>) => {
+    const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
+    pushAsOperation({
+      points: dragPoints,
+      actionType: canvasAction,
+      color: optionConfig?.color,
+      size: optionConfig?.brushSize,
+    });
   };
 
   const onPointerClick = () => {

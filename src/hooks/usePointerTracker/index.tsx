@@ -6,7 +6,7 @@ import { pointerEventToCoordinate } from './utils';
 
 interface PointerTrackerConfig {
   onPointerDrag?: (from: Coordinate, to: Coordinate) => void;
-  onPointerDragEnd?: () => void;
+  onPointerDragEnd?: (dragPoints: Array<Coordinate>) => void;
   onPointerClick?: () => void;
 }
 
@@ -16,6 +16,7 @@ const usePointerTracker = <T extends HTMLElement>(
 ) => {
   const pointerDownCoordinate = useRef<Coordinate>();
   const isDragging = useRef(false);
+  const dragPoints = useRef<Array<Coordinate>>([]);
 
   const handlePointerMovement = (ev: PointerEvent) => {
     if (!pointerDownCoordinate.current) return;
@@ -23,17 +24,21 @@ const usePointerTracker = <T extends HTMLElement>(
     const currentCoordinate = pointerEventToCoordinate(ev);
     config?.onPointerDrag?.(pointerDownCoordinate.current, currentCoordinate);
     pointerDownCoordinate.current = currentCoordinate;
+    dragPoints.current.push(currentCoordinate);
   };
 
   const handlePointerDown = (ev: PointerEvent) => {
-    pointerDownCoordinate.current = pointerEventToCoordinate(ev);
+    const currentCoordinate = pointerEventToCoordinate(ev);
+    pointerDownCoordinate.current = currentCoordinate;
+    dragPoints.current.push(currentCoordinate);
+    config?.onPointerClick?.();
   };
 
   const handlePointerUp = () => {
-    if (isDragging.current) config?.onPointerDragEnd?.();
-    else config?.onPointerClick?.();
+    if (isDragging.current) config?.onPointerDragEnd?.(dragPoints.current);
     pointerDownCoordinate.current = undefined;
     isDragging.current = false;
+    dragPoints.current = [];
   };
 
   useEffect(() => {

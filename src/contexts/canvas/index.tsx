@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
-import { CanvasAction } from '@/types/canvas';
+import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import Stack from '@/utils/stack';
 
@@ -31,7 +31,7 @@ interface CanvasContextInterface {
     [CanvasAction.UNDO]: () => void;
     [CanvasAction.REDO]: () => void;
   };
-  pushAsOperation: () => void;
+  pushAsOperation: (action: Partial<CanvasOperation>) => void;
   isActionAllowed: Partial<Record<CanvasAction, boolean>>;
 }
 
@@ -52,7 +52,8 @@ const CanvasContext = createContext<CanvasContextInterface>({
 const CanvasProvider = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const animationFrameID = useRef<number>();
-  const operationsStack = useRef(new Stack<ImageData>());
+  const imageDataStack = useRef(new Stack<ImageData>());
+  const operationStack = useRef(new Stack<CanvasOperation>());
   const [isActionAllowed, setIsActionAllowed] = useState<
     CanvasContextInterface['isActionAllowed']
   >({});
@@ -110,7 +111,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     ctx.fillStyle = DARK_BOARD_GREEN_HEX;
     ctx.fillRect(0, 0, ref.current.width, ref.current.height);
-    pushAsOperation();
+    pushAsOperation({ actionType: CanvasAction.CLEAR });
   });
 
   const undo = withRequestAnimationFrame<
@@ -118,13 +119,14 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
   >(() => {
     const ctx = ref.current?.getContext('2d');
     if (!ref.current || !ctx) return;
-    const lastImageData = operationsStack.current.top;
+    const lastImageData = imageDataStack.current.top;
     if (!lastImageData) {
       clear();
       return;
     }
-    operationsStack.current.pop();
-    const newImageData = operationsStack.current.top;
+    imageDataStack.current.pop();
+    operationStack.current.pop();
+    const newImageData = imageDataStack.current.top;
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     if (newImageData) ctx.putImageData(newImageData, 0, 0);
     recheckAllowedActions();
@@ -135,15 +137,21 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
   >(() => {
     const ctx = ref.current?.getContext('2d');
     if (!ref.current || !ctx) return;
-    const isUnpopped = operationsStack.current.unpop();
+    const isUnpopped = imageDataStack.current.unpop();
     if (!isUnpopped) return;
-    const newImageData = operationsStack.current.top;
+    operationStack.current.unpop();
+    const newImageData = imageDataStack.current.top;
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     if (newImageData) ctx.putImageData(newImageData, 0, 0);
     recheckAllowedActions();
   });
 
-  const pushAsOperation = () => {
+  const pushAsOperation: CanvasContextInterface['pushAsOperation'] = ({
+    points,
+    actionType,
+    color,
+    size,
+  }) => {
     const ctx = ref.current?.getContext('2d');
     if (!ref.current || !ctx) return;
     const imageData = ctx.getImageData(
@@ -152,15 +160,17 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
       ref.current.width,
       ref.current.height
     );
-    operationsStack.current.push(imageData);
+    imageDataStack.current.push(imageData);
     recheckAllowedActions();
+    if (!points?.length || !actionType || !color || !size) return;
+    operationStack.current.push({ points, actionType, color, size });
   };
 
   const recheckAllowedActions = () => {
     setIsActionAllowed((prev) => ({
       ...prev,
-      undo: operationsStack.current.size > 1,
-      redo: operationsStack.current.isExtended(),
+      undo: imageDataStack.current.size > 1,
+      redo: imageDataStack.current.isExtended(),
     }));
   };
 
