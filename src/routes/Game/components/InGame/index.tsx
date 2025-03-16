@@ -6,11 +6,12 @@ import Tooltip from '@/components/Tooltip';
 import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
 import { useUser } from '@/contexts/user';
+import { CanvasAction } from '@/types/canvas';
 
 import Canvas from './Canvas';
 import { OptionConfig } from './Canvas/useCanvasActions';
 import EditOption from './Option';
-import { OptionKey, options } from './utils';
+import { historyOptions, OptionKey, options } from './utils';
 
 const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.PENCIL]: <FaPencilAlt />,
@@ -35,8 +36,17 @@ const InGame = () => {
   } = useUser();
   const {
     action: { clear, undo, redo },
+    isActionAllowed,
   } = useCanvas();
   const isDrawing = id === drawerId;
+
+  const isDisabledOption: Record<OptionKey, boolean> = {
+    [OptionKey.PENCIL]: !isDrawing,
+    [OptionKey.ERASER]: !isDrawing,
+    [OptionKey.CLEAR]: !isDrawing,
+    [OptionKey.UNDO]: !isDrawing || !isActionAllowed[CanvasAction.UNDO],
+    [OptionKey.REDO]: !isDrawing || !isActionAllowed[CanvasAction.REDO],
+  };
 
   const handleOptionConfigChange = (ev: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = ev.target;
@@ -56,18 +66,27 @@ const InGame = () => {
     [OptionKey.UNDO]: undo,
     [OptionKey.REDO]: redo,
   };
+
   const editOptions = options.map((option) => ({
     ...option,
     icon: icons[option.key],
     handler: handlers[option.key],
+    disabled: isDisabledOption[option.key],
+  }));
+
+  const reversibleOptions = historyOptions.map((option) => ({
+    ...option,
+    icon: icons[option.key],
+    handler: handlers[option.key],
+    disabled: isDisabledOption[option.key],
   }));
 
   return (
     <div className="w-full relative">
       <Canvas optionConfig={optionConfig} />
-      <div className="flex flex-auto justify-between items-center mt-2 gap-6">
+      <div className="flex flex-auto justify-between items-center mt-4 mx-4 gap-6">
         <div className="flex flex-auto flex-grow-0 justify-center items-center gap-2">
-          {editOptions.map(({ isSelectable, handler, icon, key }) => (
+          {editOptions.map(({ isSelectable, handler, icon, key, disabled }) => (
             <EditOption
               key={key}
               isSelected={key === optionConfig.type}
@@ -76,11 +95,11 @@ const InGame = () => {
                   setOptionConfig((prev) => ({ ...prev, type: key }));
                 handler?.();
               }}
-              disabled={!isDrawing}
+              disabled={disabled}
               label={key}
               icon={icon}
             />
-          ))}{' '}
+          ))}
           <Tooltip label="Color">
             <button
               onClick={() => colorInputRef.current?.click()}
@@ -98,6 +117,18 @@ const InGame = () => {
               />
             </button>
           </Tooltip>
+        </div>
+        <div className="flex gap-2">
+          {reversibleOptions.map(({ key, handler, disabled, icon }) => (
+            <EditOption
+              key={key}
+              isSelected={key === optionConfig.type}
+              onClick={handler}
+              disabled={disabled}
+              label={key}
+              icon={icon}
+            />
+          ))}
         </div>
         <div className="flex items-center gap-2">
           <div className="relative w-8 h-8">

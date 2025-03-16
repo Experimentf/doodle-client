@@ -4,28 +4,35 @@ import {
   PropsWithChildren,
   useContext,
   useRef,
+  useState,
 } from 'react';
 
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
+import { CanvasAction } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import Stack from '@/utils/stack';
 
 interface CanvasContextInterface {
   ref: MutableRefObject<HTMLCanvasElement | null>;
   action: {
-    line: (
+    [CanvasAction.LINE]: (
       from: Coordinate,
       to: Coordinate,
       color: string,
       size: number
     ) => void;
-    fill: () => void;
-    erase: (from: Coordinate, to: Coordinate, size: number) => void;
-    clear: () => void;
-    undo: () => void;
-    redo: () => void;
+    [CanvasAction.FILL]: () => void;
+    [CanvasAction.ERASE]: (
+      from: Coordinate,
+      to: Coordinate,
+      size: number
+    ) => void;
+    [CanvasAction.CLEAR]: () => void;
+    [CanvasAction.UNDO]: () => void;
+    [CanvasAction.REDO]: () => void;
   };
   pushAsOperation: () => void;
+  isActionAllowed: Partial<Record<CanvasAction, boolean>>;
 }
 
 const CanvasContext = createContext<CanvasContextInterface>({
@@ -39,12 +46,16 @@ const CanvasContext = createContext<CanvasContextInterface>({
     redo: () => {},
   },
   pushAsOperation: () => {},
+  isActionAllowed: {},
 });
 
 const CanvasProvider = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const animationFrameID = useRef<number>();
   const operationsStack = useRef(new Stack<ImageData>());
+  const [isActionAllowed, setIsActionAllowed] = useState<
+    CanvasContextInterface['isActionAllowed']
+  >({});
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const withRequestAnimationFrame = <T extends (...args: any[]) => void>(
@@ -96,10 +107,10 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
   >(() => {
     const ctx = ref.current?.getContext('2d');
     if (!ref.current || !ctx) return;
-    pushAsOperation();
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     ctx.fillStyle = DARK_BOARD_GREEN_HEX;
     ctx.fillRect(0, 0, ref.current.width, ref.current.height);
+    pushAsOperation();
   });
 
   const undo = withRequestAnimationFrame<
@@ -116,6 +127,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     const newImageData = operationsStack.current.top;
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     if (newImageData) ctx.putImageData(newImageData, 0, 0);
+    recheckAllowedActions();
   });
 
   const redo = withRequestAnimationFrame<
@@ -128,6 +140,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     const newImageData = operationsStack.current.top;
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     if (newImageData) ctx.putImageData(newImageData, 0, 0);
+    recheckAllowedActions();
   });
 
   const pushAsOperation = () => {
@@ -140,6 +153,15 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
       ref.current.height
     );
     operationsStack.current.push(imageData);
+    recheckAllowedActions();
+  };
+
+  const recheckAllowedActions = () => {
+    setIsActionAllowed((prev) => ({
+      ...prev,
+      undo: operationsStack.current.size > 1,
+      redo: operationsStack.current.isExtended(),
+    }));
   };
 
   return (
@@ -148,6 +170,7 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
         ref,
         action: { line, fill, erase, clear, undo, redo },
         pushAsOperation,
+        isActionAllowed,
       }}
     >
       {children}

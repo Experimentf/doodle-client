@@ -11,29 +11,36 @@ export enum OptionKey {
 export interface Option {
   key: OptionKey;
   icon: ReactElement;
-  isSelectable: boolean;
+  isSelectable?: boolean;
   handler: () => void;
+  disabled: boolean;
 }
 
 export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   {
     key: OptionKey.PENCIL,
     isSelectable: true,
+    disabled: false,
   },
   {
     key: OptionKey.ERASER,
     isSelectable: true,
+    disabled: false,
   },
   {
     key: OptionKey.CLEAR,
     isSelectable: false,
+    disabled: false,
   },
+];
+
+export const historyOptions: Array<Omit<Option, 'icon' | 'handler'>> = [
   {
     key: OptionKey.UNDO,
-    isSelectable: false,
+    disabled: false,
   },
   {
     key: OptionKey.REDO,
-    isSelectable: false,
+    disabled: false,
   },
 ];

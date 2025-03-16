@@ -17,7 +17,7 @@ class Stack<T> {
     this._top = this._top + 1;
     if (this._top === this.container.length) this.container.push(item);
     else this.container[this._top] = item;
-    if (!this.isActualTop())
+    if (this.isExtended())
       this.container = this.container.slice(0, this._top + 1);
   }
 
@@ -28,7 +28,7 @@ class Stack<T> {
   }
 
   unpop() {
-    if (this.isActualTop()) return false;
+    if (!this.isExtended()) return false;
     this._top = this._top + 1;
     return true;
   }
@@ -37,10 +37,13 @@ class Stack<T> {
     return this.size === 0;
   }
 
-  toArray() {}
+  isExtended() {
+    return this.container.length > this._top + 1;
+  }
 
-  private isActualTop() {
-    return this.container.length === this._top + 1;
+  toArray() {
+    if (this._top === -1) return [];
+    return this.container.slice(0, this._top + 1);
   }
 }
 
