@@ -5,6 +5,7 @@ import { CanvasAction } from '@/types/canvas';
 export enum OptionKey {
   PENCIL = 'Pencil',
   ERASER = 'Eraser',
+  FILL = 'Fill',
   CLEAR = 'Clear',
   UNDO = 'Undo',
   REDO = 'Redo',
@@ -21,6 +22,7 @@ export interface Option {
 const optionToCanvasActionMap = {
   [OptionKey.PENCIL]: CanvasAction.LINE,
   [OptionKey.ERASER]: CanvasAction.ERASE,
+  [OptionKey.FILL]: CanvasAction.FILL,
   [OptionKey.CLEAR]: CanvasAction.CLEAR,
   [OptionKey.UNDO]: CanvasAction.UNDO,
   [OptionKey.REDO]: CanvasAction.REDO,
@@ -39,6 +41,11 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   },
   {
     key: OptionKey.ERASER,
+    isSelectable: true,
+    disabled: false,
+  },
+  {
+    key: OptionKey.FILL,
     isSelectable: true,
     disabled: false,
   },

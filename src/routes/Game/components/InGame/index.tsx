@@ -5,7 +5,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { FaEraser, FaPencilAlt, FaRedo, FaTrash, FaUndo } from 'react-icons/fa';
+import {
+  FaEraser,
+  FaFillDrip,
+  FaPencilAlt,
+  FaRedo,
+  FaTrash,
+  FaUndo,
+} from 'react-icons/fa';
 import { IoMdColorPalette } from 'react-icons/io';
 
 import Tooltip from '@/components/Tooltip';
@@ -24,6 +31,7 @@ import { historyOptions, OptionKey, options } from './utils';
 const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.PENCIL]: <FaPencilAlt />,
   [OptionKey.ERASER]: <FaEraser />,
+  [OptionKey.FILL]: <FaFillDrip />,
   [OptionKey.CLEAR]: <FaTrash />,
   [OptionKey.UNDO]: <FaUndo />,
   [OptionKey.REDO]: <FaRedo />,
@@ -106,6 +114,7 @@ const InGame = () => {
   const handlers: Record<OptionKey, () => void> = {
     [OptionKey.PENCIL]: () => {},
     [OptionKey.ERASER]: () => {},
+    [OptionKey.FILL]: () => {},
     [OptionKey.CLEAR]: handleClear,
     [OptionKey.UNDO]: undo,
     [OptionKey.REDO]: redo,
@@ -115,6 +124,7 @@ const InGame = () => {
     [OptionKey.PENCIL]: !isDrawing,
     [OptionKey.ERASER]: !isDrawing,
     [OptionKey.CLEAR]: !isDrawing,
+    [OptionKey.FILL]: !isDrawing,
     [OptionKey.UNDO]: !isDrawing || !isActionAllowed[CanvasAction.UNDO],
     [OptionKey.REDO]: !isDrawing || !isActionAllowed[CanvasAction.REDO],
   };

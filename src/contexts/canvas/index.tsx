@@ -10,7 +10,12 @@ import {
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
-import Stack from '@/utils/stack';
+import {
+  convertHexToRGB,
+  getPixelHexCode,
+  getPointsByBFS,
+} from '@/utils/canvas';
+import Stack from '@/utils/dataStructures/stack';
 
 interface CanvasContextInterface {
   ref: MutableRefObject<HTMLCanvasElement | null>;
@@ -21,7 +26,11 @@ interface CanvasContextInterface {
       color: string,
       size: number
     ) => void;
-    [CanvasAction.FILL]: () => void;
+    [CanvasAction.FILL]: (
+      point: Coordinate,
+      color: string,
+      size: number
+    ) => void;
     [CanvasAction.ERASE]: (
       from: Coordinate,
       to: Coordinate,
@@ -91,7 +100,35 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
 
   const fill = withRequestAnimationFrame<
     CanvasContextInterface['action']['fill']
-  >(() => {});
+  >((point, color) => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx || !ref.current) return;
+    const maxWidth = ref.current.width;
+    const maxHeight = ref.current.height;
+
+    const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
+    const data = imageData.data;
+    const previousColor = getPixelHexCode(ctx, point);
+
+    const validator = (coord: Coordinate) =>
+      getPixelHexCode(ctx, coord) === previousColor;
+
+    const pixelPatchWithSameColor = getPointsByBFS(
+      point,
+      validator,
+      maxWidth,
+      maxHeight
+    );
+    for (const point of pixelPatchWithSameColor) {
+      const index = (point.y * maxWidth + point.x) * 4;
+      const { r, g, b } = convertHexToRGB(color);
+      data[index] = r;
+      data[index + 1] = g;
+      data[index + 2] = b;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  });
 
   const erase = withRequestAnimationFrame<
     CanvasContextInterface['action']['erase']
@@ -154,18 +191,25 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     CanvasContextInterface['bulkLineAction']
   >((points, color, size) => {
     const nPoints = points.length;
-    if (nPoints === 0) return;
     const ctx = ref.current?.getContext('2d');
-    if (!ctx) return;
-    ctx.beginPath();
-    ctx.lineWidth = size;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = color;
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < nPoints; i++) {
-      ctx.lineTo(points[i].x, points[i].y);
-    }
-    ctx.stroke();
+    if (nPoints === 0 || !ctx) return;
+
+    let currentIndex = 0;
+
+    const drawNextLine = () => {
+      if (currentIndex >= nPoints - 1) return;
+      ctx.beginPath();
+      ctx.lineWidth = size;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = color;
+      ctx.moveTo(points[currentIndex].x, points[currentIndex].y);
+      ctx.lineTo(points[currentIndex + 1].x, points[currentIndex + 1].y);
+      ctx.stroke();
+      currentIndex++;
+      requestAnimationFrame(drawNextLine);
+    };
+
+    drawNextLine();
   });
 
   const bulkEraseAction: CanvasContextInterface['bulkEraseAction'] = (

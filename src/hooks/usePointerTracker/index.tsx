@@ -7,7 +7,7 @@ import { pointerEventToCoordinate } from './utils';
 interface PointerTrackerConfig {
   onPointerDrag?: (from: Coordinate, to: Coordinate) => void;
   onPointerDragEnd?: (dragPoints: Array<Coordinate>) => void;
-  onPointerClick?: () => void;
+  onPointerClick?: (point: Coordinate) => void;
 }
 
 const usePointerTracker = <T extends HTMLElement>(
@@ -31,10 +31,15 @@ const usePointerTracker = <T extends HTMLElement>(
     const currentCoordinate = pointerEventToCoordinate(ev);
     pointerDownCoordinate.current = currentCoordinate;
     dragPoints.current.push(currentCoordinate);
-    config?.onPointerClick?.();
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (ev: PointerEvent) => {
+    if (!isDragging.current)
+      config?.onPointerClick?.(pointerEventToCoordinate(ev));
+    handlePointerLeave();
+  };
+
+  const handlePointerLeave = () => {
     if (isDragging.current) config?.onPointerDragEnd?.(dragPoints.current);
     pointerDownCoordinate.current = undefined;
     isDragging.current = false;
@@ -46,9 +51,9 @@ const usePointerTracker = <T extends HTMLElement>(
       elementRef.current.addEventListener('pointermove', handlePointerMovement);
       elementRef.current.addEventListener('pointerdown', handlePointerDown);
       elementRef.current.addEventListener('pointerup', handlePointerUp);
-      elementRef.current.addEventListener('pointercancel', handlePointerUp);
-      elementRef.current.addEventListener('pointerleave', handlePointerUp);
-      elementRef.current.addEventListener('pointerout', handlePointerUp);
+      elementRef.current.addEventListener('pointercancel', handlePointerLeave);
+      elementRef.current.addEventListener('pointerleave', handlePointerLeave);
+      elementRef.current.addEventListener('pointerout', handlePointerLeave);
     }
     return () => {
       elementRef.current?.removeEventListener(
@@ -57,9 +62,15 @@ const usePointerTracker = <T extends HTMLElement>(
       );
       elementRef.current?.removeEventListener('pointerdown', handlePointerDown);
       elementRef.current?.removeEventListener('pointerup', handlePointerUp);
-      elementRef.current?.removeEventListener('pointercancel', handlePointerUp);
-      elementRef.current?.removeEventListener('pointerleave', handlePointerUp);
-      elementRef.current?.removeEventListener('pointerout', handlePointerUp);
+      elementRef.current?.removeEventListener(
+        'pointercancel',
+        handlePointerLeave
+      );
+      elementRef.current?.removeEventListener(
+        'pointerleave',
+        handlePointerLeave
+      );
+      elementRef.current?.removeEventListener('pointerout', handlePointerLeave);
     };
   }, [config]);
 };
