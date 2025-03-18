@@ -4,6 +4,7 @@ import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
+import { floorCoordinate } from '@/utils/coordinate';
 
 import { convertOptionKeyToCanvasActionKey, OptionKey } from '../utils';
 
@@ -21,14 +22,8 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const { action } = useCanvas();
 
   const onPointerDrag = (from: Coordinate, to: Coordinate) => {
-    const flooredFrom: Coordinate = {
-      x: Math.floor(from.x),
-      y: Math.floor(from.y),
-    };
-    const flooredTo: Coordinate = {
-      x: Math.floor(to.x),
-      y: Math.floor(to.y),
-    };
+    const flooredFrom = floorCoordinate(from);
+    const flooredTo = floorCoordinate(to);
 
     switch (optionConfig?.type) {
       case OptionKey.PENCIL:
@@ -48,10 +43,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   };
 
   const onPointerDragEnd = async (dragPoints: Array<Coordinate>) => {
-    const flooredPoints: Coordinate[] = dragPoints.map((point) => ({
-      x: Math.floor(point.x),
-      y: Math.floor(point.y),
-    }));
+    const flooredPoints: Coordinate[] = dragPoints.map(floorCoordinate);
     const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
     const canvasOperation: Partial<CanvasOperation> = {
       points: flooredPoints,
@@ -96,7 +88,6 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
       color: optionConfig?.color,
       size: optionConfig?.brushSize,
     };
-    console.log(operationPerformed);
 
     if (operationPerformed) {
       await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {

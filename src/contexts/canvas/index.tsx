@@ -150,24 +150,30 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     drawNextLine();
   });
 
-  const bulkEraseAction: CanvasContextInterface['bulkEraseAction'] = (
-    points,
-    size
-  ) => {
+  const bulkEraseAction = withRequestAnimationFrame<
+    CanvasContextInterface['bulkEraseAction']
+  >((points, size) => {
     const nPoints = points.length;
     if (nPoints === 0) return;
     const ctx = ref.current?.getContext('2d');
     if (!ctx) return;
-    ctx.beginPath();
-    ctx.lineWidth = size;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = DARK_BOARD_GREEN_HEX;
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < nPoints; i++) {
-      ctx.lineTo(points[i].x, points[i].y);
-    }
-    ctx.stroke();
-  };
+    let currentIndex = 0;
+
+    const drawNextLine = () => {
+      if (currentIndex >= nPoints - 1) return;
+      ctx.beginPath();
+      ctx.lineWidth = size;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = DARK_BOARD_GREEN_HEX;
+      ctx.moveTo(points[currentIndex].x, points[currentIndex].y);
+      ctx.lineTo(points[currentIndex + 1].x, points[currentIndex + 1].y);
+      ctx.stroke();
+      currentIndex++;
+      requestAnimationFrame(drawNextLine);
+    };
+
+    drawNextLine();
+  });
 
   return (
     <CanvasContext.Provider
@@ -184,5 +190,4 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
 };
 
 export const useCanvas = () => useContext(CanvasContext);
-
 export default CanvasProvider;

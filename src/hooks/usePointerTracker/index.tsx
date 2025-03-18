@@ -1,8 +1,7 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 
 import { Coordinate } from '@/types/common';
-
-import { pointerEventToCoordinate } from './utils';
+import { pointerEventToCoordinate } from '@/utils/pointer';
 
 interface PointerTrackerConfig {
   onPointerDrag?: (from: Coordinate, to: Coordinate) => void;
