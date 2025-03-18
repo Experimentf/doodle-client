@@ -33,12 +33,12 @@ export const getPointsByBFS = (
   const result: Coordinate[] = [point];
 
   const isValidCoordinate = (coord: Coordinate) => {
-    if (coord.x < 0 || coord.x > maxWidth) return false;
-    if (coord.y < 0 || coord.y > maxHeight) return false;
+    if (coord.x < 0 || coord.x >= maxWidth) return false;
+    if (coord.y < 0 || coord.y >= maxHeight) return false;
     return validator(coord);
   };
 
-  const convertToKey = (coord: Coordinate) => `${coord.x},${coord.y}`;
+  const convertToKey = (coord: Coordinate) => coord.x + ',' + coord.y;
 
   const diff = [-1, 0, 1];
   const nDiff = diff.length;

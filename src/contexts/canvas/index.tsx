@@ -10,11 +10,7 @@ import {
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
-import {
-  convertHexToRGB,
-  getPixelHexCode,
-  getPointsByBFS,
-} from '@/utils/canvas';
+import { getPixelHexCode } from '@/utils/canvas';
 import Stack from '@/utils/dataStructures/stack';
 
 interface CanvasContextInterface {
@@ -76,8 +72,6 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     fn: (...args: Parameters<T>) => void
   ) => {
     return (...args: Parameters<T>) => {
-      if (animationFrameID.current)
-        cancelAnimationFrame(animationFrameID.current);
       animationFrameID.current = requestAnimationFrame(() => {
         fn(...args);
       });
@@ -103,31 +97,27 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
   >((point, color) => {
     const ctx = ref.current?.getContext('2d');
     if (!ctx || !ref.current) return;
+
     const maxWidth = ref.current.width;
     const maxHeight = ref.current.height;
-
     const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
-    const data = imageData.data;
     const previousColor = getPixelHexCode(ctx, point);
 
-    const validator = (coord: Coordinate) =>
-      getPixelHexCode(ctx, coord) === previousColor;
-
-    const pixelPatchWithSameColor = getPointsByBFS(
-      point,
-      validator,
-      maxWidth,
-      maxHeight
+    const fillWorker = new Worker(
+      new URL('../../workers/canvas/fill.worker', import.meta.url)
     );
-    for (const point of pixelPatchWithSameColor) {
-      const index = (point.y * maxWidth + point.x) * 4;
-      const { r, g, b } = convertHexToRGB(color);
-      data[index] = r;
-      data[index + 1] = g;
-      data[index + 2] = b;
-    }
-
-    ctx.putImageData(imageData, 0, 0);
+    fillWorker.postMessage({
+      imageData,
+      point,
+      previousColor,
+      newColor: color,
+      maxWidth,
+      maxHeight,
+    });
+    fillWorker.onmessage = (event: MessageEvent<ImageData>) => {
+      const newImageData = event.data;
+      ctx.putImageData(newImageData, 0, 0);
+    };
   });
 
   const erase = withRequestAnimationFrame<
