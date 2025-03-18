@@ -5,14 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  FaEraser,
-  FaFillDrip,
-  FaPencilAlt,
-  FaRedo,
-  FaTrash,
-  FaUndo,
-} from 'react-icons/fa';
+import { FaEraser, FaFillDrip, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import { IoMdColorPalette } from 'react-icons/io';
 
 import Tooltip from '@/components/Tooltip';
@@ -26,15 +19,13 @@ import { CanvasAction } from '@/types/canvas';
 import Canvas from './Canvas';
 import { OptionConfig } from './Canvas/useCanvasActions';
 import EditOption from './Option';
-import { historyOptions, OptionKey, options } from './utils';
+import { OptionKey, options } from './utils';
 
 const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.PENCIL]: <FaPencilAlt />,
   [OptionKey.ERASER]: <FaEraser />,
   [OptionKey.FILL]: <FaFillDrip />,
   [OptionKey.CLEAR]: <FaTrash />,
-  [OptionKey.UNDO]: <FaUndo />,
-  [OptionKey.REDO]: <FaRedo />,
 };
 
 const InGame = () => {
@@ -53,10 +44,9 @@ const InGame = () => {
     user: { id },
   } = useUser();
   const {
-    action: { clear, undo, redo },
+    action: { clear },
     bulkLineAction,
     bulkEraseAction,
-    isActionAllowed,
   } = useCanvas();
   const isDrawing = id === drawerId;
 
@@ -74,12 +64,6 @@ const InGame = () => {
             break;
           case CanvasAction.CLEAR:
             clear();
-            break;
-          case CanvasAction.UNDO:
-            undo();
-            break;
-          case CanvasAction.REDO:
-            redo();
             break;
           default:
             return;
@@ -116,31 +100,13 @@ const InGame = () => {
     [OptionKey.ERASER]: () => {},
     [OptionKey.FILL]: () => {},
     [OptionKey.CLEAR]: handleClear,
-    [OptionKey.UNDO]: undo,
-    [OptionKey.REDO]: redo,
-  };
-
-  const isDisabledOption: Record<OptionKey, boolean> = {
-    [OptionKey.PENCIL]: !isDrawing,
-    [OptionKey.ERASER]: !isDrawing,
-    [OptionKey.CLEAR]: !isDrawing,
-    [OptionKey.FILL]: !isDrawing,
-    [OptionKey.UNDO]: !isDrawing || !isActionAllowed[CanvasAction.UNDO],
-    [OptionKey.REDO]: !isDrawing || !isActionAllowed[CanvasAction.REDO],
   };
 
   const editOptions = options.map((option) => ({
     ...option,
     icon: icons[option.key],
     handler: handlers[option.key],
-    disabled: isDisabledOption[option.key],
-  }));
-
-  const reversibleOptions = historyOptions.map((option) => ({
-    ...option,
-    icon: icons[option.key],
-    handler: handlers[option.key],
-    disabled: isDisabledOption[option.key],
+    disabled: !isDrawing,
   }));
 
   return (
@@ -179,18 +145,6 @@ const InGame = () => {
               />
             </button>
           </Tooltip>
-        </div>
-        <div className="flex gap-2">
-          {reversibleOptions.map(({ key, handler, disabled, icon }) => (
-            <EditOption
-              key={key}
-              isSelected={key === optionConfig.type}
-              onClick={handler}
-              disabled={disabled}
-              label={key}
-              icon={icon}
-            />
-          ))}
         </div>
         <div className="flex items-center gap-2">
           <div className="relative w-8 h-8">

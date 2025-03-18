@@ -7,8 +7,6 @@ export enum OptionKey {
   ERASER = 'Eraser',
   FILL = 'Fill',
   CLEAR = 'Clear',
-  UNDO = 'Undo',
-  REDO = 'Redo',
 }
 
 export interface Option {
@@ -24,8 +22,6 @@ const optionToCanvasActionMap = {
   [OptionKey.ERASER]: CanvasAction.ERASE,
   [OptionKey.FILL]: CanvasAction.FILL,
   [OptionKey.CLEAR]: CanvasAction.CLEAR,
-  [OptionKey.UNDO]: CanvasAction.UNDO,
-  [OptionKey.REDO]: CanvasAction.REDO,
 };
 
 export const convertOptionKeyToCanvasActionKey = (key?: OptionKey) => {
@@ -52,17 +48,6 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   {
     key: OptionKey.CLEAR,
     isSelectable: false,
-    disabled: false,
-  },
-];
-
-export const historyOptions: Array<Omit<Option, 'icon' | 'handler'>> = [
-  {
-    key: OptionKey.UNDO,
-    disabled: false,
-  },
-  {
-    key: OptionKey.REDO,
     disabled: false,
   },
 ];

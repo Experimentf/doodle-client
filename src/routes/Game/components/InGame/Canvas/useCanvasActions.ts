@@ -18,7 +18,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const {
     room: { id: roomId },
   } = useRoom();
-  const { action, pushAsOperation } = useCanvas();
+  const { action } = useCanvas();
 
   const onPointerDrag = (from: Coordinate, to: Coordinate) => {
     const flooredFrom: Coordinate = {
@@ -64,7 +64,6 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
       canvasAction !== CanvasAction.ERASE
     )
       return;
-    pushAsOperation(canvasOperation);
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation,
       roomId,

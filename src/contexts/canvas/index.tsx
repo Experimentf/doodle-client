@@ -4,14 +4,12 @@ import {
   PropsWithChildren,
   useContext,
   useRef,
-  useState,
 } from 'react';
 
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
-import { CanvasAction, CanvasOperation } from '@/types/canvas';
+import { CanvasAction } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { getPixelHexCode } from '@/utils/canvas';
-import Stack from '@/utils/dataStructures/stack';
 
 interface CanvasContextInterface {
   ref: MutableRefObject<HTMLCanvasElement | null>;
@@ -33,13 +31,9 @@ interface CanvasContextInterface {
       size: number
     ) => void;
     [CanvasAction.CLEAR]: () => void;
-    [CanvasAction.UNDO]: () => void;
-    [CanvasAction.REDO]: () => void;
   };
   bulkLineAction: (points: Coordinate[], color: string, size: number) => void;
   bulkEraseAction: (points: Coordinate[], size: number) => void;
-  pushAsOperation: (action: Partial<CanvasOperation>) => void;
-  isActionAllowed: Partial<Record<CanvasAction, boolean>>;
 }
 
 const CanvasContext = createContext<CanvasContextInterface>({
@@ -49,23 +43,14 @@ const CanvasContext = createContext<CanvasContextInterface>({
     fill: () => {},
     erase: () => {},
     clear: () => {},
-    undo: () => {},
-    redo: () => {},
   },
   bulkLineAction: () => {},
   bulkEraseAction: () => {},
-  pushAsOperation: () => {},
-  isActionAllowed: {},
 });
 
 const CanvasProvider = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const animationFrameID = useRef<number>();
-  const imageDataStack = useRef(new Stack<ImageData>());
-  const operationStack = useRef(new Stack<CanvasOperation>());
-  const [isActionAllowed, setIsActionAllowed] = useState<
-    CanvasContextInterface['isActionAllowed']
-  >({});
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const withRequestAnimationFrame = <T extends (...args: any[]) => void>(
@@ -142,39 +127,6 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     ctx.clearRect(0, 0, ref.current.width, ref.current.height);
     ctx.fillStyle = DARK_BOARD_GREEN_HEX;
     ctx.fillRect(0, 0, ref.current.width, ref.current.height);
-    pushAsOperation({ actionType: CanvasAction.CLEAR });
-  });
-
-  const undo = withRequestAnimationFrame<
-    CanvasContextInterface['action']['undo']
-  >(() => {
-    const ctx = ref.current?.getContext('2d');
-    if (!ref.current || !ctx) return;
-    const lastImageData = imageDataStack.current.top;
-    if (!lastImageData) {
-      clear();
-      return;
-    }
-    imageDataStack.current.pop();
-    operationStack.current.pop();
-    const newImageData = imageDataStack.current.top;
-    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
-    if (newImageData) ctx.putImageData(newImageData, 0, 0);
-    recheckAllowedActions();
-  });
-
-  const redo = withRequestAnimationFrame<
-    CanvasContextInterface['action']['redo']
-  >(() => {
-    const ctx = ref.current?.getContext('2d');
-    if (!ref.current || !ctx) return;
-    const isUnpopped = imageDataStack.current.unpop();
-    if (!isUnpopped) return;
-    operationStack.current.unpop();
-    const newImageData = imageDataStack.current.top;
-    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
-    if (newImageData) ctx.putImageData(newImageData, 0, 0);
-    recheckAllowedActions();
   });
 
   const bulkLineAction = withRequestAnimationFrame<
@@ -221,43 +173,13 @@ const CanvasProvider = ({ children }: PropsWithChildren) => {
     ctx.stroke();
   };
 
-  const pushAsOperation: CanvasContextInterface['pushAsOperation'] = ({
-    points,
-    actionType,
-    color,
-    size,
-  }) => {
-    const ctx = ref.current?.getContext('2d');
-    if (!ref.current || !ctx) return;
-    const imageData = ctx.getImageData(
-      0,
-      0,
-      ref.current.width,
-      ref.current.height
-    );
-    imageDataStack.current.push(imageData);
-    recheckAllowedActions();
-    if (!points?.length || !actionType || !color || !size) return;
-    operationStack.current.push({ points, actionType, color, size });
-  };
-
-  const recheckAllowedActions = () => {
-    setIsActionAllowed((prev) => ({
-      ...prev,
-      undo: imageDataStack.current.size > 1,
-      redo: imageDataStack.current.isExtended(),
-    }));
-  };
-
   return (
     <CanvasContext.Provider
       value={{
         ref,
-        action: { line, fill, erase, clear, undo, redo },
+        action: { line, fill, erase, clear },
         bulkLineAction,
         bulkEraseAction,
-        pushAsOperation,
-        isActionAllowed,
       }}
     >
       {children}

@@ -5,8 +5,6 @@ export enum CanvasAction {
   FILL = 'fill',
   ERASE = 'erase',
   CLEAR = 'clear',
-  UNDO = 'undo',
-  REDO = 'redo',
 }
 
 export interface CanvasOperation {
