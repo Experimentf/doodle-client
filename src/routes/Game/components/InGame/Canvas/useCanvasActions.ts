@@ -70,17 +70,39 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     });
   };
 
-  const onPointerClick = (point: Coordinate) => {
+  const onPointerClick = async (point: Coordinate) => {
     const flooredPoint: Coordinate = {
       x: Math.floor(point.x),
       y: Math.floor(point.y),
     };
-    switch (optionConfig?.type) {
-      case OptionKey.FILL:
-        action.fill(flooredPoint, optionConfig.color, optionConfig.brushSize);
-        break;
-      default:
-        break;
+
+    const performOperation = () => {
+      switch (optionConfig?.type) {
+        case OptionKey.FILL:
+          action.fill(flooredPoint, optionConfig.color);
+          break;
+        default:
+          return false;
+      }
+      return true;
+    };
+
+    const operationPerformed = performOperation();
+
+    const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
+    const canvasOperation: Partial<CanvasOperation> = {
+      points: [flooredPoint],
+      actionType: canvasAction,
+      color: optionConfig?.color,
+      size: optionConfig?.brushSize,
+    };
+    console.log(operationPerformed);
+
+    if (operationPerformed) {
+      await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
+        canvasOperation,
+        roomId,
+      });
     }
   };
 

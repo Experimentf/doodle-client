@@ -20,11 +20,7 @@ interface CanvasContextInterface {
       color: string,
       size: number
     ) => void;
-    [CanvasAction.FILL]: (
-      point: Coordinate,
-      color: string,
-      size: number
-    ) => void;
+    [CanvasAction.FILL]: (point: Coordinate, color: string) => void;
     [CanvasAction.ERASE]: (
       from: Coordinate,
       to: Coordinate,

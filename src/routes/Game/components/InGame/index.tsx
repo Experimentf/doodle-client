@@ -44,7 +44,7 @@ const InGame = () => {
     user: { id },
   } = useUser();
   const {
-    action: { clear },
+    action: { clear, fill },
     bulkLineAction,
     bulkEraseAction,
   } = useCanvas();
@@ -61,6 +61,9 @@ const InGame = () => {
             break;
           case CanvasAction.ERASE:
             if (points && size) bulkEraseAction(points, size);
+            break;
+          case CanvasAction.FILL:
+            if (points?.length && color) fill(points[0], color);
             break;
           case CanvasAction.CLEAR:
             clear();
