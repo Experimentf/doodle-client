@@ -23,8 +23,16 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
 
   const handleCanvasResize = useDebounce(async () => {
     if (!canvasRef.current) return;
-    canvasRef.current.width = canvasRef.current.clientWidth;
-    canvasRef.current.height = canvasRef.current.clientHeight;
+
+    // Size Handling
+    const dpr = window.devicePixelRatio;
+    const rect = canvasRef.current.getBoundingClientRect();
+    canvasRef.current.width = rect.width * dpr;
+    canvasRef.current.height = rect.height * dpr;
+    const context = canvasRef.current.getContext('2d');
+    if (context) context.scale(dpr, dpr);
+
+    // Drawing Handling
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
     if (isMountedRef.current) await drawing?.reloadOperations();
     else await drawing?.loadOperations(canvasOperations, false);

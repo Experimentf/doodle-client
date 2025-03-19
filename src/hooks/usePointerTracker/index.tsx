@@ -1,75 +1,87 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 
 import { Coordinate } from '@/types/common';
-import { pointerEventToCoordinate } from '@/utils/pointer';
 
 interface PointerTrackerConfig {
   onPointerDrag?: (from: Coordinate, to: Coordinate) => void;
-  onPointerDragEnd?: (dragPoints: Array<Coordinate>) => void;
+  onPointerDragEnd?: (_dragPoints: Array<Coordinate>) => void;
   onPointerClick?: (point: Coordinate) => void;
 }
 
-const usePointerTracker = <T extends HTMLElement>(
+const usePointerTracker = <T extends HTMLCanvasElement>(
   elementRef: MutableRefObject<T | null>,
   config?: PointerTrackerConfig
 ) => {
-  const pointerDownCoordinate = useRef<Coordinate>();
-  const isDragging = useRef(false);
-  const dragPoints = useRef<Array<Coordinate>>([]);
+  const _pointerDownCoordinate = useRef<Coordinate>();
+  const _isDragging = useRef(false);
+  const _dragPoints = useRef<Array<Coordinate>>([]);
 
-  const handlePointerMovement = (ev: PointerEvent) => {
-    if (!pointerDownCoordinate.current) return;
-    isDragging.current = true;
-    const currentCoordinate = pointerEventToCoordinate(ev);
-    config?.onPointerDrag?.(pointerDownCoordinate.current, currentCoordinate);
-    pointerDownCoordinate.current = currentCoordinate;
-    dragPoints.current.push(currentCoordinate);
+  const _getCoordinate = (ev: PointerEvent): Coordinate => ({
+    x: ev.offsetX,
+    y: ev.offsetY,
+  });
+
+  const _handlePointerMovement = (ev: PointerEvent) => {
+    if (!_pointerDownCoordinate.current) return;
+    _isDragging.current = true;
+    const currentCoordinate = _getCoordinate(ev);
+    config?.onPointerDrag?.(_pointerDownCoordinate.current, currentCoordinate);
+    _pointerDownCoordinate.current = currentCoordinate;
+    _dragPoints.current.push(currentCoordinate);
   };
 
-  const handlePointerDown = (ev: PointerEvent) => {
-    const currentCoordinate = pointerEventToCoordinate(ev);
-    pointerDownCoordinate.current = currentCoordinate;
-    dragPoints.current.push(currentCoordinate);
+  const _handlePointerDown = (ev: PointerEvent) => {
+    const currentCoordinate = _getCoordinate(ev);
+    _pointerDownCoordinate.current = currentCoordinate;
+    _dragPoints.current.push(currentCoordinate);
   };
 
-  const handlePointerUp = (ev: PointerEvent) => {
-    if (!isDragging.current)
-      config?.onPointerClick?.(pointerEventToCoordinate(ev));
-    handlePointerLeave();
+  const _handlePointerUp = (ev: PointerEvent) => {
+    if (!_isDragging.current) config?.onPointerClick?.(_getCoordinate(ev));
+    _handlePointerLeave();
   };
 
-  const handlePointerLeave = () => {
-    if (isDragging.current) config?.onPointerDragEnd?.(dragPoints.current);
-    pointerDownCoordinate.current = undefined;
-    isDragging.current = false;
-    dragPoints.current = [];
+  const _handlePointerLeave = () => {
+    if (_isDragging.current) config?.onPointerDragEnd?.(_dragPoints.current);
+    _pointerDownCoordinate.current = undefined;
+    _isDragging.current = false;
+    _dragPoints.current = [];
   };
 
   useEffect(() => {
     if (config && !!Object.keys(config).length && elementRef.current) {
-      elementRef.current.addEventListener('pointermove', handlePointerMovement);
-      elementRef.current.addEventListener('pointerdown', handlePointerDown);
-      elementRef.current.addEventListener('pointerup', handlePointerUp);
-      elementRef.current.addEventListener('pointercancel', handlePointerLeave);
-      elementRef.current.addEventListener('pointerleave', handlePointerLeave);
-      elementRef.current.addEventListener('pointerout', handlePointerLeave);
+      elementRef.current.addEventListener(
+        'pointermove',
+        _handlePointerMovement
+      );
+      elementRef.current.addEventListener('pointerdown', _handlePointerDown);
+      elementRef.current.addEventListener('pointerup', _handlePointerUp);
+      elementRef.current.addEventListener('pointercancel', _handlePointerLeave);
+      elementRef.current.addEventListener('pointerleave', _handlePointerLeave);
+      elementRef.current.addEventListener('pointerout', _handlePointerLeave);
     }
     return () => {
       elementRef.current?.removeEventListener(
         'pointermove',
-        handlePointerMovement
+        _handlePointerMovement
       );
-      elementRef.current?.removeEventListener('pointerdown', handlePointerDown);
-      elementRef.current?.removeEventListener('pointerup', handlePointerUp);
+      elementRef.current?.removeEventListener(
+        'pointerdown',
+        _handlePointerDown
+      );
+      elementRef.current?.removeEventListener('pointerup', _handlePointerUp);
       elementRef.current?.removeEventListener(
         'pointercancel',
-        handlePointerLeave
+        _handlePointerLeave
       );
       elementRef.current?.removeEventListener(
         'pointerleave',
-        handlePointerLeave
+        _handlePointerLeave
       );
-      elementRef.current?.removeEventListener('pointerout', handlePointerLeave);
+      elementRef.current?.removeEventListener(
+        'pointerout',
+        _handlePointerLeave
+      );
     };
   }, [config]);
 };

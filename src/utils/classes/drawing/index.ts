@@ -3,7 +3,7 @@ import { RefObject } from 'react';
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
-import { getPixelHexCode } from '@/utils/canvas';
+import { getPixelHexCode } from '@/utils/colors';
 
 import Stack from '../stack';
 import { DrawingInterface } from './interface';
@@ -89,18 +89,21 @@ export class Drawing implements DrawingInterface {
     const ctx = this._getContext(true);
     const ref = this._ref;
     if (!ctx || !ref.current) return;
-    const maxWidth = ref.current.width;
-    const maxHeight = ref.current.height;
     if (window.Worker) {
-      const previousColor = getPixelHexCode(ctx, point);
-      const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
+      // Scaled point is only required when operating on image data
+      const scaledPoint: Coordinate = {
+        x: point.x * window.devicePixelRatio,
+        y: point.y * window.devicePixelRatio,
+      };
+      const previousColor = getPixelHexCode(ctx, scaledPoint);
+      const imageData = ctx.getImageData(0, 0, this._maxWidth, this._maxHeight);
       const newImageData = await this._asyncFillWorker(
         imageData,
-        point,
+        scaledPoint,
         previousColor,
         color,
-        maxWidth,
-        maxHeight
+        this._maxWidth,
+        this._maxHeight
       );
       ctx.putImageData(newImageData, 0, 0);
     } else {
@@ -113,11 +116,9 @@ export class Drawing implements DrawingInterface {
     const ctx = this._getContext();
     const ref = this._ref;
     if (!ctx || !ref.current) return;
-    const maxWidth = ref.current.width;
-    const maxHeight = ref.current.height;
-    ctx.clearRect(0, 0, maxWidth, maxHeight);
+    ctx.clearRect(0, 0, this._maxWidth, this._maxHeight);
     ctx.fillStyle = DARK_BOARD_GREEN_HEX;
-    ctx.fillRect(0, 0, maxWidth, maxHeight);
+    ctx.fillRect(0, 0, this._maxWidth, this._maxHeight);
   };
 
   private _batchLine = (points: Coordinate[], color: string, size: number) => {
@@ -173,5 +174,15 @@ export class Drawing implements DrawingInterface {
     const ctx = this._ref.current?.getContext('2d', { willReadFrequently });
     if (ctx) ctx.imageSmoothingEnabled = false;
     return ctx;
+  }
+
+  private get _maxWidth() {
+    if (!this._ref.current) return 0;
+    return this._ref.current.width;
+  }
+
+  private get _maxHeight() {
+    if (!this._ref.current) return 0;
+    return this._ref.current.height;
   }
 }
