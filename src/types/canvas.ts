@@ -5,6 +5,8 @@ export enum CanvasAction {
   FILL = 'fill',
   ERASE = 'erase',
   CLEAR = 'clear',
+  BATCH_LINE = 'batchLine',
+  BATCH_ERASE = 'batchErase',
 }
 
 export interface CanvasOperation {

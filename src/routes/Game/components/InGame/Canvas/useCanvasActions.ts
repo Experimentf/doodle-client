@@ -19,7 +19,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const {
     room: { id: roomId },
   } = useRoom();
-  const { action } = useCanvas();
+  const { drawing } = useCanvas();
 
   const onPointerDrag = (from: Coordinate, to: Coordinate) => {
     const flooredFrom = floorCoordinate(from);
@@ -27,7 +27,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
 
     switch (optionConfig?.type) {
       case OptionKey.PENCIL:
-        action.line(
+        drawing?.line(
           flooredFrom,
           flooredTo,
           optionConfig.color,
@@ -35,7 +35,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
         );
         break;
       case OptionKey.ERASER:
-        action.erase(flooredFrom, flooredTo, optionConfig.brushSize);
+        drawing?.erase(flooredFrom, flooredTo, optionConfig.brushSize);
         break;
       default:
         break;
@@ -71,7 +71,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.FILL:
-          action.fill(flooredPoint, optionConfig.color);
+          drawing?.fill(flooredPoint, optionConfig.color);
           break;
         default:
           return false;

@@ -43,11 +43,7 @@ const InGame = () => {
   const {
     user: { id },
   } = useUser();
-  const {
-    action: { clear, fill },
-    bulkLineAction,
-    bulkEraseAction,
-  } = useCanvas();
+  const { drawing } = useCanvas();
   const isDrawing = id === drawerId;
 
   const registerCanvasOperation = () => {
@@ -57,16 +53,17 @@ const InGame = () => {
         const { points, actionType, color, size } = canvasOperation;
         switch (actionType) {
           case CanvasAction.LINE:
-            if (points && color && size) bulkLineAction(points, color, size);
+            if (points && color && size)
+              drawing?.batchLine(points, color, size);
             break;
           case CanvasAction.ERASE:
-            if (points && size) bulkEraseAction(points, size);
+            if (points && size) drawing?.batchErase(points, size);
             break;
           case CanvasAction.FILL:
-            if (points?.length && color) fill(points[0], color);
+            if (points?.length && color) drawing?.fill(points[0], color);
             break;
           case CanvasAction.CLEAR:
-            clear();
+            drawing?.clear();
             break;
           default:
             return;
@@ -80,7 +77,7 @@ const InGame = () => {
   }, [isDrawing]);
 
   const handleClear = async () => {
-    clear();
+    drawing?.clear();
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation: { actionType: CanvasAction.CLEAR },
       roomId,
