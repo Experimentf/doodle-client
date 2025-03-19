@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useCanvas } from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
@@ -17,6 +17,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   const {
     game: { canvasOperations },
   } = useGame();
+  const isMountedRef = useRef(false);
   const pointerConfig = useCanvasActions(optionConfig);
   usePointerTracker(canvasRef, pointerConfig);
 
@@ -24,8 +25,10 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     if (!canvasRef.current) return;
     canvasRef.current.width = canvasRef.current.clientWidth;
     canvasRef.current.height = canvasRef.current.clientHeight;
-    drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false);
-    await drawing?.loadOperations(canvasOperations, false);
+    drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
+    if (isMountedRef.current) await drawing?.reloadOperations();
+    else await drawing?.loadOperations(canvasOperations, false);
+    isMountedRef.current = true;
   });
 
   useEffect(() => {

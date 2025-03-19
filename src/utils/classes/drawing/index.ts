@@ -19,13 +19,14 @@ export class Drawing implements DrawingInterface {
   // PUBLIC METHODS
   loadOperations: DrawingInterface['loadOperations'] = async (
     canvasOperations,
-    renderInFrames = true
+    renderInFrames = true,
+    asNewOperation = true
   ) => {
     const opsQueue = [...canvasOperations];
     const executeOperation = async () => {
       const operation = opsQueue.shift();
       if (!operation) return;
-      this._operations.push(operation);
+      if (asNewOperation) this._operations.push(operation);
       const { actionType, color, points, size } = operation;
       switch (actionType) {
         case CanvasAction.LINE:
@@ -56,6 +57,10 @@ export class Drawing implements DrawingInterface {
       else executeOperation();
     };
     executeOperation();
+  };
+
+  reloadOperations = async () => {
+    await this.loadOperations(this._operations.toArray(), false, false);
   };
 
   // PRIVATE METHODS
