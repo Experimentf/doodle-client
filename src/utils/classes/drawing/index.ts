@@ -3,11 +3,13 @@ import { MutableRefObject, RefObject } from 'react';
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { getPixelHexCode } from '@/utils/canvas';
 
+import Stack from '../stack';
 import { DrawingInterface } from './interface';
 
 export class Drawing implements DrawingInterface {
   private _ref: RefObject<HTMLCanvasElement | null>;
   private _animationFrameId: MutableRefObject<number | undefined>;
+  private _drawingHistory = new Stack<ImageData>();
 
   constructor(
     ref: RefObject<HTMLCanvasElement | null>,

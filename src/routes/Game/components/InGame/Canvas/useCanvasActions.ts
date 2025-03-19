@@ -2,7 +2,7 @@ import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
-import { CanvasAction, CanvasOperation } from '@/types/canvas';
+import { CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { floorCoordinate } from '@/utils/coordinate';
 
@@ -21,46 +21,50 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   } = useRoom();
   const { drawing } = useCanvas();
 
-  const onPointerDrag = (from: Coordinate, to: Coordinate) => {
-    const flooredFrom = floorCoordinate(from);
-    const flooredTo = floorCoordinate(to);
-
-    switch (optionConfig?.type) {
-      case OptionKey.PENCIL:
-        drawing?.line(
-          flooredFrom,
-          flooredTo,
-          optionConfig.color,
-          optionConfig.brushSize
-        );
-        break;
-      case OptionKey.ERASER:
-        drawing?.erase(flooredFrom, flooredTo, optionConfig.brushSize);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const onPointerDragEnd = async (dragPoints: Array<Coordinate>) => {
-    const flooredPoints: Coordinate[] = dragPoints.map(floorCoordinate);
+  const _emitCanvasOperation = async (points: Coordinate[]) => {
     const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
     const canvasOperation: Partial<CanvasOperation> = {
-      points: flooredPoints,
+      points,
       actionType: canvasAction,
       color: optionConfig?.color,
       size: optionConfig?.brushSize,
     };
-    if (
-      canvasAction !== CanvasAction.LINE &&
-      canvasAction !== CanvasAction.ERASE
-    )
-      return;
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation,
       roomId,
     });
   };
+
+  const onPointerDrag = async (from: Coordinate, to: Coordinate) => {
+    const flooredFrom = floorCoordinate(from);
+    const flooredTo = floorCoordinate(to);
+
+    const performOperation = () => {
+      switch (optionConfig?.type) {
+        case OptionKey.PENCIL:
+          drawing?.line(
+            flooredFrom,
+            flooredTo,
+            optionConfig.color,
+            optionConfig.brushSize
+          );
+          break;
+        case OptionKey.ERASER:
+          drawing?.erase(flooredFrom, flooredTo, optionConfig.brushSize);
+          break;
+        default:
+          return false;
+      }
+      return true;
+    };
+
+    const isOperationDone = performOperation();
+    if (isOperationDone) {
+      await _emitCanvasOperation([flooredFrom, flooredTo]);
+    }
+  };
+
+  const onPointerDragEnd = () => {};
 
   const onPointerClick = async (point: Coordinate) => {
     const flooredPoint: Coordinate = {
@@ -79,21 +83,9 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
       return true;
     };
 
-    const operationPerformed = performOperation();
-
-    const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
-    const canvasOperation: Partial<CanvasOperation> = {
-      points: [flooredPoint],
-      actionType: canvasAction,
-      color: optionConfig?.color,
-      size: optionConfig?.brushSize,
-    };
-
-    if (operationPerformed) {
-      await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
-        canvasOperation,
-        roomId,
-      });
+    const isOperationDone = performOperation();
+    if (isOperationDone) {
+      await _emitCanvasOperation([flooredPoint]);
     }
   };
 
