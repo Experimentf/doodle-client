@@ -22,6 +22,7 @@ const defaultGame: GameInterface = {
     time: { current: 0, max: 0 },
     word: '',
   },
+  canvasOperations: [],
 };
 
 const GameContext = createContext<GameContextInterface>({

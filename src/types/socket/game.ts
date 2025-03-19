@@ -11,7 +11,7 @@ export interface GameClientToServerEventsArgumentMap {
     { game: GameInterface }
   >;
   [GameEvents.EMIT_GAME_CANVAS_OPERATION]: ClientToServerEventsArgument<
-    { roomId: string; canvasOperation: Partial<CanvasOperation> },
+    { roomId: string; canvasOperation: CanvasOperation },
     { game: GameInterface }
   >;
 }
@@ -22,6 +22,6 @@ export interface GameServerToClientEvents {
     game?: GameInterface;
   }) => void;
   [GameEvents.ON_GAME_CANVAS_OPERATION]: (args: {
-    canvasOperation: Partial<CanvasOperation>;
+    canvasOperation: CanvasOperation;
   }) => void;
 }

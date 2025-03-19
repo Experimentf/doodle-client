@@ -7,11 +7,12 @@ export enum CanvasAction {
   CLEAR = 'clear',
   BATCH_LINE = 'batchLine',
   BATCH_ERASE = 'batchErase',
+  LOAD_OPERATIONS = 'loadOperations',
 }
 
 export interface CanvasOperation {
   actionType: CanvasAction;
-  points: Array<Coordinate>;
-  color: string;
-  size: number;
+  points?: Array<Coordinate>;
+  color?: string;
+  size?: number;
 }

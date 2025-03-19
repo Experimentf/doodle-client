@@ -20,8 +20,7 @@ const CanvasContext = createContext<CanvasContextInterface>({
 
 const CanvasProvider = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLCanvasElement>(null);
-  const animationFrameID = useRef<number>();
-  const drawingRef = useRef(new Drawing(ref, animationFrameID));
+  const drawingRef = useRef(new Drawing(ref));
 
   return (
     <CanvasContext.Provider

@@ -2,7 +2,7 @@ import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
-import { CanvasOperation } from '@/types/canvas';
+import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { floorCoordinate } from '@/utils/coordinate';
 
@@ -23,7 +23,8 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
 
   const _emitCanvasOperation = async (points: Coordinate[]) => {
     const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
-    const canvasOperation: Partial<CanvasOperation> = {
+    if (!canvasAction) return;
+    const canvasOperation: CanvasOperation = {
       points,
       actionType: canvasAction,
       color: optionConfig?.color,
@@ -42,15 +43,23 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.PENCIL:
-          drawing?.line(
-            flooredFrom,
-            flooredTo,
-            optionConfig.color,
-            optionConfig.brushSize
-          );
+          drawing?.loadOperations([
+            {
+              actionType: CanvasAction.LINE,
+              points: [flooredFrom, flooredTo],
+              color: optionConfig.color,
+              size: optionConfig.brushSize,
+            },
+          ]);
           break;
         case OptionKey.ERASER:
-          drawing?.erase(flooredFrom, flooredTo, optionConfig.brushSize);
+          drawing?.loadOperations([
+            {
+              actionType: CanvasAction.ERASE,
+              points: [flooredFrom, flooredTo],
+              size: optionConfig.brushSize,
+            },
+          ]);
           break;
         default:
           return false;
@@ -75,7 +84,13 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.FILL:
-          drawing?.fill(flooredPoint, optionConfig.color);
+          drawing?.loadOperations([
+            {
+              actionType: CanvasAction.FILL,
+              points: [flooredPoint],
+              color: optionConfig.color,
+            },
+          ]);
           break;
         default:
           return false;

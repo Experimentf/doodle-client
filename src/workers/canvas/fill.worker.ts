@@ -70,7 +70,9 @@ function applyColorToNeighbours(
     data[index] = r;
     data[index + 1] = g;
     data[index + 2] = b;
+    data[index + 3] = 255;
   }
+
   return imageData;
 }
 

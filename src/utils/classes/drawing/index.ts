@@ -1,6 +1,8 @@
-import { MutableRefObject, RefObject } from 'react';
+import { RefObject } from 'react';
 
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
+import { CanvasAction, CanvasOperation } from '@/types/canvas';
+import { Coordinate } from '@/types/common';
 import { getPixelHexCode } from '@/utils/canvas';
 
 import Stack from '../stack';
@@ -8,23 +10,117 @@ import { DrawingInterface } from './interface';
 
 export class Drawing implements DrawingInterface {
   private _ref: RefObject<HTMLCanvasElement | null>;
-  private _animationFrameId: MutableRefObject<number | undefined>;
-  private _drawingHistory = new Stack<ImageData>();
+  private _operations = new Stack<CanvasOperation>();
 
-  constructor(
-    ref: RefObject<HTMLCanvasElement | null>,
-    animationFrameId: MutableRefObject<number | undefined>
-  ) {
+  constructor(ref: RefObject<HTMLCanvasElement | null>) {
     this._ref = ref;
-    this._animationFrameId = animationFrameId;
   }
 
   // PUBLIC METHODS
+  loadOperations: DrawingInterface['loadOperations'] = async (
+    canvasOperations,
+    renderInFrames = true
+  ) => {
+    const opsQueue = [...canvasOperations];
+    const executeOperation = async () => {
+      const operation = opsQueue.shift();
+      if (!operation) return;
+      this._operations.push(operation);
+      const { actionType, color, points, size } = operation;
+      switch (actionType) {
+        case CanvasAction.LINE:
+          if (points?.length === 2 && color && size) {
+            const [from, to] = points;
+            this._line(from, to, color, size);
+          }
+          break;
+        case CanvasAction.ERASE:
+          if (points?.length === 2 && size) {
+            const [from, to] = points;
+            this._erase(from, to, size);
+          }
+          break;
+        case CanvasAction.FILL:
+          if (points?.length === 1 && color) {
+            const [point] = points;
+            await this._fill(point, color);
+          }
+          break;
+        case CanvasAction.CLEAR:
+          this._clear();
+          break;
+        default:
+          break;
+      }
+      if (renderInFrames) requestAnimationFrame(executeOperation);
+      else executeOperation();
+    };
+    executeOperation();
+  };
 
-  line: DrawingInterface['line'] = (from, to, color, size) => {
-    const ctx = this._context;
+  // PRIVATE METHODS
+  private _line = (
+    from: Coordinate,
+    to: Coordinate,
+    color: string,
+    size: number
+  ) => {
+    const ctx = this._getContext();
     if (!ctx) return;
-    const createLine = () => {
+    ctx.beginPath();
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = color;
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  };
+
+  private _erase = (from: Coordinate, to: Coordinate, size: number) => {
+    this._line(from, to, DARK_BOARD_GREEN_HEX, size);
+  };
+
+  private _fill = async (point: Coordinate, color: string): Promise<void> => {
+    const ctx = this._getContext(true);
+    const ref = this._ref;
+    if (!ctx || !ref.current) return;
+    const maxWidth = ref.current.width;
+    const maxHeight = ref.current.height;
+    if (window.Worker) {
+      const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
+      const previousColor = getPixelHexCode(ctx, point);
+      const newImageData = await this._asyncFillWorker(
+        imageData,
+        point,
+        previousColor,
+        color,
+        maxWidth,
+        maxHeight
+      );
+      ctx.putImageData(newImageData, 0, 0);
+    } else {
+      console.log('No worker');
+    }
+  };
+
+  private _clear = () => {
+    const ctx = this._getContext();
+    const ref = this._ref;
+    if (!ctx || !ref.current) return;
+    const maxWidth = ref.current.width;
+    const maxHeight = ref.current.height;
+    ctx.clearRect(0, 0, maxWidth, maxHeight);
+    ctx.fillStyle = DARK_BOARD_GREEN_HEX;
+    ctx.fillRect(0, 0, maxWidth, maxHeight);
+  };
+
+  private _batchLine = (points: Coordinate[], color: string, size: number) => {
+    const nPoints = points.length;
+    const ctx = this._getContext();
+    if (nPoints < 2 || !ctx) return;
+    for (let i = 1; i < nPoints; i++) {
+      const from = points[i - 1];
+      const to = points[i];
       ctx.beginPath();
       ctx.lineWidth = size;
       ctx.lineCap = 'round';
@@ -32,21 +128,22 @@ export class Drawing implements DrawingInterface {
       ctx.moveTo(from.x, from.y);
       ctx.lineTo(to.x, to.y);
       ctx.stroke();
-    };
-    this._withRequestAnimationFrame(createLine)();
+    }
   };
 
-  fill: DrawingInterface['fill'] = (point, color) => {
-    const ctx = this._context;
-    const ref = this._ref;
-    if (!ctx || !ref.current) return;
-    const maxWidth = ref.current.width;
-    const maxHeight = ref.current.height;
+  private _batchErase = (points: Coordinate[], size: number) => {
+    this._batchLine(points, DARK_BOARD_GREEN_HEX, size);
+  };
 
-    const fillColor = () => {
-      const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
-      const previousColor = getPixelHexCode(ctx, point);
-
+  private async _asyncFillWorker(
+    imageData: ImageData,
+    point: Coordinate,
+    previousColor: string,
+    newColor: string,
+    maxWidth: number,
+    maxHeight: number
+  ): Promise<ImageData> {
+    return new Promise((resolve, reject) => {
       const fillWorker = new Worker(
         new URL('../../../workers/canvas/fill.worker', import.meta.url)
       );
@@ -54,99 +151,19 @@ export class Drawing implements DrawingInterface {
         imageData,
         point,
         previousColor,
-        newColor: color,
+        newColor,
         maxWidth,
         maxHeight,
       });
       fillWorker.onmessage = (event: MessageEvent<ImageData>) => {
         const newImageData = event.data;
-        ctx.putImageData(newImageData, 0, 0);
+        if (newImageData) resolve(newImageData);
+        else reject();
       };
-    };
-    this._withRequestAnimationFrame(fillColor)();
-  };
+    });
+  }
 
-  erase: DrawingInterface['erase'] = (from, to, size) => {
-    this.line(from, to, DARK_BOARD_GREEN_HEX, size);
-  };
-
-  clear: DrawingInterface['clear'] = () => {
-    const ctx = this._context;
-    const ref = this._ref;
-    if (!ctx || !ref.current) return;
-    const maxWidth = ref.current.width;
-    const maxHeight = ref.current.height;
-
-    const clearDrawing = () => {
-      ctx.clearRect(0, 0, maxWidth, maxHeight);
-      ctx.fillStyle = DARK_BOARD_GREEN_HEX;
-      ctx.fillRect(0, 0, maxWidth, maxHeight);
-    };
-    this._withRequestAnimationFrame(clearDrawing)();
-  };
-
-  batchLine: DrawingInterface['batchLine'] = (points, color, size) => {
-    const nPoints = points.length;
-    const ctx = this._context;
-    if (nPoints === 0 || !ctx) return;
-
-    const drawSequentially = () => {
-      let currentIndex = 0;
-      const drawNextLine = () => {
-        if (currentIndex >= nPoints - 1) return;
-        ctx.beginPath();
-        ctx.lineWidth = size;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = color;
-        ctx.moveTo(points[currentIndex].x, points[currentIndex].y);
-        ctx.lineTo(points[currentIndex + 1].x, points[currentIndex + 1].y);
-        ctx.stroke();
-        currentIndex++;
-        requestAnimationFrame(drawNextLine);
-      };
-      drawNextLine();
-    };
-    this._withRequestAnimationFrame(drawSequentially)();
-  };
-
-  batchErase: DrawingInterface['batchErase'] = (points, size) => {
-    const nPoints = points.length;
-    const ctx = this._context;
-    if (nPoints === 0 || !ctx) return;
-
-    const eraseSequentially = () => {
-      let currentIndex = 0;
-      const eraseNextLine = () => {
-        if (currentIndex >= nPoints - 1) return;
-        ctx.beginPath();
-        ctx.lineWidth = size;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = DARK_BOARD_GREEN_HEX;
-        ctx.moveTo(points[currentIndex].x, points[currentIndex].y);
-        ctx.lineTo(points[currentIndex + 1].x, points[currentIndex + 1].y);
-        ctx.stroke();
-        currentIndex++;
-        requestAnimationFrame(eraseNextLine);
-      };
-      eraseNextLine();
-    };
-    this._withRequestAnimationFrame(eraseSequentially)();
-  };
-
-  // PRIVATE METHODS
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _withRequestAnimationFrame = <T extends (...args: any[]) => void>(
-    fn: (...args: Parameters<T>) => void
-  ) => {
-    return (...args: Parameters<T>) => {
-      this._animationFrameId.current = requestAnimationFrame(() => {
-        fn(...args);
-      });
-    };
-  };
-
-  private get _context() {
-    return this._ref.current?.getContext('2d');
+  private _getContext(willReadFrequently = false) {
+    return this._ref.current?.getContext('2d', { willReadFrequently });
   }
 }

@@ -15,6 +15,7 @@ import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
+import { ServerToClientEvents } from '@/types/socket';
 
 import Canvas from './Canvas';
 import { OptionConfig } from './Canvas/useCanvasActions';
@@ -36,7 +37,7 @@ const InGame = () => {
     brushSize: 20,
   });
 
-  const { registerEvent, asyncEmitEvent } = useSocket();
+  const { registerEvent, unregisterEvent, asyncEmitEvent } = useSocket();
   const {
     room: { drawerId, id: roomId },
   } = useRoom();
@@ -46,38 +47,29 @@ const InGame = () => {
   const { drawing } = useCanvas();
   const isDrawing = id === drawerId;
 
-  const registerCanvasOperation = () => {
-    registerEvent(
-      GameEvents.ON_GAME_CANVAS_OPERATION,
-      ({ canvasOperation }) => {
-        const { points, actionType, color, size } = canvasOperation;
-        switch (actionType) {
-          case CanvasAction.LINE:
-            if (points && color && size)
-              drawing?.batchLine(points, color, size);
-            break;
-          case CanvasAction.ERASE:
-            if (points && size) drawing?.batchErase(points, size);
-            break;
-          case CanvasAction.FILL:
-            if (points?.length && color) drawing?.fill(points[0], color);
-            break;
-          case CanvasAction.CLEAR:
-            drawing?.clear();
-            break;
-          default:
-            return;
-        }
-      }
-    );
-  };
+  const handleOnGameCanvasOperation: ServerToClientEvents[GameEvents.ON_GAME_CANVAS_OPERATION] =
+    ({ canvasOperation }) => {
+      drawing?.loadOperations([canvasOperation]);
+    };
 
+  // Receive operations when user is not a drawer
   useEffect(() => {
-    if (!isDrawing) registerCanvasOperation();
+    if (!isDrawing) {
+      registerEvent(
+        GameEvents.ON_GAME_CANVAS_OPERATION,
+        handleOnGameCanvasOperation
+      );
+    }
+    return () => {
+      unregisterEvent(
+        GameEvents.ON_GAME_CANVAS_OPERATION,
+        handleOnGameCanvasOperation
+      );
+    };
   }, [isDrawing]);
 
   const handleClear = async () => {
-    drawing?.clear();
+    drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation: { actionType: CanvasAction.CLEAR },
       roomId,

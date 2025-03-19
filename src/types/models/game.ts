@@ -1,3 +1,5 @@
+import { CanvasOperation } from '../canvas';
+
 export enum GameStatus {
   GAME = 'in_game',
   LOBBY = 'in_lobby',
@@ -21,4 +23,5 @@ export interface GameInterface {
   id: string;
   status: GameStatus;
   options: GameOptions;
+  canvasOperations: Array<CanvasOperation>;
 }
