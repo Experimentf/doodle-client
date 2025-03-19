@@ -40,7 +40,11 @@ export const getPointsByBFS = (
 
   const convertToKey = (coord: Coordinate) => coord.x + ',' + coord.y;
 
-  const diff = [-1, 0, 1];
+  const distance = 2;
+  const diff = Array(distance * 2 + 1)
+    .fill(0)
+    .map((_, index) => index - distance);
+
   const nDiff = diff.length;
   const queue = [point];
   const visited = new Set<string>([convertToKey(point)]);

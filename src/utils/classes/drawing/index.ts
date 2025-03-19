@@ -92,8 +92,8 @@ export class Drawing implements DrawingInterface {
     const maxWidth = ref.current.width;
     const maxHeight = ref.current.height;
     if (window.Worker) {
-      const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
       const previousColor = getPixelHexCode(ctx, point);
+      const imageData = ctx.getImageData(0, 0, maxWidth, maxHeight);
       const newImageData = await this._asyncFillWorker(
         imageData,
         point,
@@ -104,7 +104,8 @@ export class Drawing implements DrawingInterface {
       );
       ctx.putImageData(newImageData, 0, 0);
     } else {
-      console.log('No worker');
+      // eslint-disable-next-line no-console
+      console.error('Unsupported browser');
     }
   };
 
@@ -169,6 +170,8 @@ export class Drawing implements DrawingInterface {
   }
 
   private _getContext(willReadFrequently = false) {
-    return this._ref.current?.getContext('2d', { willReadFrequently });
+    const ctx = this._ref.current?.getContext('2d', { willReadFrequently });
+    if (ctx) ctx.imageSmoothingEnabled = false;
+    return ctx;
   }
 }

@@ -1,9 +1,5 @@
 import { Coordinate } from '@/types/common';
-import {
-  convertHexToRGB,
-  convertRGBToHex,
-  getPointsByBFS,
-} from '@/utils/canvas';
+import { convertHexToRGB, getPointsByBFS } from '@/utils/canvas';
 
 // Worker Fundamental
 const fillWorker = self as unknown as Worker;
@@ -50,8 +46,11 @@ function getFillNeighbours(
     const r = data[index];
     const g = data[index + 1];
     const b = data[index + 2];
-    const hex = convertRGBToHex(r, g, b);
-    return hex === color;
+    const { r: nr, g: ng, b: nb } = convertHexToRGB(color);
+    const diff = Math.sqrt(
+      Math.pow(r - nr, 2) + Math.pow(g - ng, 2) + Math.pow(b - nb, 2)
+    );
+    return diff <= 100;
   }
 
   return getPointsByBFS(point, validator, maxWidth, maxHeight);
