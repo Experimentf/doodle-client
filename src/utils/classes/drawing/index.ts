@@ -72,13 +72,31 @@ export class Drawing implements DrawingInterface {
   ) => {
     const ctx = this._getContext();
     if (!ctx) return;
-    ctx.beginPath();
-    ctx.lineWidth = size;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = color;
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
+    let { x: x1, y: y1 } = from;
+    let { x: x2, y: y2 } = to;
+    const radius = Math.floor(size / 2);
+    x1 -= radius;
+    y1 -= radius;
+    x2 -= radius;
+    y2 -= radius;
+    const dx = Math.abs(x1 - x2);
+    const dy = Math.abs(y1 - y2);
+    const sx = x1 < x2 ? 1 : -1;
+    const sy = y1 < y2 ? 1 : -1;
+    let err = dx - dy;
+    while (x1 != x2 || y1 != y2) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x1, y1, size, size);
+      const err2 = err * 2;
+      if (err2 > -dy) {
+        err -= dy;
+        x1 += sx;
+      }
+      if (err2 < dx) {
+        err += dx;
+        y1 += sy;
+      }
+    }
   };
 
   private _erase = (from: Coordinate, to: Coordinate, size: number) => {
@@ -171,7 +189,10 @@ export class Drawing implements DrawingInterface {
   }
 
   private _getContext(willReadFrequently = false) {
-    const ctx = this._ref.current?.getContext('2d', { willReadFrequently });
+    const ctx = this._ref.current?.getContext('2d', {
+      willReadFrequently,
+      alpha: false,
+    });
     if (ctx) ctx.imageSmoothingEnabled = false;
     return ctx;
   }

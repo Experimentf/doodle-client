@@ -34,7 +34,7 @@ const InGame = () => {
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
     color: '#ffffff',
     type: undefined,
-    brushSize: 20,
+    brushSize: 5,
   });
 
   const { registerEvent, unregisterEvent, asyncEmitEvent } = useSocket();
@@ -147,16 +147,16 @@ const InGame = () => {
                 height: `${optionConfig.brushSize}px`,
               }}
             ></div>
-            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-4 top-0 bg-white" />
-            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-4 top-1/2 bg-white" />
-            <div className="absolute left-0 -translate-y-1/2 w-4 h-[2px] top-1/2 bg-white" />
-            <div className="absolute left-1/2 -translate-y-1/2 w-4 h-[2px] top-1/2 bg-white" />
+            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-4 top-0 bg-dark-chalk-white" />
+            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-4 top-1/2 bg-dark-chalk-white" />
+            <div className="absolute left-0 -translate-y-1/2 w-4 h-[2px] top-1/2 bg-dark-chalk-white" />
+            <div className="absolute left-1/2 -translate-y-1/2 w-4 h-[2px] top-1/2 bg-dark-chalk-white" />
           </div>
           <input
             type="range"
             min={5}
-            max={32}
-            step={1}
+            max={31}
+            step={2}
             name="brushSize"
             value={optionConfig.brushSize}
             onChange={handleOptionConfigChange}

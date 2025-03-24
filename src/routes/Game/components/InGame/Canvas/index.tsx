@@ -50,6 +50,9 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   return (
     <canvas
       ref={canvasRef}
+      style={{
+        shapeRendering: 'crispEdges',
+      }}
       className={`bg-dark-board-green rounded-xl w-full h-full aspect-video`}
     />
   );

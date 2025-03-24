@@ -54,7 +54,7 @@ function scanlineFill(
     const [r, g, b] = data.slice(index, index + 4);
     const { r: nr, g: ng, b: nb } = convertHexToRGB(previousColor);
     const diff = cie76ColorDistance([nr, ng, nb], [r, g, b]);
-    return diff <= 20;
+    return diff <= 30;
   };
 
   const queue = [point];
