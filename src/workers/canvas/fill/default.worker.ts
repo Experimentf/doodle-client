@@ -1,10 +1,10 @@
 import { Coordinate } from '@/types/common';
-import { cie76ColorDistance, convertHexToRGB } from '@/utils/colors';
+import { convertHexToRGB, convertRGBToHex } from '@/utils/colors';
 
 // Worker Fundamental
-const fillWorker = self as unknown as Worker;
+const fillDefaultWorker = self as unknown as Worker;
 
-interface FillWorkerInput {
+interface FillDefaultWorkerInput {
   imageData: ImageData;
   point: Coordinate;
   previousColor: string;
@@ -13,10 +13,10 @@ interface FillWorkerInput {
   maxHeight: number;
 }
 
-fillWorker.onmessage = (event: MessageEvent<FillWorkerInput>) => {
+fillDefaultWorker.onmessage = (event: MessageEvent<FillDefaultWorkerInput>) => {
   const { imageData, point, previousColor, newColor, maxWidth, maxHeight } =
     event.data;
-  const newImageData = scanlineFill(
+  const scanlineFilledImageData = fillWithScanline(
     imageData,
     point,
     previousColor,
@@ -24,11 +24,10 @@ fillWorker.onmessage = (event: MessageEvent<FillWorkerInput>) => {
     maxWidth,
     maxHeight
   );
-  fillWorker.postMessage(newImageData);
+  fillDefaultWorker.postMessage(scanlineFilledImageData);
 };
 
-// Utilities
-function scanlineFill(
+function fillWithScanline(
   imageData: ImageData,
   point: Coordinate,
   previousColor: string,
@@ -38,23 +37,22 @@ function scanlineFill(
 ) {
   const newColorRGB = convertHexToRGB(newColor);
 
-  const fillPoint = (coord: Coordinate) => {
-    const index = (coord.y * maxWidth + coord.x) * 4;
-    imageData.data[index] = newColorRGB.r;
-    imageData.data[index + 1] = newColorRGB.g;
-    imageData.data[index + 2] = newColorRGB.b;
-    imageData.data[index + 3] = 255;
-  };
-
   const validate = (coord: Coordinate) => {
     if (coord.x < 0 || coord.x >= maxWidth) return false;
     if (coord.y < 0 || coord.y >= maxHeight) return false;
     const data = imageData.data;
     const index = (coord.y * maxWidth + coord.x) * 4;
     const [r, g, b] = data.slice(index, index + 4);
-    const { r: nr, g: ng, b: nb } = convertHexToRGB(previousColor);
-    const diff = cie76ColorDistance([nr, ng, nb], [r, g, b]);
-    return diff <= 30;
+    const hex = convertRGBToHex(r, g, b);
+    return hex === previousColor;
+  };
+
+  const fill = (coord: Coordinate) => {
+    const index = (coord.y * maxWidth + coord.x) * 4;
+    imageData.data[index] = newColorRGB.r;
+    imageData.data[index + 1] = newColorRGB.g;
+    imageData.data[index + 2] = newColorRGB.b;
+    imageData.data[index + 3] = 255;
   };
 
   const queue = [point];
@@ -71,7 +69,7 @@ function scanlineFill(
     endX--;
 
     for (let i = startX; i <= endX; i++) {
-      fillPoint({ x: i, y: y });
+      fill({ x: i, y: y });
       if (y > 0 && validate({ x: i, y: y - 1 })) queue.push({ x: i, y: y - 1 });
       if (y < maxHeight - 1 && validate({ x: i, y: y + 1 }))
         queue.push({ x: i, y: y + 1 });
@@ -81,4 +79,4 @@ function scanlineFill(
   return imageData;
 }
 
-export default fillWorker;
+export default fillDefaultWorker;

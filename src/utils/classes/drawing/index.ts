@@ -107,26 +107,43 @@ export class Drawing implements DrawingInterface {
     const ctx = this._getContext(true);
     const ref = this._ref;
     if (!ctx || !ref.current) return;
-    if (window.Worker) {
-      // Scaled point is only required when operating on image data
-      const scaledPoint: Coordinate = {
-        x: point.x * window.devicePixelRatio,
-        y: point.y * window.devicePixelRatio,
-      };
-      const previousColor = getPixelHexCode(ctx, scaledPoint);
+    // Scaled point is only required when operating on image data
+    const scaledPoint: Coordinate = {
+      x: point.x * window.devicePixelRatio,
+      y: point.y * window.devicePixelRatio,
+    };
+    try {
       const imageData = ctx.getImageData(0, 0, this._maxWidth, this._maxHeight);
-      const newImageData = await this._asyncFillWorker(
+      const newImageData = await this._asyncFillWithWebGLWorker(
         imageData,
         scaledPoint,
-        previousColor,
         color,
         this._maxWidth,
         this._maxHeight
       );
       ctx.putImageData(newImageData, 0, 0);
-    } else {
-      // eslint-disable-next-line no-console
-      console.error('Unsupported browser');
+    } catch (e) {
+      if (window.Worker) {
+        const previousColor = getPixelHexCode(ctx, point);
+        const imageData = ctx.getImageData(
+          0,
+          0,
+          this._maxWidth,
+          this._maxHeight
+        );
+        const newImageData = await this._asyncFillDefaultWorker(
+          imageData,
+          scaledPoint,
+          previousColor,
+          color,
+          this._maxWidth,
+          this._maxHeight
+        );
+        ctx.putImageData(newImageData, 0, 0);
+      } else {
+        // eslint-disable-next-line no-console
+        console.error('Unsupported browser');
+      }
     }
   };
 
@@ -160,7 +177,7 @@ export class Drawing implements DrawingInterface {
     this._batchLine(points, DARK_BOARD_GREEN_HEX, size);
   };
 
-  private async _asyncFillWorker(
+  private async _asyncFillDefaultWorker(
     imageData: ImageData,
     point: Coordinate,
     previousColor: string,
@@ -170,7 +187,7 @@ export class Drawing implements DrawingInterface {
   ): Promise<ImageData> {
     return new Promise((resolve, reject) => {
       const fillWorker = new Worker(
-        new URL('../../../workers/canvas/fill.worker', import.meta.url)
+        new URL('../../../workers/canvas/fill/default.worker', import.meta.url)
       );
       fillWorker.postMessage({
         imageData,
@@ -182,6 +199,35 @@ export class Drawing implements DrawingInterface {
       });
       fillWorker.onmessage = (event: MessageEvent<ImageData>) => {
         const newImageData = event.data;
+        if (newImageData) resolve(newImageData);
+        else reject();
+      };
+    });
+  }
+
+  private async _asyncFillWithWebGLWorker(
+    imageData: ImageData,
+    point: Coordinate,
+    newColor: string,
+    maxWidth: number,
+    maxHeight: number
+  ): Promise<ImageData> {
+    return new Promise((resolve, reject) => {
+      const fillWorker = new Worker(
+        new URL('../../../workers/canvas/fill/webgl.worker', import.meta.url)
+      );
+      fillWorker.postMessage({
+        imageData,
+        point,
+        newColor,
+        maxWidth,
+        maxHeight,
+      });
+      fillWorker.onmessage = (event: MessageEvent<ImageData>) => {
+        const newImageData = event.data;
+        console.log('OLD', imageData);
+        console.log('NEW', newImageData);
+
         if (newImageData) resolve(newImageData);
         else reject();
       };
