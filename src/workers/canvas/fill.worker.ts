@@ -1,5 +1,5 @@
 import { Coordinate } from '@/types/common';
-import { cie76ColorDistance, convertHexToRGB } from '@/utils/colors';
+import { convertHexToRGB, convertRGBToHex } from '@/utils/colors';
 
 // Worker Fundamental
 const fillWorker = self as unknown as Worker;
@@ -52,9 +52,7 @@ function scanlineFill(
     const data = imageData.data;
     const index = (coord.y * maxWidth + coord.x) * 4;
     const [r, g, b] = data.slice(index, index + 4);
-    const { r: nr, g: ng, b: nb } = convertHexToRGB(previousColor);
-    const diff = cie76ColorDistance([nr, ng, nb], [r, g, b]);
-    return diff <= 30;
+    return previousColor === convertRGBToHex(r, g, b);
   };
 
   const queue = [point];
