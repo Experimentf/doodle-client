@@ -37,7 +37,7 @@ const usePointerTracker = <T extends HTMLCanvasElement>(
   };
 
   const _handlePointerUp = (ev: PointerEvent) => {
-    if (!_isDragging.current) config?.onPointerClick?.(_getCoordinate(ev));
+    config?.onPointerClick?.(_getCoordinate(ev));
     _handlePointerLeave();
   };
 

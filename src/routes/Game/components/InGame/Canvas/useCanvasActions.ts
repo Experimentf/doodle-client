@@ -80,7 +80,6 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
       x: Math.floor(point.x),
       y: Math.floor(point.y),
     };
-
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.FILL:
