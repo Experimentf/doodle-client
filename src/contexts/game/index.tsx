@@ -19,7 +19,11 @@ const defaultGame: GameInterface = {
   status: GameStatus.LOBBY,
   options: {
     round: { current: 0, max: 0 },
-    time: { current: 0, max: 0 },
+    timers: {
+      drawing: { current: 0, max: 0 },
+      roundEndCooldownTime: { current: 0, max: 0 },
+      chooseWordTime: { current: 0, max: 0 },
+    },
     word: '',
   },
   canvasOperations: [],

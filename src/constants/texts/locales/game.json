@@ -1,4 +1,10 @@
 {
+  "chooseWord": {
+    "title": {
+      "drawer": "Choose a word",
+      "hunchers": " is choosing a word"
+    }
+  },
   "detailBar": {},
   "doodlers": {
     "sectionTitle": "doodlers",
@@ -21,5 +27,8 @@
     },
     "sectionTitle": "Lobby",
     "waiting": "Waiting for players to join"
+  },
+  "roundEnd": {
+    "title": "Round has ended!"
   }
 }

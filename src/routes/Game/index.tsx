@@ -13,12 +13,14 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { ErrorFromServer } from '@/utils/error';
 
+import ChooseWord from './components/ChooseWord';
 import DetailBar from './components/DetailBar';
 import Doodlers from './components/DoodlerList';
 import HunchList from './components/HunchList';
 import InGame from './components/InGame';
 import Lobby from './components/Lobby';
 import Result from './components/Result';
+import RoundEnd from './components/RoundEnd';
 
 const GameLayout = () => {
   const navigate = useNavigate();
@@ -130,6 +132,10 @@ const GameLayout = () => {
         );
       case GameStatus.LOBBY:
         return <Lobby />;
+      case GameStatus.CHOOSE_WORD:
+        return <ChooseWord />;
+      case GameStatus.ROUND_END:
+        return <RoundEnd />;
       case GameStatus.RESULT:
         return <Result />;
       default:
