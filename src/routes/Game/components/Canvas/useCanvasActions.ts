@@ -6,7 +6,7 @@ import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { floorCoordinate } from '@/utils/coordinate';
 
-import { convertOptionKeyToCanvasActionKey, OptionKey } from '../utils';
+import { convertOptionKeyToCanvasActionKey, OptionKey } from '../Option/utils';
 
 export interface OptionConfig {
   type?: OptionKey;
@@ -103,6 +103,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     }
   };
 
+  if (!optionConfig) return undefined;
   return { onPointerDrag, onPointerDragEnd, onPointerClick };
 };
 

@@ -9,7 +9,7 @@ import { CanvasAction } from '@/types/canvas';
 import useCanvasActions, { OptionConfig } from './useCanvasActions';
 
 interface CanvasProps {
-  optionConfig: OptionConfig;
+  optionConfig?: OptionConfig;
 }
 
 const Canvas = ({ optionConfig }: CanvasProps) => {

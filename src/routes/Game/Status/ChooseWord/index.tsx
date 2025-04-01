@@ -1,5 +1,6 @@
 import React from 'react';
 
+import Backdrop from '@/components/Backdrop';
 import Button from '@/components/Button';
 import { GameEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
@@ -33,15 +34,20 @@ const ChooseWord = () => {
   };
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-chalk-yellow">
-      <p>{texts.game.chooseWord.title[isDrawing ? 'drawer' : 'hunchers']}</p>
-      {isDrawing &&
-        mockWords.map(({ word }, index) => (
-          <Button key={index} onClick={() => handleWordChoice(word)}>
-            {word}
-          </Button>
-        ))}
-    </div>
+    <Backdrop>
+      <p className="text-center">
+        {texts.game.chooseWord.title[isDrawing ? 'drawer' : 'hunchers']}
+      </p>
+      {isDrawing && (
+        <div className="flex flex-auto gap-2 mt-5 justify-center">
+          {mockWords.map(({ word }, index) => (
+            <Button key={index} onClick={() => handleWordChoice(word)}>
+              {word}
+            </Button>
+          ))}
+        </div>
+      )}
+    </Backdrop>
   );
 };
 

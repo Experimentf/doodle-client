@@ -11,16 +11,18 @@ import { IoMdColorPalette } from 'react-icons/io';
 import Tooltip from '@/components/Tooltip';
 import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
+import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
+import { GameStatus } from '@/types/models/game';
 import { ServerToClientEvents } from '@/types/socket';
 
-import Canvas from './Canvas';
-import { OptionConfig } from './Canvas/useCanvasActions';
-import EditOption from './Option';
-import { OptionKey, options } from './utils';
+import Canvas from '../components/Canvas';
+import { OptionConfig } from '../components/Canvas/useCanvasActions';
+import EditOption from '../components/Option';
+import { OptionKey, options } from '../components/Option/utils';
 
 const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.PENCIL]: <FaPencilAlt />,
@@ -29,7 +31,7 @@ const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.CLEAR]: <FaTrash />,
 };
 
-const InGame = () => {
+const Main = () => {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
     color: '#ffffff',
@@ -44,6 +46,7 @@ const InGame = () => {
   const {
     user: { id },
   } = useUser();
+  const { game } = useGame();
   const { drawing } = useCanvas();
   const isDrawing = id === drawerId;
 
@@ -59,6 +62,9 @@ const InGame = () => {
         GameEvents.ON_GAME_CANVAS_OPERATION,
         handleOnGameCanvasOperation
       );
+      setOptionConfig((prev) => ({ ...prev, type: undefined }));
+    } else {
+      setOptionConfig((prev) => ({ ...prev, type: OptionKey.PENCIL }));
     }
     return () => {
       unregisterEvent(
@@ -67,6 +73,11 @@ const InGame = () => {
       );
     };
   }, [isDrawing]);
+
+  useEffect(() => {
+    if (game.status === GameStatus.CHOOSE_WORD)
+      drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
+  }, [game.status]);
 
   const handleClear = async () => {
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
@@ -167,4 +178,4 @@ const InGame = () => {
   );
 };
 
-export default InGame;
+export default Main;

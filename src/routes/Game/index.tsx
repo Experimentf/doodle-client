@@ -13,15 +13,15 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { ErrorFromServer } from '@/utils/error';
 
-import ChooseWord from './components/ChooseWord';
 import DetailBar from './components/DetailBar';
 import Doodlers from './components/DoodlerList';
 import HunchList from './components/HunchList';
-import InGame from './components/InGame';
-import Lobby from './components/Lobby';
-import Result from './components/Result';
-import RoundEnd from './components/RoundEnd';
-import TurnEnd from './components/TurnEnd';
+import Main from './Main';
+import ChooseWord from './Status/ChooseWord';
+import Lobby from './Status/Lobby';
+import Result from './Status/Result';
+import RoundEnd from './Status/RoundEnd';
+import TurnEnd from './Status/TurnEnd';
 
 const GameLayout = () => {
   const navigate = useNavigate();
@@ -125,12 +125,6 @@ const GameLayout = () => {
 
   const gameComponent = useMemo(() => {
     switch (game.status) {
-      case GameStatus.GAME:
-        return (
-          <CanvasProvider>
-            <InGame />
-          </CanvasProvider>
-        );
       case GameStatus.LOBBY:
         return <Lobby />;
       case GameStatus.CHOOSE_WORD:
@@ -154,7 +148,12 @@ const GameLayout = () => {
       <DetailBar />
       <div className="flex flex-grow gap-4">
         <Doodlers />
-        <div className="flex-grow">{gameComponent}</div>
+        <div className="flex-grow">
+          <CanvasProvider>
+            <Main />
+            {gameComponent}
+          </CanvasProvider>
+        </div>
         <HunchList />
       </div>
     </div>

@@ -28,8 +28,11 @@
     "sectionTitle": "Lobby",
     "waiting": "Waiting for players to join"
   },
-  "roundEnd": {
+  "result": {
     "title": "Round has ended!"
+  },
+  "roundEnd": {
+    "title": "RESULT!"
   },
   "turnEnd": {
     "title": "Turn has ended!"
