@@ -20,7 +20,7 @@ import Main from './Main';
 import ChooseWord from './Status/ChooseWord';
 import Lobby from './Status/Lobby';
 import Result from './Status/Result';
-import RoundEnd from './Status/RoundEnd';
+import RoundStart from './Status/RoundStart';
 import TurnEnd from './Status/TurnEnd';
 
 const GameLayout = () => {
@@ -131,8 +131,8 @@ const GameLayout = () => {
         return <ChooseWord />;
       case GameStatus.TURN_END:
         return <TurnEnd />;
-      case GameStatus.ROUND_END:
-        return <RoundEnd />;
+      case GameStatus.ROUND_START:
+        return <RoundStart />;
       case GameStatus.RESULT:
         return <Result />;
       default:

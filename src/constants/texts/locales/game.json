@@ -29,10 +29,10 @@
     "waiting": "Waiting for players to join"
   },
   "result": {
-    "title": "Round has ended!"
-  },
-  "roundEnd": {
     "title": "RESULT!"
+  },
+  "roundStart": {
+    "title": "New round is starting!"
   },
   "turnEnd": {
     "title": "Turn has ended!"
