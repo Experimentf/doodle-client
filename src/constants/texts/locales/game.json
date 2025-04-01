@@ -30,5 +30,8 @@
   },
   "roundEnd": {
     "title": "Round has ended!"
+  },
+  "turnEnd": {
+    "title": "Turn has ended!"
   }
 }

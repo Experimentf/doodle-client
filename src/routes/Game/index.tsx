@@ -21,6 +21,7 @@ import InGame from './components/InGame';
 import Lobby from './components/Lobby';
 import Result from './components/Result';
 import RoundEnd from './components/RoundEnd';
+import TurnEnd from './components/TurnEnd';
 
 const GameLayout = () => {
   const navigate = useNavigate();
@@ -134,6 +135,8 @@ const GameLayout = () => {
         return <Lobby />;
       case GameStatus.CHOOSE_WORD:
         return <ChooseWord />;
+      case GameStatus.TURN_END:
+        return <TurnEnd />;
       case GameStatus.ROUND_END:
         return <RoundEnd />;
       case GameStatus.RESULT:

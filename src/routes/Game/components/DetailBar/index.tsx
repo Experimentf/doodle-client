@@ -14,8 +14,8 @@ const DetailBar = () => {
   useEffect(() => {
     if (game.status === GameStatus.GAME) {
       setKey('drawing');
-    } else if (game.status === GameStatus.ROUND_END) {
-      setKey('roundEndCooldownTime');
+    } else if (game.status === GameStatus.TURN_END) {
+      setKey('turnEndCooldownTime');
     } else if (game.status === GameStatus.CHOOSE_WORD) {
       setKey('chooseWordTime');
     } else {
