@@ -8,9 +8,7 @@ import { GameOptions, GameStatus } from '@/types/models/game';
 const DetailBar = () => {
   const { game } = useGame();
   const [key, setKey] = useState<keyof GameOptions['timers']>();
-  const [currentTime, setCurrentTime] = useState(
-    key ? game.options.timers[key].max : 0
-  );
+  const [currentTime, setCurrentTime] = useState(0);
   const timerRef = useRef<NodeJS.Timer | null>(null);
 
   useEffect(() => {
@@ -26,9 +24,9 @@ const DetailBar = () => {
   }, [game.status]);
 
   const startTimer = () => {
-    setCurrentTime(0);
+    setCurrentTime(key ? game.options.timers[key].max : 0);
     timerRef.current = setInterval(() => {
-      setCurrentTime((prev) => prev + 1);
+      setCurrentTime((prev) => prev - 1);
     }, 1000);
   };
 
