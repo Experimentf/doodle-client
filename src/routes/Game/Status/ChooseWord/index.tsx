@@ -2,30 +2,23 @@ import React from 'react';
 
 import Backdrop from '@/components/Backdrop';
 import Button from '@/components/Button';
+import Loading from '@/components/Loading';
 import { GameEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 
-const ChooseWord = () => {
+interface ChooseWordInterface {
+  wordChoices?: Array<string>;
+}
+
+const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
   const { room } = useRoom();
   const { user } = useUser();
   const { asyncEmitEvent } = useSocket();
   const isDrawing = user.id === room.drawerId;
   const drawer = room.doodlers.find(({ id }) => id === room.drawerId);
-
-  const mockWords = [
-    {
-      word: 'WORD A',
-    },
-    {
-      word: 'WORD B',
-    },
-    {
-      word: 'WORD C',
-    },
-  ];
 
   const handleWordChoice = async (word: string) => {
     await asyncEmitEvent(GameEvents.EMIT_GAME_CHOOSE_WORD, {
@@ -43,11 +36,15 @@ const ChooseWord = () => {
       </p>
       {isDrawing && (
         <div className="flex flex-auto gap-2 mt-5 justify-center">
-          {mockWords.map(({ word }, index) => (
-            <Button key={index} onClick={() => handleWordChoice(word)}>
-              {word}
-            </Button>
-          ))}
+          {wordChoices ? (
+            wordChoices.map((word, index) => (
+              <Button key={index} onClick={() => handleWordChoice(word)}>
+                {word}
+              </Button>
+            ))
+          ) : (
+            <Loading />
+          )}
         </div>
       )}
     </Backdrop>

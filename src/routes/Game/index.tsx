@@ -35,6 +35,7 @@ const GameLayout = () => {
   const { openSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState(true);
+  const [wordChoices, setWordChoices] = useState<Array<string>>();
 
   const returnToHomePage = () => {
     navigate('/', { replace: true });
@@ -55,10 +56,16 @@ const GameLayout = () => {
     });
 
     // When a game starts
-    registerEvent(GameEvents.ON_GAME_STATUS_UPDATED, ({ room, game }) => {
-      setRoom((prev) => ({ ...room, doodlers: prev.doodlers }));
-      if (game) setGame(game);
-    });
+    registerEvent(
+      GameEvents.ON_GAME_STATUS_UPDATED,
+      ({ room, game, extraInfo }) => {
+        setRoom((prev) => ({ ...room, doodlers: prev.doodlers }));
+        if (game) setGame(game);
+        if (extraInfo?.wordOptions) {
+          setWordChoices(extraInfo.wordOptions);
+        }
+      }
+    );
   };
 
   const handleValidateUser = async () => {
@@ -128,7 +135,7 @@ const GameLayout = () => {
       case GameStatus.LOBBY:
         return <Lobby />;
       case GameStatus.CHOOSE_WORD:
-        return <ChooseWord />;
+        return <ChooseWord wordChoices={wordChoices} />;
       case GameStatus.TURN_END:
         return <TurnEnd />;
       case GameStatus.ROUND_START:
