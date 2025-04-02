@@ -13,6 +13,7 @@ const ChooseWord = () => {
   const { user } = useUser();
   const { asyncEmitEvent } = useSocket();
   const isDrawing = user.id === room.drawerId;
+  const drawer = room.doodlers.find(({ id }) => id === room.drawerId);
 
   const mockWords = [
     {
@@ -36,7 +37,9 @@ const ChooseWord = () => {
   return (
     <Backdrop>
       <p className="text-center">
-        {texts.game.chooseWord.title[isDrawing ? 'drawer' : 'hunchers']}
+        {isDrawing
+          ? texts.game.chooseWord.title.drawer
+          : drawer?.name + texts.game.chooseWord.title.hunchers}
       </p>
       {isDrawing && (
         <div className="flex flex-auto gap-2 mt-5 justify-center">
