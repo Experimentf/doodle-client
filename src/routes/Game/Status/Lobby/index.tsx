@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Loading from '@/components/Loading';
+import Text from '@/components/Text';
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
 
@@ -10,9 +11,11 @@ const Lobby = () => {
   return (
     <>
       {!room.isPrivate && (
-        <div>
-          <p className="text-center">{texts.game.lobby.waiting}</p>
-          <Loading />
+        <div className="w-full h-full flex flex-col justify-center items-center">
+          <div>
+            <Text>{texts.game.lobby.waiting}</Text>
+            <Loading />
+          </div>
         </div>
       )}
     </>

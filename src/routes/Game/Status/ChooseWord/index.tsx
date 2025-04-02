@@ -30,9 +30,11 @@ const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
 
   if (!isDrawing) {
     return (
-      <div>
-        <Text>{drawer?.name + texts.game.chooseWord.title.hunchers}</Text>
-        <Loading />
+      <div className="w-full h-full flex flex-col justify-center items-center">
+        <div>
+          <Text>{drawer?.name + texts.game.chooseWord.title.hunchers}</Text>
+          <Loading />
+        </div>
       </div>
     );
   }

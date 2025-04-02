@@ -5,8 +5,10 @@ import texts from '@/constants/texts';
 
 const Result = () => {
   return (
-    <div>
-      <Text>{texts.game.result.title}</Text>
+    <div className="w-full h-full flex flex-col justify-center items-center">
+      <div>
+        <Text>{texts.game.result.title}</Text>
+      </div>
     </div>
   );
 };

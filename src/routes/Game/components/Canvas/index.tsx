@@ -5,6 +5,7 @@ import { useGame } from '@/contexts/game';
 import useDebounce from '@/hooks/useDebouncedCallback';
 import usePointerTracker from '@/hooks/usePointerTracker';
 import { CanvasAction } from '@/types/canvas';
+import { GameStatus } from '@/types/models/game';
 
 import useCanvasActions, { OptionConfig } from './useCanvasActions';
 
@@ -15,7 +16,7 @@ interface CanvasProps {
 const Canvas = ({ optionConfig }: CanvasProps) => {
   const { ref: canvasRef, drawing } = useCanvas();
   const {
-    game: { canvasOperations },
+    game: { canvasOperations, status },
   } = useGame();
   const isMountedRef = useRef(false);
   const pointerConfig = useCanvasActions(optionConfig);
@@ -53,7 +54,11 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
       style={{
         shapeRendering: 'crispEdges',
       }}
-      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video`}
+      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video ${
+        status === GameStatus.GAME
+          ? 'pointer-events-auto'
+          : 'pointer-events-none'
+      }`}
     />
   );
 };

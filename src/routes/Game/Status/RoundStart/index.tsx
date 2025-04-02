@@ -7,8 +7,10 @@ import { useGame } from '@/contexts/game';
 const RoundStart = () => {
   const { game } = useGame();
   return (
-    <div>
-      <Text>{texts.game.roundStart.title + game.options.round.current}</Text>
+    <div className="w-full h-full flex flex-col justify-center items-center">
+      <div>
+        <Text>{texts.game.roundStart.title + game.options.round.current}</Text>
+      </div>
     </div>
   );
 };
