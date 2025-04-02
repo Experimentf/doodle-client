@@ -1,5 +1,6 @@
 import { PropsWithChildren, ReactNode } from 'react';
 
+import Backdrop from '../Backdrop';
 import Text from '../Text';
 
 interface DialogProps extends PropsWithChildren {
@@ -13,29 +14,33 @@ const Dialog = ({ visible, onClose, title, footer, children }: DialogProps) => {
   if (!visible) return null;
 
   return (
-    <dialog
-      className="z-40 w-screen h-screen fixed top-0 left-0 bg-[rgba(0,0,0,0.5)] flex justify-center items-center"
-      onClick={onClose}
-    >
+    <Backdrop>
       <div
-        className="w-full md:w-[600px] m-10 p-5 bg-light-board-green rounded flex flex-col gap-4"
-        onClick={(e) => e.stopPropagation()}
+        className="z-40 flex justify-center items-center bg-light-board-green rounded-lg"
+        onClick={onClose}
+        tabIndex={0}
+        autoFocus
       >
-        {title && (
-          <Text component="h3" className="text-center">
-            {title}
-          </Text>
-        )}
-        <div className="self-center flex flex-col justify-center items-center gap-4">
-          {children}
-        </div>
-        {footer && (
-          <div className="self-end flex flex-col-reverse gap-4 md:flex-row">
-            {footer}
+        <div
+          className="w-full md:w-[600px] m-10 p-5 rounded flex flex-col gap-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {title && (
+            <Text component="h3" className="text-center">
+              {title}
+            </Text>
+          )}
+          <div className="self-center flex flex-col justify-center items-center gap-4">
+            {children}
           </div>
-        )}
+          {footer && (
+            <div className="self-end flex flex-col-reverse gap-4 md:flex-row">
+              {footer}
+            </div>
+          )}
+        </div>
       </div>
-    </dialog>
+    </Backdrop>
   );
 };
 

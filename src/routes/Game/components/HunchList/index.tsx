@@ -7,18 +7,14 @@ import {
 } from 'react';
 
 import texts from '@/constants/texts';
-import { useGame } from '@/contexts/game';
 import { useUser } from '@/contexts/user';
-import { GameStatus } from '@/types/models/game';
 import { HunchInterface, HunchStatus } from '@/types/models/hunch';
 
 import Hunch from './Hunch';
 
 const HunchList = () => {
   const { user } = useUser();
-  const { game } = useGame();
   const listRef = useRef<HTMLUListElement>(null);
-  const isHunchDisabled = game.status !== GameStatus.GAME;
   const [hunch, setHunch] = useState('');
   const [hunchList, setHunchList] = useState<HunchInterface[]>([
     { isSystemMessage: true, message: 'Your guesses go here.' },
@@ -75,17 +71,13 @@ const HunchList = () => {
         <div className="flex flex-col items-end gap-1">
           <input
             type="text"
-            disabled={isHunchDisabled}
             value={hunch}
             placeholder={texts.game.hunchList.input.placeholder}
             className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-sm font-thin disabled:cursor-not-allowed"
             onKeyDown={handleSendHunch}
             onChange={handleChangeHunch}
           />
-          <p
-            className="text-[0.2em] text-light-chalk-white"
-            style={{ visibility: isHunchDisabled ? 'hidden' : 'visible' }}
-          >
+          <p className="text-[0.2em] text-light-chalk-white">
             {texts.game.hunchList.input.caption}
           </p>
         </div>

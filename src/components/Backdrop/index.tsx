@@ -1,4 +1,5 @@
 import { PropsWithChildren, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const Backdrop = ({ children }: PropsWithChildren) => {
   useEffect(() => {
@@ -7,12 +8,12 @@ const Backdrop = ({ children }: PropsWithChildren) => {
       document.body.style.overflow = 'unset';
     };
   }, []);
-  return (
-    <div className="fixed top-0 left-0 w-full h-full text-chalk-green bg-black bg-opacity-50">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        {children}
-      </div>
-    </div>
+
+  return createPortal(
+    <div className="z-40 fixed top-0 left-0 w-screen h-screen text-chalk-green bg-black bg-opacity-50 flex flex-col justify-center items-center">
+      {children}
+    </div>,
+    document.body
   );
 };
 export default Backdrop;

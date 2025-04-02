@@ -1,13 +1,13 @@
 import React from 'react';
 
-import Backdrop from '@/components/Backdrop';
+import Text from '@/components/Text';
 import texts from '@/constants/texts';
 
 const Result = () => {
   return (
-    <Backdrop>
-      <p className="text-center">{texts.game.result.title}</p>
-    </Backdrop>
+    <div>
+      <Text>{texts.game.result.title}</Text>
+    </div>
   );
 };
 

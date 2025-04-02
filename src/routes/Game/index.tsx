@@ -157,8 +157,7 @@ const GameLayout = () => {
         <Doodlers />
         <div className="flex-grow">
           <CanvasProvider>
-            <Main />
-            {gameComponent}
+            <Main component={gameComponent} />
           </CanvasProvider>
         </div>
         <HunchList />

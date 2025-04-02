@@ -32,9 +32,9 @@
     "title": "RESULT!"
   },
   "roundStart": {
-    "title": "New round is starting!"
+    "title": "Round "
   },
   "turnEnd": {
-    "title": "Turn has ended!"
+    "title": "The word was "
   }
 }

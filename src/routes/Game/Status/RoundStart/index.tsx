@@ -1,13 +1,15 @@
 import React from 'react';
 
-import Backdrop from '@/components/Backdrop';
+import Text from '@/components/Text';
 import texts from '@/constants/texts';
+import { useGame } from '@/contexts/game';
 
 const RoundStart = () => {
+  const { game } = useGame();
   return (
-    <Backdrop>
-      <p className="text-center">{texts.game.roundStart.title}</p>
-    </Backdrop>
+    <div>
+      <Text>{texts.game.roundStart.title + game.options.round.current}</Text>
+    </div>
   );
 };
 

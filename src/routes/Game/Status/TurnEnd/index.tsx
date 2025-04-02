@@ -1,14 +1,12 @@
 import React from 'react';
 
-import Backdrop from '@/components/Backdrop';
 import texts from '@/constants/texts';
+import { useGame } from '@/contexts/game';
 
 const TurnEnd = () => {
-  return (
-    <Backdrop>
-      <p className="text-center">{texts.game.turnEnd.title}</p>
-    </Backdrop>
-  );
+  const { game } = useGame();
+
+  return <div>{texts.game.turnEnd.title + ` “${game.options.word}”`}</div>;
 };
 
 export default TurnEnd;

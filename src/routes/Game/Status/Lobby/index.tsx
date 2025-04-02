@@ -1,6 +1,5 @@
 import React from 'react';
 
-import Backdrop from '@/components/Backdrop';
 import Loading from '@/components/Loading';
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
@@ -11,10 +10,10 @@ const Lobby = () => {
   return (
     <>
       {!room.isPrivate && (
-        <Backdrop>
+        <div>
           <p className="text-center">{texts.game.lobby.waiting}</p>
           <Loading />
-        </Backdrop>
+        </div>
       )}
     </>
   );

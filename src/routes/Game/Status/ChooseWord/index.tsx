@@ -1,8 +1,9 @@
 import React from 'react';
 
-import Backdrop from '@/components/Backdrop';
 import Button from '@/components/Button';
+import Dialog from '@/components/Dialog';
 import Loading from '@/components/Loading';
+import Text from '@/components/Text';
 import { GameEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
@@ -27,27 +28,34 @@ const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
     });
   };
 
+  if (!isDrawing) {
+    return (
+      <div>
+        <Text>{drawer?.name + texts.game.chooseWord.title.hunchers}</Text>
+        <Loading />
+      </div>
+    );
+  }
+
   return (
-    <Backdrop>
-      <p className="text-center">
-        {isDrawing
-          ? texts.game.chooseWord.title.drawer
-          : drawer?.name + texts.game.chooseWord.title.hunchers}
-      </p>
-      {isDrawing && (
-        <div className="flex flex-auto gap-2 mt-5 justify-center">
-          {wordChoices ? (
-            wordChoices.map((word, index) => (
-              <Button key={index} onClick={() => handleWordChoice(word)}>
-                {word}
-              </Button>
-            ))
-          ) : (
-            <Loading />
-          )}
-        </div>
-      )}
-    </Backdrop>
+    <Dialog visible title={texts.game.chooseWord.title.drawer}>
+      <div className="flex flex-auto gap-2 mt-5 justify-center">
+        {wordChoices ? (
+          wordChoices.map((word, index) => (
+            <Button
+              key={index}
+              variant="secondary"
+              className="whitespace-nowrap"
+              onClick={() => handleWordChoice(word)}
+            >
+              {word}
+            </Button>
+          ))
+        ) : (
+          <Loading />
+        )}
+      </div>
+    </Dialog>
   );
 };
 

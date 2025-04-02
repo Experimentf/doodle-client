@@ -1,6 +1,7 @@
 import React, {
   ChangeEvent,
   ReactElement,
+  ReactNode,
   useEffect,
   useRef,
   useState,
@@ -31,7 +32,11 @@ const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.CLEAR]: <FaTrash />,
 };
 
-const Main = () => {
+interface MainProps {
+  component: ReactNode;
+}
+
+const Main = ({ component }: MainProps) => {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
     color: '#ffffff',
@@ -75,7 +80,10 @@ const Main = () => {
   }, [isDrawing]);
 
   useEffect(() => {
-    if (game.status === GameStatus.CHOOSE_WORD)
+    if (
+      game.status === GameStatus.CHOOSE_WORD ||
+      game.status === GameStatus.TURN_END
+    )
       drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
   }, [game.status]);
 
@@ -114,7 +122,12 @@ const Main = () => {
 
   return (
     <div className="w-full relative">
-      <Canvas optionConfig={optionConfig} />
+      <div className="relative">
+        <Canvas optionConfig={optionConfig} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-scroll pointer-events-none">
+          {component}
+        </div>
+      </div>
       <div className="flex flex-auto justify-between items-center mt-4 mx-4 gap-6">
         <div className="flex flex-auto flex-grow-0 justify-center items-center gap-2">
           {editOptions.map(({ isSelectable, handler, icon, key, disabled }) => (
