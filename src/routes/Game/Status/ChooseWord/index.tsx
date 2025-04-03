@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Button from '@/components/Button';
-import Dialog from '@/components/Dialog';
 import Loading from '@/components/Loading';
 import Text from '@/components/Text';
 import { GameEvents } from '@/constants/Events';
@@ -40,8 +39,9 @@ const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
   }
 
   return (
-    <Dialog visible title={texts.game.chooseWord.title.drawer}>
-      <div className="flex flex-auto gap-2 mt-5 justify-center">
+    <div className="w-full h-full flex flex-col gap-5 justify-center items-center">
+      <Text>{texts.game.chooseWord.title.drawer}</Text>
+      <div className="flex flex-row flex-wrap justify-center gap-5">
         {wordChoices ? (
           wordChoices.map((word, index) => (
             <Button
@@ -57,7 +57,7 @@ const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
           <Loading />
         )}
       </div>
-    </Dialog>
+    </div>
   );
 };
 

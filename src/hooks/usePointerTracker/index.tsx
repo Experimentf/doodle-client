@@ -16,10 +16,18 @@ const usePointerTracker = <T extends HTMLCanvasElement>(
   const _isDragging = useRef(false);
   const _dragPoints = useRef<Array<Coordinate>>([]);
 
-  const _getCoordinate = (ev: PointerEvent): Coordinate => ({
-    x: ev.offsetX,
-    y: ev.offsetY,
-  });
+  const _getCoordinate = (ev: PointerEvent): Coordinate => {
+    const canvas = elementRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+      x: (ev.clientX - rect.left) * scaleX,
+      y: (ev.clientY - rect.top) * scaleY,
+    };
+  };
 
   const _handlePointerMovement = (ev: PointerEvent) => {
     if (!_pointerDownCoordinate.current) return;

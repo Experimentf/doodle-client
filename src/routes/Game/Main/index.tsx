@@ -124,9 +124,11 @@ const Main = ({ component }: MainProps) => {
     <div className="w-full relative">
       <div className="relative">
         <Canvas optionConfig={optionConfig} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-scroll pointer-events-none">
-          {component}
-        </div>
+        {component && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-scroll">
+            {component}
+          </div>
+        )}
       </div>
       <div className="flex flex-auto justify-between items-center mt-4 mx-4 gap-6">
         <div className="flex flex-auto flex-grow-0 justify-center items-center gap-2">

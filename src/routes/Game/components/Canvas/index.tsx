@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 
 import { useCanvas } from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
-import useDebounce from '@/hooks/useDebouncedCallback';
 import usePointerTracker from '@/hooks/usePointerTracker';
 import { CanvasAction } from '@/types/canvas';
 import { GameStatus } from '@/types/models/game';
@@ -22,7 +21,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   const pointerConfig = useCanvasActions(optionConfig);
   usePointerTracker(canvasRef, pointerConfig);
 
-  const handleCanvasResize = useDebounce(async () => {
+  const handleCanvasResize = async () => {
     if (!canvasRef.current) return;
 
     // Size Handling
@@ -30,15 +29,13 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     const rect = canvasRef.current.getBoundingClientRect();
     canvasRef.current.width = rect.width * dpr;
     canvasRef.current.height = rect.height * dpr;
-    const context = canvasRef.current.getContext('2d');
-    if (context) context.scale(dpr, dpr);
 
     // Drawing Handling
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
     if (isMountedRef.current) await drawing?.reloadOperations();
     else await drawing?.loadOperations(canvasOperations, false);
     isMountedRef.current = true;
-  });
+  };
 
   useEffect(() => {
     handleCanvasResize();
@@ -51,9 +48,6 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        shapeRendering: 'crispEdges',
-      }}
       className={`bg-dark-board-green rounded-xl w-full h-full aspect-video ${
         status === GameStatus.GAME
           ? 'pointer-events-auto'
