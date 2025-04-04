@@ -47,7 +47,7 @@ const GameLayout = () => {
       setRoom((prev) => ({ ...prev, doodlers: [...prev.doodlers, doodler] }));
       openSnackbar({
         message: `${doodler.name.slice(0, 8)} has joined the room!`,
-        color: 'success',
+        color: 'warning',
       });
     });
 
