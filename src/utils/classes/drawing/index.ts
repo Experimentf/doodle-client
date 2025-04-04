@@ -4,6 +4,7 @@ import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { getPixelHexCode } from '@/utils/colors';
+import { floorCoordinate } from '@/utils/coordinate';
 
 import Stack from '../stack';
 import { DrawingInterface } from './interface';
@@ -27,7 +28,11 @@ export class Drawing implements DrawingInterface {
       const operation = opsQueue.shift();
       if (!operation) return;
       if (asNewOperation) this._operations.push(operation);
-      const { actionType, color, points, size } = operation;
+      const { actionType, color, points: normalizedPoints, size } = operation;
+      const points = normalizedPoints?.map((point) =>
+        floorCoordinate(this.denormalizeCoordinate(point))
+      );
+
       switch (actionType) {
         case CanvasAction.LINE:
           if (points?.length === 2 && color && size) {
@@ -62,6 +67,16 @@ export class Drawing implements DrawingInterface {
   reloadOperations = async () => {
     await this.loadOperations(this._operations.toArray(), false, false);
   };
+
+  normalizeCoordinate = (coord: Coordinate) => ({
+    x: coord.x / this._maxWidth,
+    y: coord.y / this._maxHeight,
+  });
+
+  denormalizeCoordinate = (coord: Coordinate) => ({
+    x: coord.x * this._maxWidth,
+    y: coord.y * this._maxHeight,
+  });
 
   // PRIVATE METHODS
   private _line = (
@@ -108,16 +123,11 @@ export class Drawing implements DrawingInterface {
     const ref = this._ref;
     if (!ctx || !ref.current) return;
     if (window.Worker) {
-      // Scaled point is only required when operating on image data
-      const scaledPoint: Coordinate = {
-        x: point.x * window.devicePixelRatio,
-        y: point.y * window.devicePixelRatio,
-      };
-      const previousColor = getPixelHexCode(ctx, scaledPoint);
+      const previousColor = getPixelHexCode(ctx, point);
       const imageData = ctx.getImageData(0, 0, this._maxWidth, this._maxHeight);
       const newImageData = await this._asyncFillWorker(
         imageData,
-        scaledPoint,
+        point,
         previousColor,
         color,
         this._maxWidth,

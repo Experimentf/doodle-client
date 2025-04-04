@@ -30,7 +30,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     canvasRef.current.width = rect.width * dpr;
     canvasRef.current.height = rect.height * dpr;
 
-    // Drawing Handling
+    // Drawing Handlinga
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
     if (isMountedRef.current) await drawing?.reloadOperations();
     else await drawing?.loadOperations(canvasOperations, false);

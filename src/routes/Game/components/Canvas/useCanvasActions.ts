@@ -4,7 +4,6 @@ import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
-import { floorCoordinate } from '@/utils/coordinate';
 
 import { convertOptionKeyToCanvasActionKey, OptionKey } from '../Option/utils';
 
@@ -37,9 +36,9 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   };
 
   const onPointerDrag = async (from: Coordinate, to: Coordinate) => {
-    const flooredFrom = floorCoordinate(from);
-    const flooredTo = floorCoordinate(to);
-
+    if (!drawing) return;
+    const flooredFrom = drawing.normalizeCoordinate(from);
+    const flooredTo = drawing.normalizeCoordinate(to);
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.PENCIL:
@@ -76,10 +75,8 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const onPointerDragEnd = () => {};
 
   const onPointerClick = async (point: Coordinate) => {
-    const flooredPoint: Coordinate = {
-      x: Math.floor(point.x),
-      y: Math.floor(point.y),
-    };
+    if (!drawing) return;
+    const flooredPoint: Coordinate = drawing?.normalizeCoordinate(point);
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.FILL:
