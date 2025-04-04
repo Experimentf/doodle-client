@@ -59,7 +59,7 @@ const Snackbar = ({
       </div>
       <p className="py-5 px-8">{message}</p>
       {open && !isInfinite && (
-        <div ref={progressRef} className="bg-light-chalk-pink h-1" />
+        <div ref={progressRef} className="line-loader h-1" />
       )}
     </div>
   );
