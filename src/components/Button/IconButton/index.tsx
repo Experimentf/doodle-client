@@ -1,10 +1,19 @@
-import { Fragment } from 'react';
+import { Fragment, PropsWithChildren } from 'react';
 
 import Tooltip from '@/components/Tooltip';
 import { getVariantClass } from '@/utils/variants';
 
 import { IconButtonProps } from '../types';
 import { IconButtonClassSource } from './utils';
+
+interface WrapperProps extends PropsWithChildren {
+  label?: string;
+}
+
+const Wrapper = ({ label, ...rest }: WrapperProps) => {
+  if (!label) return <Fragment {...rest} />;
+  return <Tooltip label={label} {...rest} />;
+};
 
 const IconButton = ({
   variant = 'primary',
@@ -17,11 +26,10 @@ const IconButton = ({
   ...props
 }: IconButtonProps) => {
   const variantClass = getVariantClass(variant, color, IconButtonClassSource);
-
-  const Wrapper = tooltip && !props.disabled ? Tooltip : Fragment;
+  const label = tooltip && !props.disabled ? tooltip : undefined;
 
   return (
-    <Wrapper label={tooltip ?? ''}>
+    <Wrapper label={label}>
       <button
         className={`rounded-full transition-all hover:scale-125 disabled:hover:scale-100 ${variantClass} ${className}`}
         {...props}
