@@ -20,7 +20,7 @@ const HunchList = () => {
   const listRef = useRef<HTMLUListElement>(null);
   const [hunch, setHunch] = useState('');
   const [hunchList, setHunchList] = useState<HunchInterface[]>([
-    { isSystemMessage: true, message: 'Your guesses go here.' },
+    { isSystemMessage: true, message: 'Your hunches go here!' },
   ]);
 
   const handleSendHunch: KeyboardEventHandler<HTMLInputElement> = async (e) => {
