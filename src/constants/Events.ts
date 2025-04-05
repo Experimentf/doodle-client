@@ -27,6 +27,8 @@ export enum GameEvents {
   EMIT_GET_GAME = 'get-game',
   EMIT_GAME_CANVAS_OPERATION = 'game-canvas-operation',
   EMIT_GAME_CHOOSE_WORD = 'game-choose-word',
+  EMIT_GAME_HUNCH = 'game-hunch',
   ON_GAME_STATUS_UPDATED = 'game-status-updated',
   ON_GAME_CANVAS_OPERATION = 'game-canvas-operation',
+  ON_GAME_HUNCH = 'game-hunch',
 }

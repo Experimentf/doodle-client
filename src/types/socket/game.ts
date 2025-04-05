@@ -2,6 +2,7 @@ import { GameEvents } from '@/constants/Events';
 
 import { CanvasOperation } from '../canvas';
 import { GameInterface } from '../models/game';
+import { HunchInterface } from '../models/hunch';
 import { RoomInterface } from '../models/room';
 import { ClientToServerEventsArgument } from './helper';
 
@@ -18,6 +19,15 @@ export interface GameClientToServerEventsArgumentMap {
     { roomId: string; word: string },
     { game: GameInterface }
   >;
+  [GameEvents.EMIT_GAME_HUNCH]: ClientToServerEventsArgument<
+    {
+      roomId: string;
+      message: string;
+    },
+    {
+      hunch: HunchInterface;
+    }
+  >;
 }
 
 export interface GameServerToClientEvents {
@@ -31,4 +41,5 @@ export interface GameServerToClientEvents {
   [GameEvents.ON_GAME_CANVAS_OPERATION]: (args: {
     canvasOperation: CanvasOperation;
   }) => void;
+  [GameEvents.ON_GAME_HUNCH]: (args: { hunch: HunchInterface }) => void;
 }

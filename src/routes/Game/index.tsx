@@ -46,7 +46,7 @@ const GameLayout = () => {
     registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
       setRoom((prev) => ({ ...prev, doodlers: [...prev.doodlers, doodler] }));
       openSnackbar({
-        message: `${doodler.name.slice(0, 8)} has joined the room!`,
+        message: `${doodler.name} has joined the room!`,
         color: 'warning',
       });
     });
