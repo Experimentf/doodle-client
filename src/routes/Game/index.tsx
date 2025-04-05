@@ -35,7 +35,10 @@ const GameLayout = () => {
   const { openSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState(true);
-  const [wordChoices, setWordChoices] = useState<Array<string>>();
+  const [extraInfo, setExtraInfo] = useState<{
+    wordOptions?: Array<string>;
+    scores?: Array<[string, number]>;
+  }>();
 
   const returnToHomePage = () => {
     navigate('/', { replace: true });
@@ -65,8 +68,8 @@ const GameLayout = () => {
       ({ room, game, extraInfo }) => {
         setRoom((prev) => ({ ...room, doodlers: prev.doodlers }));
         if (game) setGame(game);
-        if (extraInfo?.wordOptions) {
-          setWordChoices(extraInfo.wordOptions);
+        if (extraInfo) {
+          setExtraInfo(extraInfo);
         }
       }
     );
@@ -139,9 +142,9 @@ const GameLayout = () => {
       case GameStatus.LOBBY:
         return <Lobby />;
       case GameStatus.CHOOSE_WORD:
-        return <ChooseWord wordChoices={wordChoices} />;
+        return <ChooseWord wordChoices={extraInfo?.wordOptions} />;
       case GameStatus.TURN_END:
-        return <TurnEnd />;
+        return <TurnEnd scores={extraInfo?.scores} />;
       case GameStatus.ROUND_START:
         return <RoundStart />;
       case GameStatus.RESULT:
