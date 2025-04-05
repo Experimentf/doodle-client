@@ -21,6 +21,7 @@ const defaultUser: DoodlerInterface = {
   id: '',
   name: '',
   avatar: getRandomAvatarProps(),
+  score: 0,
 };
 
 const UserContext = createContext<UserContextInterface>({

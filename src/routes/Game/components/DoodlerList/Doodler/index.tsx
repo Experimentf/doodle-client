@@ -18,21 +18,31 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
   return (
     <div className="flex items-center gap-1">
       <Avatar className="min-w-[80px]" avatarProps={doodler.avatar} />
-      <p className="text-light-chalk-white overflow-hidden text-ellipsis">
-        {doodler.name}
-      </p>
-      {user.id === doodler.id && (
-        <Text component={'span'} className="text-light-chalk-blue">
-          {texts.game.doodlers.userMarker}
-        </Text>
-      )}
-      <Text
-        component={'span'}
-        color="secondary"
-        className={`${isDrawing ? 'opacity-100' : 'opacity-0'} ml-2`}
-      >
-        <FaPencil className="animate-bounce" />
-      </Text>
+      <div className="flex flex-col items-start gap-2">
+        <div className="flex items-center gap-1">
+          <p className="text-light-chalk-white overflow-hidden text-ellipsis">
+            {doodler.name}
+          </p>
+          {user.id === doodler.id && (
+            <Text component={'span'} className="text-light-chalk-blue">
+              {texts.game.doodlers.userMarker}
+            </Text>
+          )}
+          <Text
+            component={'span'}
+            color="secondary"
+            className={`${isDrawing ? 'opacity-100' : 'opacity-0'} ml-2`}
+          >
+            <FaPencil className="animate-bounce" />
+          </Text>
+        </div>
+        <div className="flex gap-1 items-center">
+          <Text className="text-xs">Points -</Text>
+          <Text component="p" className="text-chalk-yellow text-sm">
+            {user.score}
+          </Text>
+        </div>
+      </div>
     </div>
   );
 };

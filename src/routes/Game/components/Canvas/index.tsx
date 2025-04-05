@@ -45,6 +45,10 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     };
   }, []);
 
+  useEffect(() => {
+    drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
+  }, [status]);
+
   return (
     <canvas
       ref={canvasRef}
