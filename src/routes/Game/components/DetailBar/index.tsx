@@ -3,13 +3,20 @@ import { GiAlarmClock } from 'react-icons/gi';
 
 import Text from '@/components/Text';
 import { useGame } from '@/contexts/game';
+import { useRoom } from '@/contexts/room';
+import { useUser } from '@/contexts/user';
 import { GameOptions, GameStatus } from '@/types/models/game';
 
 const DetailBar = () => {
   const { game } = useGame();
+  const { room } = useRoom();
+  const { user } = useUser();
   const [key, setKey] = useState<keyof GameOptions['timers']>();
   const [currentTime, setCurrentTime] = useState(0);
   const timerRef = useRef<NodeJS.Timer | null>(null);
+  const shouldDisplay =
+    game.status === GameStatus.GAME ||
+    (game.status === GameStatus.CHOOSE_WORD && user.id === room.drawerId);
 
   useEffect(() => {
     if (game.status === GameStatus.GAME) {
@@ -18,13 +25,15 @@ const DetailBar = () => {
       setKey('turnEndCooldownTime');
     } else if (game.status === GameStatus.CHOOSE_WORD) {
       setKey('chooseWordTime');
-    } else {
-      setKey(undefined);
-    }
+    } else if (game.status === GameStatus.ROUND_START) {
+      setKey('roundStartCooldownTime');
+    } else if (game.status === GameStatus.RESULT) {
+      setKey('resultCooldownTime');
+    } else setKey(undefined);
   }, [game.status]);
 
-  const startTimer = () => {
-    setCurrentTime(key ? game.options.timers[key].max : 0);
+  const startTimer = (key: keyof GameOptions['timers']) => {
+    setCurrentTime(game.options.timers[key].max);
     timerRef.current = setInterval(() => {
       setCurrentTime((prev) => prev - 1);
     }, 1000);
@@ -40,7 +49,7 @@ const DetailBar = () => {
     resetTimer();
     let t: NodeJS.Timeout | undefined = undefined;
     if (key) {
-      startTimer();
+      startTimer(key);
       t = setTimeout(resetTimer, game.options.timers[key].max * 1000);
     }
     return () => {
@@ -51,9 +60,15 @@ const DetailBar = () => {
   return (
     <div className="w-full">
       <div className="flex flex-row items-center justify-between p-4 bg-card-surface-2 rounded-lg w-full">
-        <div className="flex flex-row items-center gap-2">
+        <div
+          className={`flex flex-row items-center gap-2 ${
+            shouldDisplay && currentTime <= 10
+              ? 'text-chalk-pink animate-bounce'
+              : ''
+          }`}
+        >
           <GiAlarmClock size={36} />
-          <h1>{currentTime}s</h1>
+          <h1>{shouldDisplay ? currentTime : 0}s</h1>
         </div>
         <div className="flex flex-row items-center gap-2">
           <h1 className="text-2xl">{game.options.word}</h1>

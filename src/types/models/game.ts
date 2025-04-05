@@ -19,7 +19,15 @@ export interface GameOptions {
       current: number;
       max: number;
     };
+    roundStartCooldownTime: {
+      current: number;
+      max: number;
+    };
     chooseWordTime: {
+      current: number;
+      max: number;
+    };
+    resultCooldownTime: {
       current: number;
       max: number;
     };

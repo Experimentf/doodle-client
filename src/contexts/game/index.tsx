@@ -22,7 +22,9 @@ const defaultGame: GameInterface = {
     timers: {
       drawing: { current: 0, max: 0 },
       turnEndCooldownTime: { current: 0, max: 0 },
+      roundStartCooldownTime: { current: 0, max: 0 },
       chooseWordTime: { current: 0, max: 0 },
+      resultCooldownTime: { current: 0, max: 0 },
     },
     word: '',
   },
