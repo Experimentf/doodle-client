@@ -71,7 +71,11 @@ const DetailBar = () => {
           <h1>{shouldDisplay ? currentTime : 0}s</h1>
         </div>
         <div className="flex flex-row items-center gap-2">
-          <h1 className="text-2xl">{game.options.word}</h1>
+          <h1 className="text-2xl flex gap-2">
+            {game.options.word.split('').map((ch, index) => (
+              <span key={index}>{ch}</span>
+            ))}
+          </h1>
         </div>
         <div className="flex flex-row items-center gap-2">
           <Text>Round - </Text>
