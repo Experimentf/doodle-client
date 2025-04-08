@@ -11,6 +11,7 @@ import { useSnackbar } from '@/contexts/snackbar';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
+import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
 
 import DetailBar from './components/DetailBar';
@@ -35,10 +36,8 @@ const GameLayout = () => {
   const { openSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState(true);
-  const [extraInfo, setExtraInfo] = useState<{
-    wordOptions?: Array<string>;
-    scores?: Array<[string, number]>;
-  }>();
+  const [statusChangeData, setStatusChangeData] =
+    useState<GameStatusChangeData>();
 
   const returnToHomePage = () => {
     navigate('/', { replace: true });
@@ -65,12 +64,10 @@ const GameLayout = () => {
     // When a game starts
     registerEvent(
       GameEvents.ON_GAME_STATUS_UPDATED,
-      ({ room, game, extraInfo }) => {
+      ({ room, game, statusChangeData }) => {
         setRoom((prev) => ({ ...room, doodlers: prev.doodlers }));
         if (game) setGame(game);
-        if (extraInfo) {
-          setExtraInfo(extraInfo);
-        }
+        setStatusChangeData(statusChangeData);
       }
     );
   };
@@ -142,9 +139,13 @@ const GameLayout = () => {
       case GameStatus.LOBBY:
         return <Lobby />;
       case GameStatus.CHOOSE_WORD:
-        return <ChooseWord wordChoices={extraInfo?.wordOptions} />;
+        return (
+          <ChooseWord
+            wordOptions={statusChangeData?.[game.status]?.wordOptions}
+          />
+        );
       case GameStatus.TURN_END:
-        return <TurnEnd scores={extraInfo?.scores} />;
+        return <TurnEnd scores={statusChangeData?.[game.status]?.scores} />;
       case GameStatus.ROUND_START:
         return <RoundStart />;
       case GameStatus.RESULT:

@@ -1,10 +1,19 @@
 import { GameEvents } from '@/constants/Events';
 
 import { CanvasOperation } from '../canvas';
-import { GameInterface } from '../models/game';
+import { GameInterface, GameStatus } from '../models/game';
 import { HunchInterface } from '../models/hunch';
 import { RoomInterface } from '../models/room';
 import { ClientToServerEventsArgument } from './helper';
+
+export interface GameStatusChangeData {
+  [GameStatus.CHOOSE_WORD]?: {
+    wordOptions: Array<string>;
+  };
+  [GameStatus.TURN_END]?: {
+    scores: Array<[string, number]>;
+  };
+}
 
 export interface GameClientToServerEventsArgumentMap {
   [GameEvents.EMIT_GET_GAME]: ClientToServerEventsArgument<
@@ -34,10 +43,7 @@ export interface GameServerToClientEvents {
   [GameEvents.ON_GAME_STATUS_UPDATED]: (args: {
     room: RoomInterface;
     game?: GameInterface;
-    extraInfo?: {
-      wordOptions?: Array<string>;
-      scores?: Array<[string, number]>;
-    };
+    statusChangeData?: GameStatusChangeData;
   }) => void;
   [GameEvents.ON_GAME_CANVAS_OPERATION]: (args: {
     canvasOperation: CanvasOperation;

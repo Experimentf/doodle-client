@@ -10,10 +10,10 @@ import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 
 interface ChooseWordInterface {
-  wordChoices?: Array<string>;
+  wordOptions?: Array<string>;
 }
 
-const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
+const ChooseWord = ({ wordOptions }: ChooseWordInterface) => {
   const { room } = useRoom();
   const { user } = useUser();
   const { asyncEmitEvent } = useSocket();
@@ -42,8 +42,8 @@ const ChooseWord = ({ wordChoices }: ChooseWordInterface) => {
     <div className="w-full h-full flex flex-col gap-5 justify-center items-center">
       <Text>{texts.game.chooseWord.title.drawer}</Text>
       <div className="flex flex-row flex-wrap justify-center gap-5">
-        {wordChoices ? (
-          wordChoices.map((word, index) => (
+        {wordOptions ? (
+          wordOptions.map((word, index) => (
             <Button
               key={index}
               variant="secondary"
