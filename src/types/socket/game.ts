@@ -1,6 +1,7 @@
 import { GameEvents } from '@/constants/Events';
 
 import { CanvasOperation } from '../canvas';
+import { DoodlerInterface } from '../models/doodler';
 import { GameInterface, GameStatus } from '../models/game';
 import { HunchInterface } from '../models/hunch';
 import { RoomInterface } from '../models/room';
@@ -11,7 +12,10 @@ export interface GameStatusChangeData {
     wordOptions: Array<string>;
   };
   [GameStatus.TURN_END]?: {
-    scores: Record<string, number>;
+    scores: Record<DoodlerInterface['id'], number>;
+  };
+  [GameStatus.RESULT]?: {
+    results: Record<DoodlerInterface['id'], number>;
   };
 }
 

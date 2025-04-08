@@ -18,7 +18,7 @@ const TurnEnd = ({ scores }: TurnEndProps) => {
       ...doodler,
       score: scores?.[doodler.id] ?? 0,
     }))
-    .sort((a, b) => a.score - b.score);
+    .sort((a, b) => b.score - a.score);
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center p-5">

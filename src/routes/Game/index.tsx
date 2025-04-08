@@ -159,7 +159,7 @@ const GameLayout = () => {
       case GameStatus.ROUND_START:
         return <RoundStart />;
       case GameStatus.RESULT:
-        return <Result />;
+        return <Result results={statusChangeData?.[game.status]?.results} />;
       default:
         return null;
     }
