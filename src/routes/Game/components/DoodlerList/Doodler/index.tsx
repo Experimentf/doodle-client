@@ -39,7 +39,7 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
         <div className="flex gap-1 items-center">
           <Text className="text-xs">Points -</Text>
           <Text component="p" className="text-chalk-yellow text-sm">
-            {user.score}
+            {doodler.score}
           </Text>
         </div>
       </div>

@@ -6,23 +6,17 @@ import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 
 interface TurnEndProps {
-  scores?: Array<[string, number]>;
+  scores?: Record<string, number>;
 }
 
 const TurnEnd = ({ scores }: TurnEndProps) => {
   const { game } = useGame();
   const { room } = useRoom();
 
-  const findScore = (id: string) => {
-    const row = scores?.find((score) => score[0] === id);
-    if (!row) return 0;
-    return row[1];
-  };
-
   const doodlersWithScores = room.doodlers
     .map((doodler) => ({
       ...doodler,
-      score: findScore(doodler.id),
+      score: scores?.[doodler.id] ?? 0,
     }))
     .sort((a, b) => a.score - b.score);
 

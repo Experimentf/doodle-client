@@ -11,7 +11,7 @@ export interface GameStatusChangeData {
     wordOptions: Array<string>;
   };
   [GameStatus.TURN_END]?: {
-    scores: Array<[string, number]>;
+    scores: Record<string, number>;
   };
 }
 

@@ -68,6 +68,16 @@ const GameLayout = () => {
         setRoom((prev) => ({ ...room, doodlers: prev.doodlers }));
         if (game) setGame(game);
         setStatusChangeData(statusChangeData);
+        if (statusChangeData?.[GameStatus.TURN_END]?.scores) {
+          const addedScores = statusChangeData[GameStatus.TURN_END].scores;
+          setRoom((prev) => ({
+            ...prev,
+            doodlers: prev.doodlers.map((doodler) => ({
+              ...doodler,
+              score: doodler.score + (addedScores[doodler.id] ?? 0),
+            })),
+          }));
+        }
       }
     );
   };
