@@ -20,10 +20,9 @@ import { ErrorFromServer } from '@/utils/error';
 import { useSnackbar } from '../snackbar';
 import { useUser } from '../user';
 
-const SERVER_URI =
-  process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
-
-const socket: SocketType = io(SERVER_URI, { autoConnect: false });
+const socket: SocketType = io(process.env.REACT_APP_DOODLE_SERVER_URL, {
+  autoConnect: false,
+});
 
 interface SocketContextType {
   isConnected: boolean;
@@ -62,12 +61,15 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     closeSnackbar();
   };
 
-  const handleConnectError = () => {
+  const handleConnectError = (err: Error) => {
     openSnackbar({
       message: 'Could not connect!',
       color: 'error',
       isInfinite: true,
     });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(err);
+    }
     resetUser();
   };
 

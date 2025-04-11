@@ -1,0 +1,27 @@
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri /index.html;
+    }
+
+    location /socket.io/ {
+        proxy_pass ${REACT_APP_DOODLE_SERVER_URL};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_ssl_verify off;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        root /usr/share/nginx/html;
+        expires 1d;
+        add_header Cache-Control "public, max-age=86400";
+    }
+
+}

@@ -1,4 +1,5 @@
 {
+  "homepage": ".",
   "name": "client",
   "version": "0.1.0",
   "private": true,
@@ -24,7 +25,9 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build:container": "craco build --env=.env.container",
+    "build:production": "craco build --env=.env.production",
+    "build:local": "craco build --env=.env.local",
     "test": "craco test",
     "eject": "craco eject",
     "lint": "eslint 'src/**/*.{ts,tsx}'",

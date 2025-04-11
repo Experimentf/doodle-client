@@ -158,7 +158,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
-          disabled={!isConnected}
+          disabled
           variant="secondary"
           color="secondary"
           onClick={handleCreatePrivateRoom}
