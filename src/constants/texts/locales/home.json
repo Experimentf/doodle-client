@@ -10,7 +10,8 @@
       }
     },
     "validation": {
-      "error": "Please enter your name"
+      "error": "Please enter your name",
+      "connect_error": "Server did not respond. Please try again later!"
     }
   }
 }

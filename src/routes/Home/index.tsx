@@ -11,7 +11,7 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-between">
       <Title small={isMobile} className="mt-16" />
-      <PlayForm roomId={roomIdFromLink} className="mb-40" />
+      <PlayForm roomId={roomIdFromLink} className="mb-40 w-[380px]" />
     </div>
   );
 };

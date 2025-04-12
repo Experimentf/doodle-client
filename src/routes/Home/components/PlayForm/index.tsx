@@ -11,11 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
+import Text from '@/components/Text';
 import { DoodlerEvents, RoomEvents } from '@/constants/Events';
 import { LocalStorageKeys } from '@/constants/LocalStorage';
 import texts from '@/constants/texts';
 import { useSnackbar } from '@/contexts/snackbar';
-import { useSocket } from '@/contexts/socket';
+import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { getRandomAvatarProps } from '@/utils/avatar';
 import { ErrorFromServer } from '@/utils/error';
@@ -26,7 +27,7 @@ interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
 
 const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
-  const { isConnected, asyncEmitEvent } = useSocket();
+  const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState<
     Pick<typeof user, 'name' | 'avatar'>
@@ -124,36 +125,38 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
         noValidate
         onSubmit={handlePlay}
       >
-        <div>
-          <div className="relative">
-            <div className="absolute right-0 bottom-0">
-              <IconButton
-                variant="primary"
-                color="warning"
-                className="text-2xl"
-                onClick={handleRandomizeAvatar}
-                type="button"
-                tooltip="Randomize"
-                icon={<GiPerspectiveDiceSixFacesRandom />}
-              />
-            </div>
-            <Avatar className="mb-8" avatarProps={userInfo.avatar} />
+        <div className="relative">
+          <div className="absolute right-0 bottom-0">
+            <IconButton
+              variant="primary"
+              color="warning"
+              className="text-2xl"
+              onClick={handleRandomizeAvatar}
+              type="button"
+              tooltip="Randomize"
+              icon={<GiPerspectiveDiceSixFacesRandom />}
+            />
           </div>
-          <input
-            autoFocus
-            type="text"
-            placeholder={texts.home.form.input.name.placeholder}
-            className="transition-colors bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
-            value={userInfo.name}
-            required
-            onChange={handleNameChange}
-          />
+          <Avatar className="mb-8" avatarProps={userInfo.avatar} />
         </div>
+        <input
+          autoFocus
+          type="text"
+          placeholder={texts.home.form.input.name.placeholder}
+          className="w-100 transition-colors bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
+          value={userInfo.name}
+          required
+          onChange={handleNameChange}
+        />
         <Button
-          disabled={!isConnected}
+          disabled={socketConnectionState === SocketConnectionState.ERROR}
           variant="secondary"
           color="success"
           type="submit"
+          loading={[
+            SocketConnectionState.CONNECTING,
+            SocketConnectionState.RECONNECTING,
+          ].includes(socketConnectionState)}
         >
           {texts.home.form.buttons.playPublicGame}
         </Button>
@@ -165,6 +168,11 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
         >
           {texts.home.form.buttons.createPrivateRoom}
         </Button>
+        {socketConnectionState === SocketConnectionState.ERROR && (
+          <Text color="error" className="text-center text-xs">
+            {texts.home.form.validation.connect_error}
+          </Text>
+        )}
       </form>
     </div>
   );

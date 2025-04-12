@@ -9,6 +9,12 @@ export enum SocketEvents {
   ON_DISCONNECT = 'disconnect',
 }
 
+export enum SocketIOEvents {
+  ON_RECONNECT = 'reconnect',
+  ON_RECONNECT_ATTEMPT = 'reconnect_attempt',
+  ON_RECONNECT_FAILED = 'reconnect_failed',
+}
+
 export enum RoomEvents {
   EMIT_ADD_DOODLER_TO_PUBLIC_ROOM = 'add-doodler-to-public-room',
   EMIT_ADD_DOODLER_TO_PRIVATE_ROOM = 'add-doodler-to-private-room',

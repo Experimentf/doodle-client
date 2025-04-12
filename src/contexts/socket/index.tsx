@@ -4,10 +4,11 @@ import React, {
   PropsWithChildren,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import { io } from 'socket.io-client';
 
-import { SocketEvents } from '@/constants/Events';
+import { SocketEvents, SocketIOEvents } from '@/constants/Events';
 import useLogger from '@/hooks/useLogger';
 import {
   ClientToServerEvents,
@@ -17,15 +18,22 @@ import {
 } from '@/types/socket';
 import { ErrorFromServer } from '@/utils/error';
 
-import { useSnackbar } from '../snackbar';
 import { useUser } from '../user';
 
 const socket: SocketType = io(process.env.REACT_APP_DOODLE_SERVER_URL, {
   autoConnect: false,
+  reconnectionAttempts: 2,
 });
 
+export enum SocketConnectionState {
+  CONNECTING,
+  RECONNECTING,
+  CONNECTED,
+  ERROR,
+}
+
 interface SocketContextType {
-  isConnected: boolean;
+  socketConnectionState: SocketConnectionState;
   registerEvent: <T extends keyof ServerToClientEvents>(
     event: T,
     listener: ServerToClientEvents[T]
@@ -43,7 +51,7 @@ interface SocketContextType {
 }
 
 const SocketContext = createContext<SocketContextType>({
-  isConnected: false,
+  socketConnectionState: SocketConnectionState.CONNECTING,
   registerEvent: () => {},
   unregisterEvent: () => {},
   asyncEmitEvent: () =>
@@ -52,24 +60,22 @@ const SocketContext = createContext<SocketContextType>({
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
   const { updateUser, resetUser } = useUser();
-  const { openSnackbar, closeSnackbar } = useSnackbar();
   const { logClientEmit } = useLogger();
+  const [socketConnectionState, setSocketConnectionState] =
+    useState<SocketConnectionState>(SocketConnectionState.CONNECTING);
+
+  const handleConnectAttempt = () => {
+    setSocketConnectionState(SocketConnectionState.CONNECTING);
+  };
 
   const handleConnect = () => {
     console.info('Connected to server!');
     updateUser('id', socket.id ?? '');
-    closeSnackbar();
+    setSocketConnectionState(SocketConnectionState.CONNECTED);
   };
 
-  const handleConnectError = (err: Error) => {
-    openSnackbar({
-      message: 'Could not connect!',
-      color: 'error',
-      isInfinite: true,
-    });
-    if (process.env.NODE_ENV === 'development') {
-      console.log(err);
-    }
+  const handleConnectError = () => {
+    setSocketConnectionState(SocketConnectionState.ERROR);
     resetUser();
   };
 
@@ -118,8 +124,12 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     socket.on(SocketEvents.ON_CONNECT, handleConnect);
-    socket.on(SocketEvents.ON_CONNECT_ERROR, handleConnectError);
+    // socket.on(SocketEvents.ON_CONNECT_ERROR, handleConnectError);
     socket.on(SocketEvents.ON_DISCONNECT, handleDisconnect);
+    // socket.io.on(SocketIOEvents.ON_RECONNECT, handleConnect);
+    socket.io.on(SocketIOEvents.ON_RECONNECT_ATTEMPT, handleConnectAttempt);
+    socket.io.on(SocketIOEvents.ON_RECONNECT_FAILED, handleConnectError);
+    handleConnectAttempt();
     socket.connect();
 
     return () => {
@@ -129,10 +139,12 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
+  console.log(socket);
+
   return (
     <SocketContext.Provider
       value={{
-        isConnected: socket.connected,
+        socketConnectionState,
         registerEvent,
         unregisterEvent,
         asyncEmitEvent,

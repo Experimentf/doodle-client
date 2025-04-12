@@ -8,7 +8,7 @@ import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
-import { useSocket } from '@/contexts/socket';
+import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
@@ -29,7 +29,7 @@ const GameLayout = () => {
   const { roomId } = useParams();
 
   const { user } = useUser();
-  const { registerEvent, asyncEmitEvent, isConnected } = useSocket();
+  const { registerEvent, asyncEmitEvent, socketConnectionState } = useSocket();
   const { game, setGame } = useGame();
   const { setRoom } = useRoom();
 
@@ -137,12 +137,12 @@ const GameLayout = () => {
   };
 
   useEffect(() => {
-    if (!isConnected) {
+    if (socketConnectionState !== SocketConnectionState.CONNECTED) {
       returnToHomePage();
       return;
     }
     handleSetup();
-  }, [roomId, isConnected]);
+  }, [roomId, socketConnectionState]);
 
   const gameComponent = useMemo(() => {
     switch (game.status) {
