@@ -143,7 +143,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           autoFocus
           type="text"
           placeholder={texts.home.form.input.name.placeholder}
-          className="w-100 transition-colors bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
+          className="w-100 transition-colors bg-transparent border-chalk-green border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-white"
           value={userInfo.name}
           required
           onChange={handleNameChange}
