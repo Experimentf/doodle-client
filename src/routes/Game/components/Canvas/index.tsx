@@ -52,7 +52,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   return (
     <canvas
       ref={canvasRef}
-      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video ${
+      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video touch-none ${
         status === GameStatus.GAME
           ? 'pointer-events-auto'
           : 'pointer-events-none'
