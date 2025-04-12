@@ -1,5 +1,6 @@
 import {
   ChangeEventHandler,
+  HTMLAttributes,
   KeyboardEventHandler,
   useEffect,
   useRef,
@@ -14,7 +15,7 @@ import { HunchInterface } from '@/types/models/hunch';
 
 import Hunch from './Hunch';
 
-const HunchList = () => {
+const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
   const { room } = useRoom();
   const { asyncEmitEvent, registerEvent, unregisterEvent } = useSocket();
   const listRef = useRef<HTMLUListElement>(null);
@@ -60,15 +61,15 @@ const HunchList = () => {
   }, []);
 
   return (
-    <div className="min-w-[18rem] w-[18rem]">
-      <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex flex-col">
+    <div {...props}>
+      <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex-1 flex flex-col h-full min-h-0">
         <h1 className="text-lg whitespace-nowrap text-chalk-white">
           {texts.game.hunchList.sectionTitle}
         </h1>
         <hr className="my-2 text-chalk-white" />
         <ul
           ref={listRef}
-          className="my-2 flex-grow h-[calc(100vh-326px)] overflow-y-scroll overflow-x-hidden bg-scroll"
+          className="my-2 flex-1 overflow-y-scroll overflow-x-hidden bg-scroll min-h-0"
         >
           {hunchList.map((hunch, index) => (
             <Hunch

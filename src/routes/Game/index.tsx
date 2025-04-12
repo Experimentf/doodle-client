@@ -15,7 +15,7 @@ import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
 
 import DetailBar from './components/DetailBar';
-import Doodlers from './components/DoodlerList';
+import DoodlerList from './components/DoodlerList';
 import HunchList from './components/HunchList';
 import Main from './Main';
 import ChooseWord from './Status/ChooseWord';
@@ -171,14 +171,16 @@ const GameLayout = () => {
     <div className="p-4 h-screen flex flex-col gap-4">
       <Title small />
       <DetailBar />
-      <div className="flex flex-grow gap-4">
-        <Doodlers />
-        <div className="flex-grow">
-          <CanvasProvider>
-            <Main component={gameComponent} />
-          </CanvasProvider>
+      <div className="flex-1 flex overflow-hidden">
+        <div className="grid gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
+          <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
+          <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
+            <CanvasProvider>
+              <Main component={gameComponent} className="relative" />
+            </CanvasProvider>
+          </div>
+          <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
         </div>
-        <HunchList />
       </div>
     </div>
   );

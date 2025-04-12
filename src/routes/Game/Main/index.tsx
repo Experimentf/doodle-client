@@ -1,5 +1,6 @@
 import React, {
   ChangeEvent,
+  HTMLAttributes,
   ReactElement,
   ReactNode,
   useEffect,
@@ -32,11 +33,11 @@ const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.CLEAR]: <FaTrash />,
 };
 
-interface MainProps {
+interface MainProps extends HTMLAttributes<HTMLDivElement> {
   component: ReactNode;
 }
 
-const Main = ({ component }: MainProps) => {
+const Main = ({ component, ...props }: MainProps) => {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
     color: '#ffffff',
@@ -121,7 +122,7 @@ const Main = ({ component }: MainProps) => {
   }));
 
   return (
-    <div className="w-full relative">
+    <div {...props}>
       <div className="relative">
         <Canvas optionConfig={optionConfig} />
         {component && (
