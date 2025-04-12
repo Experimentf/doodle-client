@@ -13,12 +13,10 @@ import { IoMdColorPalette } from 'react-icons/io';
 import Tooltip from '@/components/Tooltip';
 import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
-import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
-import { GameStatus } from '@/types/models/game';
 import { ServerToClientEvents } from '@/types/socket';
 
 import Canvas from '../components/Canvas';
@@ -52,7 +50,6 @@ const Main = ({ component, ...props }: MainProps) => {
   const {
     user: { id },
   } = useUser();
-  const { game } = useGame();
   const { drawing } = useCanvas();
   const isDrawing = id === drawerId;
 
@@ -79,14 +76,6 @@ const Main = ({ component, ...props }: MainProps) => {
       );
     };
   }, [isDrawing]);
-
-  useEffect(() => {
-    if (
-      game.status === GameStatus.CHOOSE_WORD ||
-      game.status === GameStatus.TURN_END
-    )
-      drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
-  }, [game.status]);
 
   const handleClear = async () => {
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);

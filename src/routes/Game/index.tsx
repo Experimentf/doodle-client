@@ -168,7 +168,7 @@ const GameLayout = () => {
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="p-4 h-screen flex flex-col gap-4">
+    <div className="p-4 h-screen flex flex-col gap-4 max-w-7xl m-auto">
       <Title small />
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">

@@ -46,7 +46,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   }, []);
 
   useEffect(() => {
-    drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
+    drawing?.reset();
   }, [status]);
 
   return (
