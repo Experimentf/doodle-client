@@ -89,13 +89,15 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
-  const handleCreatePrivateRoom = async () => {
+  const handleCreatePrivateRoom: FormEventHandler = async (e) => {
     try {
+      e.preventDefault();
+
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
       const data = await asyncEmitEvent(
         RoomEvents.EMIT_CREATE_PRIVATE_ROOM,
-        undefined
+        user
       );
       navigate(`/${data.roomId}`);
     } catch (e) {
@@ -118,13 +120,20 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
   }, []);
 
+  const isDisabled = [
+    SocketConnectionState.CONNECTING,
+    SocketConnectionState.RECONNECTING,
+    SocketConnectionState.ERROR,
+  ].includes(socketConnectionState);
+
+  const isLoading = [
+    SocketConnectionState.CONNECTING,
+    SocketConnectionState.RECONNECTING,
+  ].includes(socketConnectionState);
+
   return (
     <div {...props}>
-      <form
-        className="p-8 rounded-xl flex flex-col gap-8"
-        noValidate
-        onSubmit={handlePlay}
-      >
+      <form className="p-8 rounded-xl flex flex-col gap-8" noValidate>
         <div className="relative">
           <div className="absolute right-0 bottom-0">
             <IconButton
@@ -149,22 +158,21 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           onChange={handleNameChange}
         />
         <Button
-          disabled={socketConnectionState === SocketConnectionState.ERROR}
+          disabled={isDisabled}
           variant="secondary"
           color="success"
           type="submit"
-          loading={[
-            SocketConnectionState.CONNECTING,
-            SocketConnectionState.RECONNECTING,
-          ].includes(socketConnectionState)}
+          loading={isLoading}
+          onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
-          disabled
+          disabled={isDisabled}
           variant="secondary"
           color="secondary"
           onClick={handleCreatePrivateRoom}
+          loading={isLoading}
         >
           {texts.home.form.buttons.createPrivateRoom}
         </Button>

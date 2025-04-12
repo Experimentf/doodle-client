@@ -139,8 +139,6 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  console.log(socket);
-
   return (
     <SocketContext.Provider
       value={{

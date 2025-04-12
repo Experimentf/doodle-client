@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
 
@@ -15,7 +17,7 @@ const DoodlerList = () => {
         <hr className="my-2 text-chalk-white" />
         <div className="py-3 flex flex-col gap-2">
           {room.doodlers.map((doodler, index) => (
-            <>
+            <Fragment key={doodler.id}>
               <Doodler
                 key={doodler.id}
                 doodler={doodler}
@@ -25,7 +27,7 @@ const DoodlerList = () => {
               {index !== room.doodlers.length - 1 && (
                 <hr className="mx-4 text-dark-chalk-white mt-2" />
               )}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>

@@ -14,7 +14,7 @@ export interface RoomClientToServerEventsArgumentMap {
     { roomId: RoomInterface['id'] }
   >;
   [RoomEvents.EMIT_CREATE_PRIVATE_ROOM]: ClientToServerEventsArgument<
-    undefined,
+    DoodlerInterface,
     { roomId: RoomInterface['id'] }
   >;
   [RoomEvents.EMIT_GET_ROOM]: ClientToServerEventsArgument<
