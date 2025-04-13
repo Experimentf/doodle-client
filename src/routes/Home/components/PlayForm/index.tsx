@@ -107,7 +107,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setUserInfo((prev) => ({ ...prev, name: e.target.value }));
+    setUserInfo((prev) => ({ ...prev, name: e.target.value.trim() }));
   };
 
   const handleRandomizeAvatar = () => {

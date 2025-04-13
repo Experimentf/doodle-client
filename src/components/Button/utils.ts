@@ -2,15 +2,15 @@ import { ColorClassSource, VariantColorClassSource } from '@/types/styles';
 
 const PrimaryButtonVariantClasses: ColorClassSource = {
   primary:
-    'border-4 btn-primary border-chalk-white bg-chalk-white text-board-green hover:bg-dark-chalk-white hover:border-dark-chalk-white disabled:border-light-chalk-white disabled:text-light-chalk-white disabled:hover:text-light-chalk-white disabled:hover:bg-transparent disabled:hover:cursor-not-allowed',
+    'border-4 btn-primary border-chalk-white bg-chalk-white text-board-green hover:bg-dark-chalk-white hover:border-dark-chalk-white disabled:border-light-chalk-white disabled:text-dark-chalk-white disabled:bg-light-chalk-white disabled:hover:cursor-not-allowed',
   secondary:
-    'border-4 btn-primary border-chalk-blue bg-chalk-blue text-board-green hover:bg-dark-chalk-blue hover:border-dark-chalk-blue disabled:border-light-chalk-white disabled:text-light-chalk-white disabled:hover:text-light-chalk-white disabled:hover:bg-transparent disabled:hover:cursor-not-allowed',
+    'border-4 btn-primary border-chalk-blue bg-chalk-blue text-board-green hover:bg-dark-chalk-blue hover:border-dark-chalk-blue disabled:border-light-chalk-white disabled:text-dark-chalk-white disabled:bg-light-chalk-white disabled:hover:cursor-not-allowed',
   success:
-    'border-4 btn-primary border-chalk-green bg-chalk-green text-board-green hover:bg-dark-chalk-green hover:border-dark-chalk-green disabled:border-light-chalk-white disabled:text-light-chalk-white disabled:hover:text-light-chalk-white disabled:hover:bg-transparent disabled:hover:cursor-not-allowed',
+    'border-4 btn-primary border-chalk-green bg-chalk-green text-board-green hover:bg-dark-chalk-green hover:border-dark-chalk-green disabled:border-light-chalk-white disabled:text-dark-chalk-white disabled:bg-light-chalk-white disabled:hover:cursor-not-allowed',
   error:
-    'border-4 btn-primary border-chalk-pink bg-chalk-pink text-board-green hover:bg-dark-chalk-pink hover:border-dark-chalk-pink disabled:border-light-chalk-white disabled:text-light-chalk-white disabled:hover:text-light-chalk-white disabled:hover:bg-transparent disabled:hover:cursor-not-allowed',
+    'border-4 btn-primary border-chalk-pink bg-chalk-pink text-board-green hover:bg-dark-chalk-pink hover:border-dark-chalk-pink disabled:border-light-chalk-white disabled:text-dark-chalk-white disabled:bg-light-chalk-white disabled:hover:cursor-not-allowed',
   warning:
-    'border-4 btn-primary border-chalk-yellow bg-chalk-yellow text-board-green hover:bg-dark-chalk-yellow hover:border-dark-chalk-yellow disabled:border-light-chalk-white disabled:text-light-chalk-white disabled:hover:text-light-chalk-white disabled:hover:bg-transparent disabled:hover:cursor-not-allowed',
+    'border-4 btn-primary border-chalk-yellow bg-chalk-yellow text-board-green hover:bg-dark-chalk-yellow hover:border-dark-chalk-yellow disabled:border-light-chalk-white disabled:text-dark-chalk-white disabled:bg-light-chalk-white disabled:hover:cursor-not-allowed',
 };
 
 const SecondaryButtonVariantClasses: ColorClassSource = {

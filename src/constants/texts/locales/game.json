@@ -36,5 +36,8 @@
   },
   "turnEnd": {
     "title": "The word was "
+  },
+  "privateLobby": {
+    "notEnoughMembers": "You can start a game with atleast 2 players."
   }
 }
