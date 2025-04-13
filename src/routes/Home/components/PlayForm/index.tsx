@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
-import Text from '@/components/Text';
 import { DoodlerEvents, RoomEvents } from '@/constants/Events';
 import { LocalStorageKeys } from '@/constants/LocalStorage';
 import texts from '@/constants/texts';
@@ -126,11 +125,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     SocketConnectionState.ERROR,
   ].includes(socketConnectionState);
 
-  const isLoading = [
-    SocketConnectionState.CONNECTING,
-    SocketConnectionState.RECONNECTING,
-  ].includes(socketConnectionState);
-
   return (
     <div {...props}>
       <form className="p-8 rounded-xl flex flex-col gap-8" noValidate>
@@ -162,7 +156,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           variant="secondary"
           color="success"
           type="submit"
-          loading={isLoading}
           onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
@@ -172,15 +165,9 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           variant="secondary"
           color="secondary"
           onClick={handleCreatePrivateRoom}
-          loading={isLoading}
         >
           {texts.home.form.buttons.createPrivateRoom}
         </Button>
-        {socketConnectionState === SocketConnectionState.ERROR && (
-          <Text color="error" className="text-center text-xs">
-            {texts.home.form.validation.connect_error}
-          </Text>
-        )}
       </form>
     </div>
   );

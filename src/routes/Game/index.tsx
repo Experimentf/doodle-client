@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { ReactComponent as Brand } from '@/assets/brand.svg';
 import Loading from '@/components/Loading';
-import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
@@ -169,7 +169,7 @@ const GameLayout = () => {
 
   return (
     <div className="p-4 h-screen flex flex-col gap-4 max-w-7xl m-auto">
-      <Title small />
+      <Brand className="w-48" />
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">
         <div className="grid gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
