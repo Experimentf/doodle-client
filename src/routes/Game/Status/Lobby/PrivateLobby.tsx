@@ -1,4 +1,9 @@
-import React, { ChangeEventHandler, FormEventHandler, useState } from 'react';
+import React, {
+  ChangeEventHandler,
+  FormEventHandler,
+  useEffect,
+  useState,
+} from 'react';
 
 import Button from '@/components/Button';
 import Text from '@/components/Text';
@@ -15,12 +20,13 @@ const PrivateLobby = () => {
   } = useRoom();
   const { user } = useUser();
   const { setGame } = useGame();
-  const { asyncEmitEvent } = useSocket();
+  const { registerEvent, asyncEmitEvent } = useSocket();
   const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState<PrivateGameOptions>({
     drawing: 120,
     round: 3,
   });
+  const isOwner = user.id === ownerId;
 
   const drawingTimeOptions = Array(10)
     .fill(0)
@@ -33,6 +39,26 @@ const PrivateLobby = () => {
   const handleSettingChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setOptions((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  useEffect(() => {
+    if (isOwner) {
+      asyncEmitEvent(GameEvents.EMIT_GAME_UPDATE_PRIVATE_SETTING, {
+        roomId: id,
+        options,
+      });
+    }
+  }, [options]);
+
+  useEffect(() => {
+    if (!isOwner) {
+      registerEvent(
+        GameEvents.ON_GAME_UPDATE_PRIVATE_SETTING,
+        ({ options: newOptions }) => {
+          setOptions(newOptions);
+        }
+      );
+    }
+  }, []);
 
   const handleStart: FormEventHandler = async (e) => {
     e.preventDefault();
@@ -51,8 +77,6 @@ const PrivateLobby = () => {
       setIsLoading(false);
     }
   };
-
-  const isOwner = user.id === ownerId;
 
   return (
     <form
