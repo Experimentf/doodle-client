@@ -6,12 +6,12 @@ import { ClientToServerEventsArgument } from './helper';
 
 export interface RoomClientToServerEventsArgumentMap {
   [RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM]: ClientToServerEventsArgument<
-    DoodlerInterface,
+    undefined,
     { roomId: RoomInterface['id'] }
   >;
   [RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM]: ClientToServerEventsArgument<
-    DoodlerInterface,
-    { roomId: RoomInterface['id'] }
+    { roomId: string },
+    { room: RoomInterface }
   >;
   [RoomEvents.EMIT_CREATE_PRIVATE_ROOM]: ClientToServerEventsArgument<
     undefined,

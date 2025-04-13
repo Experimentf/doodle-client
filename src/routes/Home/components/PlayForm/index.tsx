@@ -15,7 +15,7 @@ import { DoodlerEvents, RoomEvents } from '@/constants/Events';
 import { LocalStorageKeys } from '@/constants/LocalStorage';
 import texts from '@/constants/texts';
 import { useSnackbar } from '@/contexts/snackbar';
-import { useSocket } from '@/contexts/socket';
+import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { getRandomAvatarProps } from '@/utils/avatar';
 import { ErrorFromServer } from '@/utils/error';
@@ -26,7 +26,7 @@ interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
 
 const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
-  const { isConnected, asyncEmitEvent } = useSocket();
+  const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState<
     Pick<typeof user, 'name' | 'avatar'>
@@ -60,18 +60,26 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   const handleJoinPublicRoom = async () => {
     const data = await asyncEmitEvent(
       RoomEvents.EMIT_ADD_DOODLER_TO_PUBLIC_ROOM,
-      user
+      undefined
     );
     navigate(`/${data.roomId}`);
   };
 
   // Join a Private Room
   const handleJoinPrivateRoom = async () => {
-    const data = await asyncEmitEvent(
-      RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
-      user
-    );
-    navigate(`/${data.roomId}`);
+    if (!roomId) return;
+    try {
+      const { room } = await asyncEmitEvent(
+        RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
+        { roomId }
+      );
+      navigate(`/${room.id}`);
+    } catch (e) {
+      if (e instanceof ErrorFromServer) {
+        openSnackbar({ message: e.message, color: 'error' });
+      }
+      navigate('/');
+    }
   };
 
   const handlePlay: FormEventHandler = async (e) => {
@@ -88,8 +96,10 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
-  const handleCreatePrivateRoom = async () => {
+  const handleCreatePrivateRoom: FormEventHandler = async (e) => {
     try {
+      e.preventDefault();
+
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
       const data = await asyncEmitEvent(
@@ -105,7 +115,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   };
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setUserInfo((prev) => ({ ...prev, name: e.target.value }));
+    setUserInfo((prev) => ({ ...prev, name: e.target.value.trim() }));
   };
 
   const handleRandomizeAvatar = () => {
@@ -117,48 +127,49 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
   }, []);
 
+  const isDisabled = [
+    SocketConnectionState.CONNECTING,
+    SocketConnectionState.RECONNECTING,
+    SocketConnectionState.ERROR,
+  ].includes(socketConnectionState);
+
   return (
     <div {...props}>
-      <form
-        className="p-8 rounded-xl flex flex-col gap-8"
-        noValidate
-        onSubmit={handlePlay}
-      >
-        <div>
-          <div className="relative">
-            <div className="absolute right-0 bottom-0">
-              <IconButton
-                variant="primary"
-                color="warning"
-                className="text-2xl"
-                onClick={handleRandomizeAvatar}
-                type="button"
-                tooltip="Randomize"
-                icon={<GiPerspectiveDiceSixFacesRandom />}
-              />
-            </div>
-            <Avatar className="mb-8" avatarProps={userInfo.avatar} />
+      <form className="p-8 rounded-xl flex flex-col gap-8" noValidate>
+        <div className="relative">
+          <div className="absolute right-0 bottom-0">
+            <IconButton
+              variant="primary"
+              color="warning"
+              className="text-2xl"
+              onClick={handleRandomizeAvatar}
+              type="button"
+              tooltip="Randomize"
+              icon={<GiPerspectiveDiceSixFacesRandom />}
+            />
           </div>
-          <input
-            autoFocus
-            type="text"
-            placeholder={texts.home.form.input.name.placeholder}
-            className="transition-colors bg-transparent border-chalk-white border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-pink"
-            value={userInfo.name}
-            required
-            onChange={handleNameChange}
-          />
+          <Avatar className="mb-8" avatarProps={userInfo.avatar} />
         </div>
+        <input
+          autoFocus
+          type="text"
+          placeholder={texts.home.form.input.name.placeholder}
+          className="w-100 transition-colors bg-transparent border-chalk-green border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-white"
+          value={userInfo.name}
+          required
+          onChange={handleNameChange}
+        />
         <Button
-          disabled={!isConnected}
+          disabled={isDisabled}
           variant="secondary"
           color="success"
           type="submit"
+          onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
-          disabled
+          disabled={isDisabled}
           variant="secondary"
           color="secondary"
           onClick={handleCreatePrivateRoom}

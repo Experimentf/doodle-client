@@ -1,21 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { FaCopy, FaShare } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { ReactComponent as Brand } from '@/assets/brand.svg';
+import Button from '@/components/Button';
 import Loading from '@/components/Loading';
-import Title from '@/components/Title';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
+import texts from '@/constants/texts';
 import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
-import { useSocket } from '@/contexts/socket';
+import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
 
+import Bubble from './components/Bubble';
 import DetailBar from './components/DetailBar';
-import Doodlers from './components/DoodlerList';
+import DoodlerList from './components/DoodlerList';
 import HunchList from './components/HunchList';
 import Main from './Main';
 import ChooseWord from './Status/ChooseWord';
@@ -29,9 +33,12 @@ const GameLayout = () => {
   const { roomId } = useParams();
 
   const { user } = useUser();
-  const { registerEvent, asyncEmitEvent, isConnected } = useSocket();
+  const { registerEvent, asyncEmitEvent, socketConnectionState } = useSocket();
   const { game, setGame } = useGame();
-  const { setRoom } = useRoom();
+  const {
+    room: { isPrivate },
+    setRoom,
+  } = useRoom();
 
   const { openSnackbar } = useSnackbar();
 
@@ -136,13 +143,19 @@ const GameLayout = () => {
     }
   };
 
+  const handleCopy = () => {
+    const inviteLink = `${location.origin}?roomId=${roomId}`;
+    navigator.clipboard.writeText(inviteLink);
+    openSnackbar({ message: 'Copied invite link!', color: 'success' });
+  };
+
   useEffect(() => {
-    if (!isConnected) {
+    if (socketConnectionState !== SocketConnectionState.CONNECTED) {
       returnToHomePage();
       return;
     }
     handleSetup();
-  }, [roomId, isConnected]);
+  }, [roomId, socketConnectionState]);
 
   const gameComponent = useMemo(() => {
     switch (game.status) {
@@ -168,18 +181,33 @@ const GameLayout = () => {
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="p-4 h-screen flex flex-col gap-4">
-      <Title small />
+    <div className="p-4 h-screen flex flex-col gap-4 max-w-7xl m-auto">
+      <Brand className="w-48" />
       <DetailBar />
-      <div className="flex flex-grow gap-4">
-        <Doodlers />
-        <div className="flex-grow">
-          <CanvasProvider>
-            <Main component={gameComponent} />
-          </CanvasProvider>
+      <div className="flex-1 flex overflow-hidden">
+        <div className="grid gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
+          <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
+          <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
+            <CanvasProvider>
+              <Main component={gameComponent} className="relative" />
+            </CanvasProvider>
+          </div>
+          <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
         </div>
-        <HunchList />
       </div>
+      {isPrivate && (
+        <Bubble>
+          <FaShare />
+          {texts.game.privateLobby.share}
+          <Button
+            variant="secondary"
+            className="flex items-center gap-2 !py-1"
+            onClick={handleCopy}
+          >
+            Copy <FaCopy />
+          </Button>
+        </Bubble>
+      )}
     </div>
   );
 };

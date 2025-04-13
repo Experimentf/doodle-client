@@ -1,5 +1,6 @@
 import { getVariantClass } from '@/utils/variants';
 
+import Loading from '../Loading';
 import { ButtonProps } from './types';
 import { ButtonClassSource } from './utils';
 
@@ -7,6 +8,7 @@ const Button = ({
   variant = 'primary',
   color = 'primary',
   className,
+  loading,
   children,
   ...props
 }: ButtonProps) => {
@@ -14,10 +16,11 @@ const Button = ({
 
   return (
     <button
-      className={`${className} py-3 px-8 rounded-lg transition-all hover:scale-105 ${variantClass}`}
+      className={`${className} py-3 px-8 rounded-lg transition-all hover:enabled:scale-105 ${variantClass}`}
       {...props}
+      {...(loading && { disabled: true })}
     >
-      {children}
+      {loading ? <Loading /> : children}
     </button>
   );
 };

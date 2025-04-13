@@ -6,19 +6,18 @@ import { Coordinate } from '@/types/common';
 import { getPixelHexCode } from '@/utils/colors';
 import { floorCoordinate } from '@/utils/coordinate';
 
-import Stack from '../stack';
 import { DrawingInterface } from './interface';
 
 export class Drawing implements DrawingInterface {
   private _ref: RefObject<HTMLCanvasElement | null>;
-  private _operations = new Stack<CanvasOperation>();
+  private _operations = new Array<CanvasOperation>();
 
   constructor(ref: RefObject<HTMLCanvasElement | null>) {
     this._ref = ref;
   }
 
   // PUBLIC METHODS
-  loadOperations: DrawingInterface['loadOperations'] = async (
+  public loadOperations: DrawingInterface['loadOperations'] = async (
     canvasOperations,
     renderInFrames = true,
     asNewOperation = true
@@ -64,16 +63,25 @@ export class Drawing implements DrawingInterface {
     executeOperation();
   };
 
-  reloadOperations = async () => {
-    await this.loadOperations(this._operations.toArray(), false, false);
+  public reloadOperations: DrawingInterface['reloadOperations'] = async () => {
+    await this.loadOperations(this._operations, false, false);
   };
 
-  normalizeCoordinate = (coord: Coordinate) => ({
+  public reset: DrawingInterface['reset'] = () => {
+    this.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
+    this._operations = [];
+  };
+
+  public normalizeCoordinate: DrawingInterface['normalizeCoordinate'] = (
+    coord: Coordinate
+  ) => ({
     x: coord.x / this._maxWidth,
     y: coord.y / this._maxHeight,
   });
 
-  denormalizeCoordinate = (coord: Coordinate) => ({
+  public denormalizeCoordinate: DrawingInterface['denormalizeCoordinate'] = (
+    coord: Coordinate
+  ) => ({
     x: coord.x * this._maxWidth,
     y: coord.y * this._maxHeight,
   });

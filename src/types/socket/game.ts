@@ -7,6 +7,11 @@ import { HunchInterface } from '../models/hunch';
 import { RoomInterface } from '../models/room';
 import { ClientToServerEventsArgument } from './helper';
 
+export interface PrivateGameOptions {
+  drawing: number;
+  round: number;
+}
+
 export interface GameStatusChangeData {
   [GameStatus.CHOOSE_WORD]?: {
     wordOptions: Array<string>;
@@ -41,6 +46,14 @@ export interface GameClientToServerEventsArgumentMap {
       hunch: HunchInterface;
     }
   >;
+  [GameEvents.EMIT_GAME_START_PRIVATE_GAME]: ClientToServerEventsArgument<
+    { roomId: string; options: PrivateGameOptions },
+    { game: GameInterface }
+  >;
+  [GameEvents.EMIT_GAME_UPDATE_PRIVATE_SETTING]: ClientToServerEventsArgument<
+    { roomId: string; options: PrivateGameOptions },
+    { game: GameInterface }
+  >;
 }
 
 export interface GameServerToClientEvents {
@@ -53,4 +66,7 @@ export interface GameServerToClientEvents {
     canvasOperation: CanvasOperation;
   }) => void;
   [GameEvents.ON_GAME_HUNCH]: (args: { hunch: HunchInterface }) => void;
+  [GameEvents.ON_GAME_UPDATE_PRIVATE_SETTING]: (args: {
+    options: PrivateGameOptions;
+  }) => void;
 }

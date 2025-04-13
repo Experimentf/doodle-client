@@ -12,6 +12,9 @@ export interface DrawingInterface {
   // RELOAD EXISTING OPERATIONS
   reloadOperations: () => Promise<void>;
 
+  // RESET EVERYTHING
+  reset: () => void;
+
   // NORMALIZE AND DENORMALIZE COORDINATES ACCORDING TO CANVAS
   normalizeCoordinate: (coord: Coordinate) => Coordinate;
   denormalizeCoordinate: (coord: Coordinate) => Coordinate;
