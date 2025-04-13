@@ -6,12 +6,14 @@ import { GameEvents } from '@/constants/Events';
 import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
+import { useUser } from '@/contexts/user';
 import { PrivateGameOptions } from '@/types/socket/game';
 
 const PrivateLobby = () => {
   const {
-    room: { id },
+    room: { id, ownerId },
   } = useRoom();
+  const { user } = useUser();
   const { setGame } = useGame();
   const { asyncEmitEvent } = useSocket();
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +52,8 @@ const PrivateLobby = () => {
     }
   };
 
+  const isOwner = user.id === ownerId;
+
   return (
     <form
       className="max-w-xs w-full flex flex-col justify-center items-center gap-4"
@@ -70,6 +74,7 @@ const PrivateLobby = () => {
                 className="w-full bg-transparent border-b-2 outline-none focus:border-b-chalk-blue transition-colors"
                 value={options.drawing}
                 onChange={handleSettingChange}
+                disabled={!isOwner}
               >
                 {drawingTimeOptions.map((opt) => (
                   <option
@@ -93,6 +98,7 @@ const PrivateLobby = () => {
                 className="w-full bg-transparent border-b-2 outline-none focus:border-b-chalk-blue transition-colors"
                 value={options.round}
                 onChange={handleSettingChange}
+                disabled={!isOwner}
               >
                 {roundOptions.map((opt) => (
                   <option
@@ -113,6 +119,7 @@ const PrivateLobby = () => {
         color="secondary"
         className="w-full"
         loading={isLoading}
+        disabled={!isOwner}
       >
         Start
       </Button>
