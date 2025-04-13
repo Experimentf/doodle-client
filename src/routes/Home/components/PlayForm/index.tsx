@@ -68,11 +68,18 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
   // Join a Private Room
   const handleJoinPrivateRoom = async () => {
     if (!roomId) return;
-    const { room } = await asyncEmitEvent(
-      RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
-      { roomId }
-    );
-    navigate(`/${room.id}`);
+    try {
+      const { room } = await asyncEmitEvent(
+        RoomEvents.EMIT_ADD_DOODLER_TO_PRIVATE_ROOM,
+        { roomId }
+      );
+      navigate(`/${room.id}`);
+    } catch (e) {
+      if (e instanceof ErrorFromServer) {
+        openSnackbar({ message: e.message, color: 'error' });
+      }
+      navigate('/');
+    }
   };
 
   const handlePlay: FormEventHandler = async (e) => {
