@@ -7,6 +7,7 @@ import texts from '@/constants/texts';
 import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import useScreenSize from '@/hooks/useScreenSize';
 
+import Bubble from '../Game/components/Bubble';
 import PlayForm from './components/PlayForm';
 
 const Home = () => {
@@ -22,7 +23,7 @@ const Home = () => {
   const isError = socketConnectionState === SocketConnectionState.ERROR;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 mx-4 lg:mx-8">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6 lg:mx-8">
       <Brand className={isMobile ? 'w-[18rem]' : 'w-[32rem]'} />
       {isLoading || isError ? (
         isLoading ? (
@@ -34,9 +35,9 @@ const Home = () => {
         )
       ) : (
         <>
-          <PlayForm roomId={roomIdFromLink} className="w-[380px]" />
+          <PlayForm roomId={roomIdFromLink} className="w-[380px] flex-1" />
           {roomIdFromLink && roomIdFromLink.length > 0 && (
-            <div className="flex gap-2 items-center justify-center border-2 rounded-sm border-chalk-white p-3 w-full text-chalk-white">
+            <Bubble>
               <FaLock />
               <Text className="text-center text-sm" color="primary">
                 {texts.home.privateRoomBubble}
@@ -44,7 +45,7 @@ const Home = () => {
                   {roomIdFromLink}
                 </Text>
               </Text>
-            </div>
+            </Bubble>
           )}
         </>
       )}

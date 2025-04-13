@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { FaCopy, FaShare } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ReactComponent as Brand } from '@/assets/brand.svg';
+import Button from '@/components/Button';
 import Loading from '@/components/Loading';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
+import texts from '@/constants/texts';
 import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
@@ -14,6 +17,7 @@ import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
 
+import Bubble from './components/Bubble';
 import DetailBar from './components/DetailBar';
 import DoodlerList from './components/DoodlerList';
 import HunchList from './components/HunchList';
@@ -31,7 +35,10 @@ const GameLayout = () => {
   const { user } = useUser();
   const { registerEvent, asyncEmitEvent, socketConnectionState } = useSocket();
   const { game, setGame } = useGame();
-  const { setRoom } = useRoom();
+  const {
+    room: { isPrivate },
+    setRoom,
+  } = useRoom();
 
   const { openSnackbar } = useSnackbar();
 
@@ -136,6 +143,12 @@ const GameLayout = () => {
     }
   };
 
+  const handleCopy = () => {
+    const inviteLink = `${location.origin}?roomId=${roomId}`;
+    navigator.clipboard.writeText(inviteLink);
+    openSnackbar({ message: 'Copied invite link!', color: 'success' });
+  };
+
   useEffect(() => {
     if (socketConnectionState !== SocketConnectionState.CONNECTED) {
       returnToHomePage();
@@ -182,6 +195,19 @@ const GameLayout = () => {
           <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
         </div>
       </div>
+      {isPrivate && (
+        <Bubble>
+          <FaShare />
+          {texts.game.privateLobby.share}
+          <Button
+            variant="secondary"
+            className="flex items-center gap-2 !py-1"
+            onClick={handleCopy}
+          >
+            Copy <FaCopy />
+          </Button>
+        </Bubble>
+      )}
     </div>
   );
 };

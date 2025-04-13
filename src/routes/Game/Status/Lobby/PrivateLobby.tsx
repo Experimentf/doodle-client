@@ -56,7 +56,7 @@ const PrivateLobby = () => {
       onSubmit={handleStart}
     >
       <Text component="h1" className="text-xl">
-        options
+        Settings
       </Text>
       <table className="w-full">
         <tbody>

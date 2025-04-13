@@ -38,6 +38,7 @@
     "title": "The word was "
   },
   "privateLobby": {
-    "notEnoughMembers": "You can start a game with atleast 2 players."
+    "notEnoughMembers": "You can start a game with atleast 2 players.",
+    "share": "Share the invite link with friends!"
   }
 }
