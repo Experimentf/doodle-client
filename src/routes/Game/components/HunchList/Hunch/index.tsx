@@ -31,7 +31,10 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
     <li {...props}>
       {!hunch.isSystemMessage &&
         (doodler ? (
-          <Avatar avatarProps={doodler.avatar} className="min-w-[2.5rem]" />
+          <Avatar
+            avatarProps={doodler.avatar}
+            className="w-[2rem] lg:min-w-[2.5rem]"
+          />
         ) : (
           <FaUserSecret size={40} className="px-2 text-light-chalk-white" />
         ))}

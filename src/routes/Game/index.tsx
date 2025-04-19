@@ -200,8 +200,8 @@ const GameLayout = () => {
           <FaShare />
           {texts.game.privateLobby.share}
           <Button
-            variant="secondary"
-            className="flex items-center gap-2 !py-1"
+            variant="primary"
+            className="flex items-center gap-2 px-1 !py-1"
             onClick={handleCopy}
           >
             Copy <FaCopy />

@@ -80,19 +80,19 @@ const PrivateLobby = () => {
 
   return (
     <form
-      className="max-w-xs w-full flex flex-col justify-center items-center gap-4"
+      className="p-2 max-w-xs w-full flex flex-col justify-center items-center gap-2 lg:gap-4"
       onSubmit={handleStart}
     >
-      <Text component="h1" className="text-xl">
+      <Text component="h1" className="text-sm lg:text-xl">
         Settings
       </Text>
-      <table className="w-full">
+      <table className="w-full text-xs lg:text-base">
         <tbody>
           <tr>
-            <td className="p-4">
+            <td className="p-2 lg:p-4">
               <label>Drawing Time</label>
             </td>
-            <td className="p-4">
+            <td className="p-2 lg:p-4">
               <select
                 name="drawing"
                 className="w-full bg-transparent border-b-2 outline-none focus:border-b-chalk-blue transition-colors"
@@ -113,10 +113,10 @@ const PrivateLobby = () => {
             </td>
           </tr>
           <tr>
-            <td className="p-4">
+            <td className="p-2 lg:p-4">
               <label>Rounds</label>
             </td>
-            <td className="p-4">
+            <td className="p-2 lg:p-4">
               <select
                 name="round"
                 className="w-full bg-transparent border-b-2 outline-none focus:border-b-chalk-blue transition-colors"
@@ -141,7 +141,7 @@ const PrivateLobby = () => {
       <Button
         type="submit"
         color="secondary"
-        className="w-full"
+        className="w-full text-sm lg:text-base"
         loading={isLoading}
         disabled={!isOwner}
       >
