@@ -16,6 +16,7 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
+import { toneDoubleAlert } from '@/utils/sounds/toneDoubleAlert';
 
 import Bubble from './components/Bubble';
 import DetailBar from './components/DetailBar';
@@ -53,6 +54,7 @@ const GameLayout = () => {
   const handleEventsRegistration = () => {
     // When a new doodler joins the room
     registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
+      toneDoubleAlert(true);
       setRoom((prev) => ({ ...prev, doodlers: [...prev.doodlers, doodler] }));
       openSnackbar({
         message: `${doodler.name} has joined the room!`,
@@ -62,6 +64,7 @@ const GameLayout = () => {
 
     // When a doodler leaves the room
     registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodlerId }) => {
+      toneDoubleAlert();
       setRoom((prev) => ({
         ...prev,
         doodlers: prev.doodlers.filter(({ id }) => id !== doodlerId),

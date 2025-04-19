@@ -5,6 +5,7 @@ import { useGame } from '@/contexts/game';
 import usePointerTracker from '@/hooks/usePointerTracker';
 import { CanvasAction } from '@/types/canvas';
 import { GameStatus } from '@/types/models/game';
+import { toneRisingChime } from '@/utils/sounds/toneRisingChime';
 
 import useCanvasActions, { OptionConfig } from './useCanvasActions';
 
@@ -46,6 +47,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   }, []);
 
   useEffect(() => {
+    toneRisingChime();
     drawing?.reset();
   }, [status]);
 

@@ -11,12 +11,18 @@ import { GameEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
+import { useUser } from '@/contexts/user';
 import { HunchInterface } from '@/types/models/hunch';
+import { toneQuickBlip } from '@/utils/sounds/toneQuickBlip';
+import { toneSuccess } from '@/utils/sounds/toneSuccess';
 
 import Hunch from './Hunch';
 
 const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
   const { room } = useRoom();
+  const {
+    user: { id },
+  } = useUser();
   const { asyncEmitEvent, registerEvent, unregisterEvent } = useSocket();
   const listRef = useRef<HTMLUListElement>(null);
   const [hunch, setHunch] = useState('');
@@ -44,6 +50,8 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
     hunch: HunchInterface;
   }) => {
     setHunchList((prev) => [...prev, hunchResponse]);
+    if (hunchResponse.isSystemMessage) toneSuccess();
+    else if (hunchResponse.senderId === id) toneQuickBlip();
   };
 
   useEffect(() => {
