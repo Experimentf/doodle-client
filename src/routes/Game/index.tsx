@@ -182,7 +182,11 @@ const GameLayout = () => {
 
   return (
     <div className="p-2 lg:p-4 h-screen flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
-      <Brand className="w-32 lg:w-48" />
+      <div className="flex flex-row justify-between items-center">
+        <a href="/">
+          <Brand className="w-32 lg:w-48" />
+        </a>
+      </div>
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">
         <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
