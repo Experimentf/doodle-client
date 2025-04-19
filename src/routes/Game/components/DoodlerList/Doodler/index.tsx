@@ -16,8 +16,11 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
   const { user } = useUser();
 
   return (
-    <div className="flex items-center gap-1">
-      <Avatar className="min-w-[80px]" avatarProps={doodler.avatar} />
+    <div className="flex items-center gap-1 text-xs lg:text-sm">
+      <Avatar
+        className="w-[75px] lg:min-w-[80px]"
+        avatarProps={doodler.avatar}
+      />
       <div className="flex flex-col items-start gap-2">
         <div className="flex items-center gap-1">
           <p className="text-light-chalk-white overflow-hidden text-ellipsis">
@@ -37,8 +40,8 @@ const Doodler = ({ doodler, isDrawing }: DoodlerProps) => {
           </Text>
         </div>
         <div className="flex gap-1 items-center">
-          <Text className="text-xs">Points -</Text>
-          <Text component="p" className="text-chalk-yellow text-sm">
+          <Text className="text-[0.6rem] lg:text-xs">Points -</Text>
+          <Text component="p" className="text-chalk-yellow text-xs lg:text-sm">
             {doodler.score}
           </Text>
         </div>

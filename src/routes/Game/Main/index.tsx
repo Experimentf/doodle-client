@@ -120,7 +120,7 @@ const Main = ({ component, ...props }: MainProps) => {
           </div>
         )}
       </div>
-      <div className="flex flex-auto justify-between items-center mt-4 mx-4 gap-6">
+      <div className="flex flex-auto justify-between items-center mt-2 lg:mt-4 mx-2 lg:mx-4 gap-6">
         <div className="flex flex-auto flex-grow-0 justify-center items-center gap-2">
           {editOptions.map(({ isSelectable, handler, icon, key, disabled }) => (
             <EditOption

@@ -35,7 +35,11 @@ const Hunch = ({ hunch, ...props }: HunchProps) => {
         ) : (
           <FaUserSecret size={40} className="px-2 text-light-chalk-white" />
         ))}
-      <Text disabled={!doodler} color={color} className="text-sm my-[0.5rem]">
+      <Text
+        disabled={!doodler}
+        color={color}
+        className="text-xs lg:text-sm my-[0.5rem]"
+      >
         {hunch.message}
       </Text>
     </li>

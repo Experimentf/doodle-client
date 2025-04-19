@@ -58,8 +58,8 @@ const DetailBar = () => {
   }, [key]);
 
   return (
-    <div className="w-full">
-      <div className="flex flex-row items-center justify-between p-4 bg-card-surface-2 rounded-lg w-full">
+    <div className="w-full text-xs lg:text-base">
+      <div className="flex flex-row items-center justify-between p-2 lg:p-4 bg-card-surface-2 rounded-lg w-full">
         <div
           className={`flex flex-row items-center gap-2 ${
             shouldDisplay && currentTime <= 10
@@ -67,16 +67,14 @@ const DetailBar = () => {
               : ''
           }`}
         >
-          <GiAlarmClock size={36} />
+          <GiAlarmClock className="text-2xl lg:text-3xl" />
           <h1>{shouldDisplay ? currentTime : 0}s</h1>
         </div>
-        <div className="flex flex-row items-center gap-2">
-          <h1 className="text-2xl flex gap-2">
-            {game.options.word.split('').map((ch, index) => (
-              <span key={index}>{ch}</span>
-            ))}
-          </h1>
-        </div>
+        <h1 className="text-lg lg:text-2xl flex gap-2">
+          {game.options.word.split('').map((ch, index) => (
+            <span key={index}>{ch}</span>
+          ))}
+        </h1>
         <div className="flex flex-row items-center gap-2">
           <Text>Round - </Text>
           <h1>

@@ -181,11 +181,11 @@ const GameLayout = () => {
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="p-4 h-screen flex flex-col gap-4 max-w-7xl m-auto">
-      <Brand className="w-48" />
+    <div className="p-2 lg:p-4 h-screen flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
+      <Brand className="w-32 lg:w-48" />
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">
-        <div className="grid gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
+        <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
           <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
           <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
             <CanvasProvider>

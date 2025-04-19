@@ -62,8 +62,8 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
 
   return (
     <div {...props}>
-      <div className="p-4 bg-card-surface-2 rounded-lg shadowed flex-1 flex flex-col h-full min-h-0">
-        <h1 className="text-lg whitespace-nowrap text-chalk-white">
+      <div className="p-2 lg:p-4 bg-card-surface-2 rounded-lg shadowed flex-1 flex flex-col h-full min-h-0">
+        <h1 className="text-base lg:text-lg whitespace-nowrap text-chalk-white">
           {texts.game.hunchList.sectionTitle}
         </h1>
         <hr className="my-2 text-chalk-white" />
@@ -88,11 +88,11 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
             type="text"
             value={hunch}
             placeholder={texts.game.hunchList.input.placeholder}
-            className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-sm font-thin disabled:cursor-not-allowed"
+            className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-xs lg:text-sm font-thin disabled:cursor-not-allowed"
             onKeyDown={handleSendHunch}
             onChange={handleChangeHunch}
           />
-          <p className="text-[0.2em] text-light-chalk-white">
+          <p className="text-[0.5rem] text-light-chalk-white">
             {texts.game.hunchList.input.caption}
           </p>
         </div>
