@@ -1,4 +1,4 @@
-# 🎨 Doodle Client (Next.js)
+# 🎨 Doodle
 
 > **An online multiplayer drawing and guessing game (Pictionary) built with modern web technologies.**
 
