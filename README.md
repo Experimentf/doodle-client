@@ -5,7 +5,7 @@
 The Doodle client serves as the front-end application for the Doodle game. It's built using **TypeScript**, **React**, and **Socket.IO** to deliver a smooth, interactive, and real-time drawing and guessing experience.
 
 ### Sneak Peek
-![ezgif-8e558f39b9bc86](https://github.com/user-attachments/assets/72f68d81-a016-42f1-8c17-7e436279c606)
+![ezgif-899f7b2c9f51ab](https://github.com/user-attachments/assets/b50ef856-9113-41e4-be95-b496d6f8674e)
 
 ---
 
