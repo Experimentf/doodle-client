@@ -1,46 +1,168 @@
-# Getting Started with Create React App
+# 🎨 Doodle Client (Next.js)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> **An online multiplayer drawing and guessing game (Pictionary) built with modern web technologies.**
 
-## Available Scripts
+The Doodle client serves as the front-end application for the Doodle game. It's built using **TypeScript**, **React**, and **Socket.IO** to deliver a smooth, interactive, and real-time drawing and guessing experience.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🚀 Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- 🎮 **Real-time Gameplay:** Players can draw and guess words in real-time using **Socket.IO**.
+- ✍️ **Intuitive Drawing Tool:** A clean and responsive canvas for drawing.
+- ⚡ **Live Updates:** Instant synchronization between users for smooth multiplayer gameplay.
+- 🔐 **TypeScript Support:** Ensures reliable, scalable, and maintainable code.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠️ Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+A modern tech stack powers the Doodle client:
 
-### `npm run build`
+- **React**
+- **TypeScript**
+- **Socket.IO**
+- **Tailwind**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🏗️ Project Structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Here’s an overview of the folder structure within the client:
 
-### `npm run eject`
+```
+/src
+│
+├── components/    # React components (reusable UI elements like Canvas, Hunch, etc.)
+│
+├── routes/        # Route based components for home and game 
+│
+├── assets/        # Static assets (e.g., images, icons, etc.)
+│
+├── hooks/         # Custom React hooks
+│
+├── utils/         # Utility functions and helpers
+│
+├── constants/     # Constants like socket events, texts, etc.
+│
+├── workers/       # Various utility workers
+│
+├── contexts/      # React Context API for global state management
+│
+└── types/         # TypeScript type definitions
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+---
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 💻 Getting Started
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Prerequisites
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Ensure you have the following installed:
 
-## Learn More
+- **Node.js (>= 16.x):** [Download here](https://nodejs.org/)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Development Setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/Experimentf/doodle-client.git
+   cd doodle-client
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the root of the project and configure the following environment variables:
+
+   ```env
+   REACT_APP_DOODLE_SERVER_URL=http://localhost:4000
+   ```
+
+   Replace `http://localhost:4000` with the actual server URL if needed.
+
+4. Start the development server:
+
+   ```bash
+   npm start
+   ```
+
+5. Open `http://localhost:3000` in your browser to access the client app.
+
+---
+
+## 📦 Deployment
+
+To build the project for production:
+
+```bash
+npm run build
+```
+
+---
+
+## 📡 Socket.IO Integration
+
+The Doodle client heavily relies on **Socket.IO** for real-time communication with the server. Key features powered by Socket.IO include:
+
+- Broadcasting live drawing data to other users.
+- Sending and receiving chat messages.
+- Synchronizing the game state (player turns, guesses, and scores).
+
+---
+
+## 🛡️ Environment Variables
+
+| Variable                 | Description                     | Example                     |
+|--------------------------|---------------------------------|-----------------------------|
+| `REACT_APP_DOODLE_SERVER_URL` | URL for the Socket.IO server backend | `http://localhost:4000`    |
+
+---
+
+## 🙌 Contributing
+
+Contributions are welcome! If you’d like to improve the project, follow these steps:
+
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feature/awesome-feature`).
+3. Commit your changes (`git commit -m 'Add awesome feature'`).
+4. Push to the branch (`git push origin feature/awesome-feature`).
+5. Open a pull request!
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](https://github.com/Experimentf/doodle-client/blob/main/LICENSE) file for details.
+
+---
+
+## 📧 Contact
+
+If you have any questions or suggestions, feel free to contact the project maintainers:
+
+## 👨‍💻 Maintainers
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/divyanshf">
+        <img src="https://github.com/divyanshf.png" width="100px;" alt="divyanshf"/><br />
+        <sub><b>@divyanshf</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+
+---
+
+Enjoy building and playing **Doodle**! 🎉
+
+---
+
+Let me know if you need me to customize or expand this in any way! 😊
