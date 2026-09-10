@@ -26,7 +26,11 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     if (!canvasRef.current) return;
 
     // Size Handling
-    const dpr = window.devicePixelRatio;
+    // Cap the backing-store resolution at 2x - beyond that (common on
+    // higher-end phones, which report 3x) the extra pixels are barely
+    // visible but meaningfully increase the cost of every fill operation,
+    // since it reads/writes the full canvas buffer.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvasRef.current.getBoundingClientRect();
     canvasRef.current.width = rect.width * dpr;
     canvasRef.current.height = rect.height * dpr;
