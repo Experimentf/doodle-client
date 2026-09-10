@@ -29,6 +29,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  /* Safari paints the rubber-band overscroll area with this, not body's. */
+  background-color: var(--background-primary);
+}
+
 body {
   background-color: var(--background-primary);
   background-image:
