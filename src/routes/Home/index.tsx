@@ -49,15 +49,17 @@ const Home = () => {
           disableActions={isError && dismissedError}
         />
         {roomIdFromLink && roomIdFromLink.length > 0 && (
-          <Bubble>
-            <FaLock />
-            <Text className="text-center text-sm" color="primary">
-              {texts.home.privateRoomBubble}
-              <Text component="span" color="warning">
-                {roomIdFromLink}
+          <div className="w-full max-w-[380px]">
+            <Bubble>
+              <FaLock className="shrink-0" />
+              <Text className="text-left text-sm" color="primary">
+                {texts.home.privateRoomBubble}
+                <Text component="span" color="warning">
+                  {roomIdFromLink}
+                </Text>
               </Text>
-            </Text>
-          </Bubble>
+            </Bubble>
+          </div>
         )}
       </div>
       <div className="w-full max-w-2xl flex flex-col gap-4">
