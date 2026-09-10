@@ -22,9 +22,16 @@ import { ErrorFromServer } from '@/utils/error';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
+  disableActions?: boolean;
 }
 
-const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
+type PendingAction = 'public' | 'private' | null;
+
+const PlayForm = ({
+  roomId,
+  disableActions = false,
+  ...props
+}: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
@@ -34,6 +41,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     name: user.name,
     avatar: user.avatar,
   });
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const { openSnackbar } = useSnackbar();
 
   const validate = () => {
@@ -82,9 +90,8 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
-  const handlePlay: FormEventHandler = async (e) => {
+  const performPlay = async () => {
     try {
-      e.preventDefault();
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
       if (roomId) handleJoinPrivateRoom();
@@ -96,10 +103,8 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
-  const handleCreatePrivateRoom: FormEventHandler = async (e) => {
+  const performCreatePrivateRoom = async () => {
     try {
-      e.preventDefault();
-
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
       const data = await asyncEmitEvent(
@@ -114,6 +119,44 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
+  // Not connected yet - queue the action instead of failing outright, and
+  // fire it the moment the socket connects, so a click before connection
+  // confirms doesn't require the user to click again.
+  const handlePlay: FormEventHandler = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    if (socketConnectionState === SocketConnectionState.CONNECTED) {
+      performPlay();
+    } else {
+      setPendingAction('public');
+    }
+  };
+
+  const handleCreatePrivateRoom: FormEventHandler = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    if (socketConnectionState === SocketConnectionState.CONNECTED) {
+      performCreatePrivateRoom();
+    } else {
+      setPendingAction('private');
+    }
+  };
+
+  useEffect(() => {
+    if (socketConnectionState === SocketConnectionState.ERROR) {
+      setPendingAction(null);
+      return;
+    }
+    if (socketConnectionState !== SocketConnectionState.CONNECTED) return;
+    if (pendingAction === 'public') {
+      setPendingAction(null);
+      performPlay();
+    } else if (pendingAction === 'private') {
+      setPendingAction(null);
+      performCreatePrivateRoom();
+    }
+  }, [socketConnectionState, pendingAction]);
+
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInfo((prev) => ({ ...prev, name: e.target.value.trim() }));
   };
@@ -126,12 +169,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
     if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
   }, []);
-
-  const isDisabled = [
-    SocketConnectionState.CONNECTING,
-    SocketConnectionState.RECONNECTING,
-    SocketConnectionState.ERROR,
-  ].includes(socketConnectionState);
 
   return (
     <div {...props}>
@@ -165,18 +202,20 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           onChange={handleNameChange}
         />
         <Button
-          disabled={isDisabled}
           variant="secondary"
           color="success"
           type="submit"
+          loading={pendingAction === 'public'}
+          disabled={disableActions || pendingAction === 'private'}
           onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
-          disabled={isDisabled}
           variant="secondary"
           color="secondary"
+          loading={pendingAction === 'private'}
+          disabled={disableActions || pendingAction === 'public'}
           onClick={handleCreatePrivateRoom}
         >
           {texts.home.form.buttons.createPrivateRoom}

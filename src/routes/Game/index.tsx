@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { FaCopy, FaShare } from 'react-icons/fa6';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { ReactComponent as Brand } from '@/assets/brand.svg';
+import AnimatedBrand from '@/components/AnimatedBrand';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
 import SoundToggle from '@/components/SoundToggle';
@@ -221,7 +221,7 @@ const GameLayout = () => {
     <div className="p-2 lg:p-4 h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
       <div className="flex flex-row justify-between items-center">
         <Link to="/" replace>
-          <Brand className="w-32 lg:w-48 animate-brand-wobble" />
+          <AnimatedBrand className="w-32 lg:w-48" />
         </Link>
         <SoundToggle />
       </div>

@@ -55,6 +55,7 @@ interface SocketContextType {
   ) => Promise<
     NonNullable<ClientToServerEventsArgumentMap[T]['response']['data']>
   >;
+  retryConnection: () => void;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -63,6 +64,7 @@ const SocketContext = createContext<SocketContextType>({
   unregisterEvent: () => {},
   asyncEmitEvent: () =>
     Promise.reject(new Error('Emitter not initialized yet!')),
+  retryConnection: () => {},
 });
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
@@ -129,6 +131,11 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     return data;
   };
 
+  const retryConnection = () => {
+    handleConnectAttempt();
+    socket.connect();
+  };
+
   useEffect(() => {
     socket.on(SocketEvents.ON_CONNECT, handleConnect);
     // socket.on(SocketEvents.ON_CONNECT_ERROR, handleConnectError);
@@ -153,6 +160,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         registerEvent,
         unregisterEvent,
         asyncEmitEvent,
+        retryConnection,
       }}
     >
       {children}
