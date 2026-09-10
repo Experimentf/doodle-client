@@ -60,7 +60,7 @@ const Home = () => {
           </Bubble>
         )}
       </div>
-      <div className="w-full max-w-2xl flex flex-col gap-4 pb-8">
+      <div className="w-full max-w-2xl flex flex-col gap-4">
         <HowToPlaySection />
         <AboutSection />
       </div>

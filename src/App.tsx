@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import AmbientBackground from './components/AmbientBackground';
 import ErrorBoundary from './components/Error/ErrorBoundary';
+import Footer from './components/Footer';
 import texts from './constants/texts';
 import GameProvider from './contexts/game';
 import RoomProvider from './contexts/room';
@@ -43,6 +44,7 @@ function App() {
           </UserProvider>
         </SnackbarProvider>
       </ErrorBoundary>
+      <Footer />
     </div>
   );
 }
