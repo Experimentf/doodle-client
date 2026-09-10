@@ -59,7 +59,7 @@ const doodles = ICONS.map((Icon, i) => ({
 
 const AmbientBackground = () => (
   <div
-    className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
+    className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
     aria-hidden
   >
     {doodles.map(

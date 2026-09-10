@@ -1,4 +1,5 @@
-import { getAudioContext } from './audioContext';
+import { getAudioContext, getMasterGain } from './audioContext';
+import { isSoundEnabled } from './soundSettings';
 
 interface PlayToneOptions {
   frequency: number;
@@ -28,6 +29,8 @@ export const playTone = ({
   release = Math.min(0.08, duration / 2),
   sweepToFrequency,
 }: PlayToneOptions) => {
+  if (!isSoundEnabled()) return;
+
   const context = getAudioContext();
   const start = context.currentTime + startTime;
   const releaseStart = Math.max(start + attack, start + duration - release);
@@ -49,7 +52,7 @@ export const playTone = ({
   noteGain.gain.linearRampToValueAtTime(0.0001, stop);
 
   osc.connect(noteGain);
-  noteGain.connect(context.destination);
+  noteGain.connect(getMasterGain());
 
   osc.start(start);
   osc.stop(stop);

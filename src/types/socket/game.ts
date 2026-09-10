@@ -26,7 +26,7 @@ export interface GameStatusChangeData {
 
 export interface GameClientToServerEventsArgumentMap {
   [GameEvents.EMIT_GET_GAME]: ClientToServerEventsArgument<
-    string,
+    { roomId: string; gameId: string },
     { game: GameInterface }
   >;
   [GameEvents.EMIT_GAME_CANVAS_OPERATION]: ClientToServerEventsArgument<

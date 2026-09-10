@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as Brand } from '@/assets/brand.svg';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
+import SoundToggle from '@/components/SoundToggle';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import CanvasProvider from '@/contexts/canvas';
@@ -126,8 +127,11 @@ const GameLayout = () => {
   };
 
   const handleGetGame = async (gameId?: string) => {
-    if (!gameId) return;
-    const { game } = await asyncEmitEvent(GameEvents.EMIT_GET_GAME, gameId);
+    if (!gameId || !roomId) return;
+    const { game } = await asyncEmitEvent(GameEvents.EMIT_GET_GAME, {
+      roomId,
+      gameId,
+    });
     setGame(game);
   };
 
@@ -214,11 +218,12 @@ const GameLayout = () => {
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="p-2 lg:p-4 h-screen flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
+    <div className="p-2 lg:p-4 h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
       <div className="flex flex-row justify-between items-center">
         <Link to="/" replace>
-          <Brand className="w-32 lg:w-48" />
+          <Brand className="w-32 lg:w-48 animate-brand-wobble" />
         </Link>
+        <SoundToggle />
       </div>
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">

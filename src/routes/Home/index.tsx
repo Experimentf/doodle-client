@@ -2,6 +2,7 @@ import { FaLock } from 'react-icons/fa6';
 
 import { ReactComponent as Brand } from '@/assets/brand.svg';
 import Loading from '@/components/Loading';
+import SoundToggle from '@/components/SoundToggle';
 import Text from '@/components/Text';
 import texts from '@/constants/texts';
 import { SocketConnectionState, useSocket } from '@/contexts/socket';
@@ -24,6 +25,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6 lg:mx-8">
+      <div className="fixed top-4 right-4">
+        <SoundToggle />
+      </div>
       <Brand
         className={`animate-brand-entrance mt-8 ${
           isMobile ? 'w-[18rem]' : 'w-[32rem]'

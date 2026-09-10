@@ -31,7 +31,7 @@ const IconButton = ({
   return (
     <Wrapper label={label}>
       <button
-        className={`rounded-full transition-all hover:scale-125 disabled:hover:scale-100 ${variantClass} ${className}`}
+        className={`rounded-full transition-all hover:scale-125 active:scale-125 disabled:hover:scale-100 disabled:active:scale-100 ${variantClass} ${className}`}
         {...props}
       >
         <>

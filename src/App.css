@@ -88,16 +88,16 @@
     transform: rotate(0deg);
   }
   20% {
-    transform: rotate(-1.2deg);
+    transform: rotate(-5deg);
   }
   45% {
-    transform: rotate(0.6deg);
+    transform: rotate(3deg);
   }
   70% {
-    transform: rotate(-0.8deg);
+    transform: rotate(-4deg);
   }
   85% {
-    transform: rotate(1deg);
+    transform: rotate(4deg);
   }
 }
 
@@ -146,6 +146,48 @@
 .animate-brand-entrance path:nth-child(6),
 .animate-brand-entrance path:nth-child(12) {
   animation-delay: 0.4s, 0.9s;
+}
+
+/* Just the idle wobble, no entrance pop - for the smaller nav-row brand
+   (Game page), which shouldn't replay a big flourish on every room join. */
+.animate-brand-wobble {
+  overflow: visible;
+}
+
+.animate-brand-wobble path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: brand-letter-wobble 5s ease-in-out infinite;
+}
+
+.animate-brand-wobble path:nth-child(1),
+.animate-brand-wobble path:nth-child(7) {
+  animation-delay: 0s;
+}
+
+.animate-brand-wobble path:nth-child(2),
+.animate-brand-wobble path:nth-child(8) {
+  animation-delay: 0.08s;
+}
+
+.animate-brand-wobble path:nth-child(3),
+.animate-brand-wobble path:nth-child(9) {
+  animation-delay: 0.16s;
+}
+
+.animate-brand-wobble path:nth-child(4),
+.animate-brand-wobble path:nth-child(10) {
+  animation-delay: 0.24s;
+}
+
+.animate-brand-wobble path:nth-child(5),
+.animate-brand-wobble path:nth-child(11) {
+  animation-delay: 0.32s;
+}
+
+.animate-brand-wobble path:nth-child(6),
+.animate-brand-wobble path:nth-child(12) {
+  animation-delay: 0.4s;
 }
 
 .shadowed {

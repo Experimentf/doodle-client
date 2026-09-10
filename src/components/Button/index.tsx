@@ -16,7 +16,7 @@ const Button = ({
 
   return (
     <button
-      className={`${className} py-3 px-8 rounded-lg transition-all hover:enabled:scale-105 ${variantClass}`}
+      className={`${className} py-3 px-8 rounded-lg transition-all hover:enabled:scale-105 active:enabled:scale-105 ${variantClass}`}
       {...props}
       {...(loading && { disabled: true })}
     >
