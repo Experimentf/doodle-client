@@ -1,33 +1,75 @@
 import { Coordinate } from '@/types/common';
-import { convertHexToRGB, convertRGBToHex } from '@/utils/colors';
+import { convertHexToRGB } from '@/utils/colors';
 
 // Worker Fundamental
 const fillWorker = self as unknown as Worker;
 
-interface FillWorkerInput {
-  imageData: ImageData;
+export interface FillWorkerRequest {
+  id: number;
+  buffer: ArrayBuffer;
+  width: number;
+  height: number;
   point: Coordinate;
   previousColor: string;
   newColor: string;
-  maxWidth: number;
-  maxHeight: number;
 }
 
-fillWorker.onmessage = (event: MessageEvent<FillWorkerInput>) => {
-  const { imageData, point, previousColor, newColor, maxWidth, maxHeight } =
+export interface FillBoundingBox {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+}
+
+export interface FillWorkerResponse {
+  id: number;
+  buffer: ArrayBuffer;
+  width: number;
+  height: number;
+  bbox: FillBoundingBox;
+}
+
+fillWorker.onmessage = (event: MessageEvent<FillWorkerRequest>) => {
+  const { id, buffer, width, height, point, previousColor, newColor } =
     event.data;
-  const newImageData = scanlineFill(
+  const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
+  const { bbox } = scanlineFill(
     imageData,
     point,
     previousColor,
     newColor,
-    maxWidth,
-    maxHeight
+    width,
+    height
   );
-  fillWorker.postMessage(newImageData);
+  const outBuffer = imageData.data.buffer;
+  const response: FillWorkerResponse = {
+    id,
+    buffer: outBuffer,
+    width,
+    height,
+    bbox,
+  };
+  fillWorker.postMessage(response, [outBuffer]);
 };
 
 // Utilities
+// Covers GPU readback rounding (typically off by 1-2 per channel) without
+// being wide enough to conflate two distinct user-picked colors.
+const COLOR_MATCH_TOLERANCE = 6;
+
+function colorsMatch(
+  a: { r: number; g: number; b: number },
+  r: number,
+  g: number,
+  b: number
+) {
+  return (
+    Math.abs(a.r - r) <= COLOR_MATCH_TOLERANCE &&
+    Math.abs(a.g - g) <= COLOR_MATCH_TOLERANCE &&
+    Math.abs(a.b - b) <= COLOR_MATCH_TOLERANCE
+  );
+}
+
 function scanlineFill(
   imageData: ImageData,
   point: Coordinate,
@@ -35,8 +77,16 @@ function scanlineFill(
   newColor: string,
   maxWidth: number,
   maxHeight: number
-) {
+): { imageData: ImageData; bbox: FillBoundingBox } {
   const newColorRGB = convertHexToRGB(newColor);
+  const previousColorRGB = convertHexToRGB(previousColor);
+
+  const bbox: FillBoundingBox = {
+    minX: point.x,
+    minY: point.y,
+    maxX: point.x,
+    maxY: point.y,
+  };
 
   const fillPoint = (coord: Coordinate) => {
     const index = (coord.y * maxWidth + coord.x) * 4;
@@ -44,6 +94,10 @@ function scanlineFill(
     imageData.data[index + 1] = newColorRGB.g;
     imageData.data[index + 2] = newColorRGB.b;
     imageData.data[index + 3] = 255;
+    if (coord.x < bbox.minX) bbox.minX = coord.x;
+    if (coord.x > bbox.maxX) bbox.maxX = coord.x;
+    if (coord.y < bbox.minY) bbox.minY = coord.y;
+    if (coord.y > bbox.maxY) bbox.maxY = coord.y;
   };
 
   const validate = (coord: Coordinate) => {
@@ -51,14 +105,18 @@ function scanlineFill(
     if (coord.y < 0 || coord.y >= maxHeight) return false;
     const data = imageData.data;
     const index = (coord.y * maxWidth + coord.x) * 4;
-    const [r, g, b] = data.slice(index, index + 4);
-    return previousColor === convertRGBToHex(r, g, b);
+    const r = data[index];
+    const g = data[index + 1];
+    const b = data[index + 2];
+    return colorsMatch(previousColorRGB, r, g, b);
   };
 
-  const queue = [point];
-  while (queue.length > 0) {
-    const neighbour = queue.shift();
-    if (!neighbour) break;
+  // Index-based queue instead of Array#shift(), which is O(n) per call and
+  // would make a large fill degrade toward O(n^2).
+  const queue: Coordinate[] = [point];
+  let head = 0;
+  while (head < queue.length) {
+    const neighbour = queue[head++];
     if (!validate(neighbour)) continue;
     const { x, y } = neighbour;
     let startX = x;
@@ -76,7 +134,7 @@ function scanlineFill(
     }
   }
 
-  return imageData;
+  return { imageData, bbox };
 }
 
 export default fillWorker;

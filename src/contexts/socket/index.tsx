@@ -20,7 +20,14 @@ import { ErrorFromServer } from '@/utils/error';
 
 import { useUser } from '../user';
 
-const socket: SocketType = io(process.env.REACT_APP_DOODLE_SERVER_URL, {
+// Falls back to the page's own host (on the server's default port) so the
+// client works whether it was opened via localhost or a LAN IP, without
+// needing a hardcoded env value for local development.
+const getDoodleServerUrl = () =>
+  process.env.REACT_APP_DOODLE_SERVER_URL ||
+  `${window.location.protocol}//${window.location.hostname}:5000`;
+
+const socket: SocketType = io(getDoodleServerUrl(), {
   autoConnect: false,
   reconnectionAttempts: 2,
 });
@@ -48,6 +55,7 @@ interface SocketContextType {
   ) => Promise<
     NonNullable<ClientToServerEventsArgumentMap[T]['response']['data']>
   >;
+  retryConnection: () => void;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -56,6 +64,7 @@ const SocketContext = createContext<SocketContextType>({
   unregisterEvent: () => {},
   asyncEmitEvent: () =>
     Promise.reject(new Error('Emitter not initialized yet!')),
+  retryConnection: () => {},
 });
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
@@ -122,6 +131,11 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     return data;
   };
 
+  const retryConnection = () => {
+    handleConnectAttempt();
+    socket.connect();
+  };
+
   useEffect(() => {
     socket.on(SocketEvents.ON_CONNECT, handleConnect);
     // socket.on(SocketEvents.ON_CONNECT_ERROR, handleConnectError);
@@ -146,6 +160,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         registerEvent,
         unregisterEvent,
         asyncEmitEvent,
+        retryConnection,
       }}
     >
       {children}

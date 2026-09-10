@@ -5,12 +5,24 @@ import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { getPixelHexCode } from '@/utils/colors';
 import { floorCoordinate } from '@/utils/coordinate';
+import {
+  FillWorkerRequest,
+  FillWorkerResponse,
+} from '@/workers/canvas/fill.worker';
 
 import { DrawingInterface } from './interface';
+
+interface PendingFillRequest {
+  resolve: (response: FillWorkerResponse) => void;
+  reject: (reason?: unknown) => void;
+}
 
 export class Drawing implements DrawingInterface {
   private _ref: RefObject<HTMLCanvasElement | null>;
   private _operations = new Array<CanvasOperation>();
+  private _fillWorker?: Worker;
+  private _fillRequestId = 0;
+  private _pendingFillRequests = new Map<number, PendingFillRequest>();
 
   constructor(ref: RefObject<HTMLCanvasElement | null>) {
     this._ref = ref;
@@ -27,10 +39,19 @@ export class Drawing implements DrawingInterface {
       const operation = opsQueue.shift();
       if (!operation) return;
       if (asNewOperation) this._operations.push(operation);
-      const { actionType, color, points: normalizedPoints, size } = operation;
+      const {
+        actionType,
+        color,
+        points: normalizedPoints,
+        size: normalizedSize,
+      } = operation;
       const points = normalizedPoints?.map((point) =>
         floorCoordinate(this.denormalizeCoordinate(point))
       );
+      const size =
+        normalizedSize !== undefined
+          ? Math.max(1, Math.round(this.denormalizeSize(normalizedSize)))
+          : undefined;
 
       switch (actionType) {
         case CanvasAction.LINE:
@@ -86,6 +107,13 @@ export class Drawing implements DrawingInterface {
     y: coord.y * this._maxHeight,
   });
 
+  public normalizeSize: DrawingInterface['normalizeSize'] = (size: number) =>
+    size / this._maxWidth;
+
+  public denormalizeSize: DrawingInterface['denormalizeSize'] = (
+    size: number
+  ) => size * this._maxWidth;
+
   // PRIVATE METHODS
   private _line = (
     from: Coordinate,
@@ -127,21 +155,41 @@ export class Drawing implements DrawingInterface {
   };
 
   private _fill = async (point: Coordinate, color: string): Promise<void> => {
-    const ctx = this._getContext(true);
+    const ctx = this._getContext();
     const ref = this._ref;
     if (!ctx || !ref.current) return;
     if (window.Worker) {
+      const width = this._maxWidth;
+      const height = this._maxHeight;
       const previousColor = getPixelHexCode(ctx, point);
-      const imageData = ctx.getImageData(0, 0, this._maxWidth, this._maxHeight);
-      const newImageData = await this._asyncFillWorker(
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const { buffer, bbox } = await this._asyncFillWorker(
         imageData,
         point,
         previousColor,
         color,
-        this._maxWidth,
-        this._maxHeight
+        width,
+        height
       );
-      ctx.putImageData(newImageData, 0, 0);
+      // A resize mid-fill means this buffer no longer matches the canvas -
+      // drop it instead of constructing an ImageData with a mismatched size.
+      if (width !== this._maxWidth || height !== this._maxHeight) return;
+      const newImageData = new ImageData(
+        new Uint8ClampedArray(buffer),
+        width,
+        height
+      );
+      // Only paint back the region that actually changed instead of the
+      // whole canvas.
+      ctx.putImageData(
+        newImageData,
+        0,
+        0,
+        bbox.minX,
+        bbox.minY,
+        bbox.maxX - bbox.minX + 1,
+        bbox.maxY - bbox.minY + 1
+      );
     } else {
       // eslint-disable-next-line no-console
       console.error('Unsupported browser');
@@ -178,6 +226,29 @@ export class Drawing implements DrawingInterface {
     this._batchLine(points, DARK_BOARD_GREEN_HEX, size);
   };
 
+  private _getFillWorker(): Worker {
+    if (!this._fillWorker) {
+      const fillWorker = new Worker(
+        new URL('../../../workers/canvas/fill.worker', import.meta.url)
+      );
+      fillWorker.onmessage = (event: MessageEvent<FillWorkerResponse>) => {
+        const response = event.data;
+        const pending = this._pendingFillRequests.get(response.id);
+        if (!pending) return;
+        this._pendingFillRequests.delete(response.id);
+        pending.resolve(response);
+      };
+      fillWorker.onerror = (error) => {
+        this._pendingFillRequests.forEach(({ reject }) => reject(error));
+        this._pendingFillRequests.clear();
+        // Drop the broken worker so the next fill spins up a fresh one instead of hanging forever.
+        this._fillWorker = undefined;
+      };
+      this._fillWorker = fillWorker;
+    }
+    return this._fillWorker;
+  }
+
   private async _asyncFillWorker(
     imageData: ImageData,
     point: Coordinate,
@@ -185,30 +256,31 @@ export class Drawing implements DrawingInterface {
     newColor: string,
     maxWidth: number,
     maxHeight: number
-  ): Promise<ImageData> {
+  ): Promise<FillWorkerResponse> {
+    const fillWorker = this._getFillWorker();
+    const id = this._fillRequestId++;
+    const buffer = imageData.data.buffer;
+    const request: FillWorkerRequest = {
+      id,
+      buffer,
+      width: maxWidth,
+      height: maxHeight,
+      point,
+      previousColor,
+      newColor,
+    };
     return new Promise((resolve, reject) => {
-      const fillWorker = new Worker(
-        new URL('../../../workers/canvas/fill.worker', import.meta.url)
-      );
-      fillWorker.postMessage({
-        imageData,
-        point,
-        previousColor,
-        newColor,
-        maxWidth,
-        maxHeight,
-      });
-      fillWorker.onmessage = (event: MessageEvent<ImageData>) => {
-        const newImageData = event.data;
-        if (newImageData) resolve(newImageData);
-        else reject();
-      };
+      this._pendingFillRequests.set(id, { resolve, reject });
+      // Transfer instead of clone - avoids copying the whole canvas buffer.
+      fillWorker.postMessage(request, [buffer]);
     });
   }
 
-  private _getContext(willReadFrequently = false) {
+  private _getContext() {
     const ctx = this._ref.current?.getContext('2d', {
-      willReadFrequently,
+      // Must be true on every call - attributes only apply on the first
+      // getContext(), and fill needs frequent readback.
+      willReadFrequently: true,
       alpha: false,
     });
     if (ctx) ctx.imageSmoothingEnabled = false;

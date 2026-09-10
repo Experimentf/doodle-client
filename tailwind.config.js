@@ -38,5 +38,16 @@ module.exports = {
       'card-surface-2': '#1d2921',
     },
   },
-  plugins: [],
+  plugins: [
+    // Touch devices simulate `:hover` on tap but don't reliably clear it on
+    // release, sticking hover:scale-* until the next tap elsewhere. Tap
+    // feedback is provided by active: instead (which does clear on
+    // release), so hover: only needs to apply where real hovering exists.
+    function ({ addVariant }) {
+      addVariant(
+        'hover',
+        '@media (hover: hover) and (pointer: fine) { &:hover }'
+      );
+    },
+  ],
 };

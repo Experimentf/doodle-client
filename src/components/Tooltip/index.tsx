@@ -16,7 +16,7 @@ const Tooltip = ({ label, children, ...rest }: TooltipProps) => {
         {children}
       </div>
       {isVisible && (
-        <div className="absolute -bottom-full -translate-x-1/3 text-xs bg-chalk-white rounded-md p-2 pointer-events-none">
+        <div className="hidden min-[701px]:block absolute top-full mt-2 -translate-x-1/3 text-xs bg-chalk-white rounded-md p-2 pointer-events-none">
           <p className="text-dark-board-green">{label}</p>
         </div>
       )}

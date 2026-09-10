@@ -62,12 +62,14 @@ const DetailBar = () => {
       <div className="flex flex-row items-center justify-between p-2 lg:p-4 bg-card-surface-2 rounded-lg w-full">
         <div
           className={`flex flex-row items-center gap-2 ${
-            shouldDisplay && currentTime <= 10
-              ? 'text-chalk-pink animate-bounce'
-              : ''
+            shouldDisplay && currentTime <= 10 ? 'text-chalk-pink' : ''
           }`}
         >
-          <GiAlarmClock className="text-2xl lg:text-3xl" />
+          <GiAlarmClock
+            className={`text-2xl lg:text-3xl ${
+              shouldDisplay && currentTime <= 10 ? 'animate-alarm-wiggle' : ''
+            }`}
+          />
           <h1>{shouldDisplay ? currentTime : 0}s</h1>
         </div>
         <h1 className="text-lg lg:text-2xl flex gap-2">

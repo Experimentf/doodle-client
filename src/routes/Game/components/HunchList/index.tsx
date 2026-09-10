@@ -9,26 +9,31 @@ import {
 
 import { GameEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
+import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
-import { HunchInterface } from '@/types/models/hunch';
-import { toneQuickBlip } from '@/utils/sounds/toneQuickBlip';
-import { toneSuccess } from '@/utils/sounds/toneSuccess';
+import { GameStatus } from '@/types/models/game';
+import { HunchInterface, HunchStatus } from '@/types/models/hunch';
+import { playCorrectGuessSound } from '@/utils/sounds/soundCorrectGuess';
+import { playMessageSentSound } from '@/utils/sounds/soundMessageSent';
 
 import Hunch from './Hunch';
 
 const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
   const { room } = useRoom();
+  const { game } = useGame();
   const {
     user: { id },
   } = useUser();
   const { asyncEmitEvent, registerEvent, unregisterEvent } = useSocket();
   const listRef = useRef<HTMLUListElement>(null);
+  const hunchInputRef = useRef<HTMLInputElement>(null);
   const [hunch, setHunch] = useState('');
   const [hunchList, setHunchList] = useState<HunchInterface[]>([
     { isSystemMessage: true, message: 'Your hunches go here!' },
   ]);
+  const isDrawer = id === room.drawerId;
 
   const handleSendHunch: KeyboardEventHandler<HTMLInputElement> = async (e) => {
     if (e.key !== 'Enter' || !hunch) return;
@@ -50,8 +55,11 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
     hunch: HunchInterface;
   }) => {
     setHunchList((prev) => [...prev, hunchResponse]);
-    if (hunchResponse.isSystemMessage) toneSuccess();
-    else if (hunchResponse.senderId === id) toneQuickBlip();
+    // Only a genuine correct guess gets the celebratory sound - other
+    // system messages (e.g. "not enough players") stay silent instead of
+    // playing a mismatched success cue.
+    if (hunchResponse.status === HunchStatus.CORRECT) playCorrectGuessSound();
+    else if (hunchResponse.senderId === id) playMessageSentSound();
   };
 
   useEffect(() => {
@@ -67,6 +75,13 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
       unregisterEvent(GameEvents.ON_GAME_HUNCH, handleOnReceiveHunch);
     };
   }, []);
+
+  // Non-drawers can only hunch during an active round, so put them straight into the input.
+  useEffect(() => {
+    if (game.status === GameStatus.GAME && !isDrawer) {
+      hunchInputRef.current?.focus({ preventScroll: true });
+    }
+  }, [game.status, isDrawer]);
 
   return (
     <div {...props}>
@@ -93,10 +108,11 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
         </ul>
         <div className="flex flex-col items-end gap-1">
           <input
+            ref={hunchInputRef}
             type="text"
             value={hunch}
             placeholder={texts.game.hunchList.input.placeholder}
-            className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-xs lg:text-sm font-thin disabled:cursor-not-allowed"
+            className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-base lg:text-sm font-thin disabled:cursor-not-allowed"
             onKeyDown={handleSendHunch}
             onChange={handleChangeHunch}
           />

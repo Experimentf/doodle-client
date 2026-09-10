@@ -20,6 +20,7 @@ export enum RoomEvents {
   EMIT_ADD_DOODLER_TO_PRIVATE_ROOM = 'add-doodler-to-private-room',
   EMIT_CREATE_PRIVATE_ROOM = 'create-private-room',
   EMIT_GET_ROOM = 'get-room',
+  EMIT_LEAVE_ROOM = 'leave-room',
   ON_DOODLER_JOIN = 'doodler-join',
   ON_DOODLER_LEAVE = 'doodler-leave',
 }

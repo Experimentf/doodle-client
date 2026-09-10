@@ -7,6 +7,70 @@
   }
 }
 
+@keyframes chalk-breathe {
+  0%,
+  100% {
+    opacity: var(--chalk-opacity, 0.12);
+    transform: scale(1) rotate(-7deg) translateY(0);
+  }
+  50% {
+    opacity: calc(var(--chalk-opacity, 0.12) + 0.08);
+    transform: scale(1.1) rotate(7deg) translateY(-10px);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes alarm-wiggle {
+  0%,
+  30%,
+  60%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  15% {
+    transform: rotate(-15deg) translateY(-3px);
+  }
+  45% {
+    transform: rotate(15deg) translateY(-3px);
+  }
+}
+
+@keyframes mouth-talk {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.18);
+  }
+}
+
+.animate-chalk-breathe {
+  animation: chalk-breathe ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease-out both;
+}
+
+.animate-alarm-wiggle {
+  animation: alarm-wiggle 1s ease-in-out infinite;
+  transform-origin: 50% 85%;
+}
+
+.animate-mouth-talk {
+  animation: mouth-talk 1.8s ease-in-out infinite;
+  transform-origin: 50% 64%;
+}
+
 .shadowed {
   box-shadow: 6px 6px 0 var(--background-shadow);
 }

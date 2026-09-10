@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { FaCopy, FaShare } from 'react-icons/fa6';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { ReactComponent as Brand } from '@/assets/brand.svg';
+import AnimatedBrand from '@/components/AnimatedBrand';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
+import SoundToggle from '@/components/SoundToggle';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import CanvasProvider from '@/contexts/canvas';
@@ -16,7 +17,7 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
-import { toneDoubleAlert } from '@/utils/sounds/toneDoubleAlert';
+import { playDoodlerJoinSound } from '@/utils/sounds/soundDoodlerJoin';
 
 import Bubble from './components/Bubble';
 import DetailBar from './components/DetailBar';
@@ -54,7 +55,7 @@ const GameLayout = () => {
   const handleEventsRegistration = () => {
     // When a new doodler joins the room
     registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
-      toneDoubleAlert(true);
+      playDoodlerJoinSound();
       setRoom((prev) => ({ ...prev, doodlers: [...prev.doodlers, doodler] }));
       openSnackbar({
         message: `${doodler.name} has joined the room!`,
@@ -62,13 +63,17 @@ const GameLayout = () => {
       });
     });
 
-    // When a doodler leaves the room
-    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodlerId }) => {
-      toneDoubleAlert();
+    // When a doodler leaves the room - intentionally no sound, just the
+    // snackbar below
+    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) => {
       setRoom((prev) => ({
         ...prev,
-        doodlers: prev.doodlers.filter(({ id }) => id !== doodlerId),
+        doodlers: prev.doodlers.filter(({ id }) => id !== doodler.id),
       }));
+      openSnackbar({
+        message: `${doodler.name} has left the room!`,
+        color: 'warning',
+      });
     });
 
     // When a game starts
@@ -122,15 +127,24 @@ const GameLayout = () => {
   };
 
   const handleGetGame = async (gameId?: string) => {
-    if (!gameId) return;
-    const { game } = await asyncEmitEvent(GameEvents.EMIT_GET_GAME, gameId);
+    if (!gameId || !roomId) return;
+    const { game } = await asyncEmitEvent(GameEvents.EMIT_GET_GAME, {
+      roomId,
+    });
     setGame(game);
   };
 
   const handleSetup = async () => {
     try {
-      await handleValidateUser();
-      const roomData = await handleGetRoom();
+      // Independent requests - run them together instead of serially.
+      const [, roomData] = await Promise.all([
+        handleValidateUser(),
+        handleGetRoom(),
+      ]);
+      // ON_DOODLER_JOIN only broadcasts to players already in the room, so
+      // the joiner never hears it - play the same join sound locally once
+      // this client's own join is confirmed.
+      playDoodlerJoinSound();
       await handleGetGame(roomData.gameId);
     } catch (e) {
       if (e instanceof ErrorFromServer || e instanceof Error) {
@@ -160,35 +174,58 @@ const GameLayout = () => {
     handleSetup();
   }, [roomId, socketConnectionState]);
 
+  useEffect(() => {
+    if (!roomId) return;
+    // When the room is left
+    return () => {
+      asyncEmitEvent(RoomEvents.EMIT_LEAVE_ROOM, { roomId }).catch(() => {});
+    };
+  }, [roomId]);
+
   const gameComponent = useMemo(() => {
+    let statusView: ReactNode = null;
     switch (game.status) {
       case GameStatus.LOBBY:
-        return <Lobby />;
+        statusView = <Lobby />;
+        break;
       case GameStatus.CHOOSE_WORD:
-        return (
+        statusView = (
           <ChooseWord
             wordOptions={statusChangeData?.[game.status]?.wordOptions}
           />
         );
+        break;
       case GameStatus.TURN_END:
-        return <TurnEnd scores={statusChangeData?.[game.status]?.scores} />;
+        statusView = (
+          <TurnEnd scores={statusChangeData?.[game.status]?.scores} />
+        );
+        break;
       case GameStatus.ROUND_START:
-        return <RoundStart />;
+        statusView = <RoundStart />;
+        break;
       case GameStatus.RESULT:
-        return <Result results={statusChangeData?.[game.status]?.results} />;
-      default:
-        return null;
+        statusView = (
+          <Result results={statusChangeData?.[game.status]?.results} />
+        );
+        break;
     }
+    if (!statusView) return null;
+    return (
+      <div key={game.status} className="w-full h-full animate-fade-in-up">
+        {statusView}
+      </div>
+    );
   }, [game.status]);
 
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="p-2 lg:p-4 h-screen flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
+    <div className="p-2 lg:p-4 h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
       <div className="flex flex-row justify-between items-center">
-        <a href="/">
-          <Brand className="w-32 lg:w-48" />
-        </a>
+        <Link to="/" replace>
+          <AnimatedBrand className="w-32 lg:w-48" />
+        </Link>
+        <SoundToggle />
       </div>
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">

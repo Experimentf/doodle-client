@@ -22,9 +22,16 @@ import { ErrorFromServer } from '@/utils/error';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
+  disableActions?: boolean;
 }
 
-const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
+type PendingAction = 'public' | 'private' | null;
+
+const PlayForm = ({
+  roomId,
+  disableActions = false,
+  ...props
+}: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
@@ -34,6 +41,7 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     name: user.name,
     avatar: user.avatar,
   });
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const { openSnackbar } = useSnackbar();
 
   const validate = () => {
@@ -82,9 +90,8 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
-  const handlePlay: FormEventHandler = async (e) => {
+  const performPlay = async () => {
     try {
-      e.preventDefault();
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
       if (roomId) handleJoinPrivateRoom();
@@ -96,10 +103,8 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
-  const handleCreatePrivateRoom: FormEventHandler = async (e) => {
+  const performCreatePrivateRoom = async () => {
     try {
-      e.preventDefault();
-
       const isSetUser = await handleSetUser();
       if (!isSetUser) return;
       const data = await asyncEmitEvent(
@@ -114,6 +119,47 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     }
   };
 
+  // Always set pendingAction so the buttons disable immediately, even when already connected - prevents double-submit on a fast second click.
+  const handlePlay: FormEventHandler = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setPendingAction('public');
+    if (socketConnectionState === SocketConnectionState.CONNECTED) {
+      performPlay().finally(() => setPendingAction(null));
+    }
+  };
+
+  const handleCreatePrivateRoom: FormEventHandler = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setPendingAction('private');
+    if (socketConnectionState === SocketConnectionState.CONNECTED) {
+      performCreatePrivateRoom().finally(() => setPendingAction(null));
+    }
+  };
+
+  useEffect(() => {
+    if (socketConnectionState === SocketConnectionState.ERROR) {
+      setPendingAction((prev) => {
+        if (prev) {
+          openSnackbar({
+            message: 'Failed to connect. Please try again!',
+            color: 'error',
+          });
+        }
+        return null;
+      });
+      return;
+    }
+    if (socketConnectionState !== SocketConnectionState.CONNECTED) return;
+    if (pendingAction === 'public') {
+      performPlay().finally(() => setPendingAction(null));
+    } else if (pendingAction === 'private') {
+      performCreatePrivateRoom().finally(() => setPendingAction(null));
+    }
+    // Keyed only on the connection transition - including pendingAction would re-fire this on the setPendingAction call above, double-invoking the action.
+  }, [socketConnectionState]);
+
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInfo((prev) => ({ ...prev, name: e.target.value.trim() }));
   };
@@ -126,12 +172,6 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
     const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
     if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
   }, []);
-
-  const isDisabled = [
-    SocketConnectionState.CONNECTING,
-    SocketConnectionState.RECONNECTING,
-    SocketConnectionState.ERROR,
-  ].includes(socketConnectionState);
 
   return (
     <div {...props}>
@@ -148,7 +188,12 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
               icon={<GiPerspectiveDiceSixFacesRandom />}
             />
           </div>
-          <Avatar className="mb-8" avatarProps={userInfo.avatar} />
+          <Avatar
+            className="mb-8"
+            avatarProps={userInfo.avatar}
+            animate
+            glanceAtCursor
+          />
         </div>
         <input
           autoFocus
@@ -160,18 +205,20 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
           onChange={handleNameChange}
         />
         <Button
-          disabled={isDisabled}
           variant="secondary"
           color="success"
           type="submit"
+          loading={pendingAction === 'public'}
+          disabled={disableActions || !!pendingAction}
           onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
         </Button>
         <Button
-          disabled={isDisabled}
           variant="secondary"
           color="secondary"
+          loading={pendingAction === 'private'}
+          disabled={disableActions || !!pendingAction}
           onClick={handleCreatePrivateRoom}
         >
           {texts.home.form.buttons.createPrivateRoom}

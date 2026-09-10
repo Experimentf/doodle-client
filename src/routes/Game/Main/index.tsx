@@ -139,7 +139,7 @@ const Main = ({ component, ...props }: MainProps) => {
           <Tooltip label="Color">
             <button
               onClick={() => colorInputRef.current?.click()}
-              className="relative p-2 border-none rounded-full overflow-clip hover:scale-125 transition-all"
+              className="relative p-2 border-none rounded-full overflow-clip hover:scale-125 active:scale-125 transition-all"
               style={{ backgroundColor: optionConfig.color }}
             >
               <IoMdColorPalette className="text-lg mix-blend-difference" />

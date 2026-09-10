@@ -20,14 +20,17 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   } = useRoom();
   const { drawing } = useCanvas();
 
-  const _emitCanvasOperation = async (points: Coordinate[]) => {
+  const _emitCanvasOperation = async (
+    points: Coordinate[],
+    normalizedSize?: number
+  ) => {
     const canvasAction = convertOptionKeyToCanvasActionKey(optionConfig?.type);
     if (!canvasAction) return;
     const canvasOperation: CanvasOperation = {
       points,
       actionType: canvasAction,
       color: optionConfig?.color,
-      size: optionConfig?.brushSize,
+      size: normalizedSize,
     };
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation,
@@ -39,6 +42,9 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     if (!drawing) return;
     const flooredFrom = drawing.normalizeCoordinate(from);
     const flooredTo = drawing.normalizeCoordinate(to);
+    const normalizedBrushSize = optionConfig?.brushSize
+      ? drawing.normalizeSize(optionConfig.brushSize)
+      : undefined;
     const performOperation = () => {
       switch (optionConfig?.type) {
         case OptionKey.PENCIL:
@@ -47,7 +53,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
               actionType: CanvasAction.LINE,
               points: [flooredFrom, flooredTo],
               color: optionConfig.color,
-              size: optionConfig.brushSize,
+              size: normalizedBrushSize,
             },
           ]);
           break;
@@ -56,7 +62,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
             {
               actionType: CanvasAction.ERASE,
               points: [flooredFrom, flooredTo],
-              size: optionConfig.brushSize,
+              size: normalizedBrushSize,
             },
           ]);
           break;
@@ -68,7 +74,7 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
 
     const isOperationDone = performOperation();
     if (isOperationDone) {
-      await _emitCanvasOperation([flooredFrom, flooredTo]);
+      await _emitCanvasOperation([flooredFrom, flooredTo], normalizedBrushSize);
     }
   };
 
