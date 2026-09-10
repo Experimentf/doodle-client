@@ -16,7 +16,7 @@ import { useUser } from '@/contexts/user';
 import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
-import { toneDoubleAlert } from '@/utils/sounds/toneDoubleAlert';
+import { playDoodlerJoinSound } from '@/utils/sounds/soundDoodlerJoin';
 
 import Bubble from './components/Bubble';
 import DetailBar from './components/DetailBar';
@@ -54,7 +54,7 @@ const GameLayout = () => {
   const handleEventsRegistration = () => {
     // When a new doodler joins the room
     registerEvent(RoomEvents.ON_DOODLER_JOIN, ({ doodler }) => {
-      toneDoubleAlert(true);
+      playDoodlerJoinSound();
       setRoom((prev) => ({ ...prev, doodlers: [...prev.doodlers, doodler] }));
       openSnackbar({
         message: `${doodler.name} has joined the room!`,
@@ -62,9 +62,9 @@ const GameLayout = () => {
       });
     });
 
-    // When a doodler leaves the room
+    // When a doodler leaves the room - intentionally no sound, just the
+    // snackbar below
     registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) => {
-      toneDoubleAlert();
       setRoom((prev) => ({
         ...prev,
         doodlers: prev.doodlers.filter(({ id }) => id !== doodler.id),
@@ -135,6 +135,10 @@ const GameLayout = () => {
     try {
       await handleValidateUser();
       const roomData = await handleGetRoom();
+      // ON_DOODLER_JOIN only broadcasts to players already in the room, so
+      // the joiner never hears it - play the same join sound locally once
+      // this client's own join is confirmed.
+      playDoodlerJoinSound();
       await handleGetGame(roomData.gameId);
     } catch (e) {
       if (e instanceof ErrorFromServer || e instanceof Error) {

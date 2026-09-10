@@ -12,9 +12,9 @@ import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
-import { HunchInterface } from '@/types/models/hunch';
-import { toneQuickBlip } from '@/utils/sounds/toneQuickBlip';
-import { toneSuccess } from '@/utils/sounds/toneSuccess';
+import { HunchInterface, HunchStatus } from '@/types/models/hunch';
+import { playCorrectGuessSound } from '@/utils/sounds/soundCorrectGuess';
+import { playMessageSentSound } from '@/utils/sounds/soundMessageSent';
 
 import Hunch from './Hunch';
 
@@ -50,8 +50,11 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
     hunch: HunchInterface;
   }) => {
     setHunchList((prev) => [...prev, hunchResponse]);
-    if (hunchResponse.isSystemMessage) toneSuccess();
-    else if (hunchResponse.senderId === id) toneQuickBlip();
+    // Only a genuine correct guess gets the celebratory sound - other
+    // system messages (e.g. "not enough players") stay silent instead of
+    // playing a mismatched success cue.
+    if (hunchResponse.status === HunchStatus.CORRECT) playCorrectGuessSound();
+    else if (hunchResponse.senderId === id) playMessageSentSound();
   };
 
   useEffect(() => {
