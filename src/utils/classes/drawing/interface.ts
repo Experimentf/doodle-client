@@ -18,4 +18,8 @@ export interface DrawingInterface {
   // NORMALIZE AND DENORMALIZE COORDINATES ACCORDING TO CANVAS
   normalizeCoordinate: (coord: Coordinate) => Coordinate;
   denormalizeCoordinate: (coord: Coordinate) => Coordinate;
+
+  // NORMALIZE AND DENORMALIZE SIZE (E.G. BRUSH WIDTH) ACCORDING TO CANVAS
+  normalizeSize: (size: number) => number;
+  denormalizeSize: (size: number) => number;
 }

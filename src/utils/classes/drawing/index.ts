@@ -27,10 +27,19 @@ export class Drawing implements DrawingInterface {
       const operation = opsQueue.shift();
       if (!operation) return;
       if (asNewOperation) this._operations.push(operation);
-      const { actionType, color, points: normalizedPoints, size } = operation;
+      const {
+        actionType,
+        color,
+        points: normalizedPoints,
+        size: normalizedSize,
+      } = operation;
       const points = normalizedPoints?.map((point) =>
         floorCoordinate(this.denormalizeCoordinate(point))
       );
+      const size =
+        normalizedSize !== undefined
+          ? Math.max(1, Math.round(this.denormalizeSize(normalizedSize)))
+          : undefined;
 
       switch (actionType) {
         case CanvasAction.LINE:
@@ -85,6 +94,13 @@ export class Drawing implements DrawingInterface {
     x: coord.x * this._maxWidth,
     y: coord.y * this._maxHeight,
   });
+
+  public normalizeSize: DrawingInterface['normalizeSize'] = (size: number) =>
+    size / this._maxWidth;
+
+  public denormalizeSize: DrawingInterface['denormalizeSize'] = (
+    size: number
+  ) => size * this._maxWidth;
 
   // PRIVATE METHODS
   private _line = (
