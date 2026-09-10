@@ -19,6 +19,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     game: { canvasOperations, status },
   } = useGame();
   const isMountedRef = useRef(false);
+  const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
   const pointerConfig = useCanvasActions(optionConfig);
   usePointerTracker(canvasRef, pointerConfig);
 
@@ -26,14 +27,25 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     if (!canvasRef.current) return;
 
     // Size Handling
-    // Cap the backing-store resolution at 2x - beyond that (common on
-    // higher-end phones, which report 3x) the extra pixels are barely
-    // visible but meaningfully increase the cost of every fill operation,
-    // since it reads/writes the full canvas buffer.
+    // Cap backing-store resolution at 2x - 3x (common on phones) costs fill
+    // performance for barely-visible sharpness gains.
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvasRef.current.getBoundingClientRect();
-    canvasRef.current.width = rect.width * dpr;
-    canvasRef.current.height = rect.height * dpr;
+    const width = Math.round(rect.width * dpr);
+    const height = Math.round(rect.height * dpr);
+
+    // Mobile keyboards fire `resize` without the canvas's size actually
+    // changing; skip so we don't reflow the page and re-trigger scroll.
+    if (
+      lastSizeRef.current?.width === width &&
+      lastSizeRef.current?.height === height
+    ) {
+      return;
+    }
+    lastSizeRef.current = { width, height };
+
+    canvasRef.current.width = width;
+    canvasRef.current.height = height;
 
     // Drawing Handlinga
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);

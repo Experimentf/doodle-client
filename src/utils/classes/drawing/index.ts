@@ -264,19 +264,15 @@ export class Drawing implements DrawingInterface {
     };
     return new Promise((resolve, reject) => {
       this._pendingFillRequests.set(id, { resolve, reject });
-      // Transfer the pixel buffer instead of structured-cloning it - avoids
-      // copying the whole canvas' worth of pixels across the worker
-      // boundary on every fill.
+      // Transfer instead of clone - avoids copying the whole canvas buffer.
       fillWorker.postMessage(request, [buffer]);
     });
   }
 
   private _getContext() {
     const ctx = this._ref.current?.getContext('2d', {
-      // The fill tool reads pixel data back on every click, so hint the
-      // browser toward its readback-optimized path. Context attributes are
-      // only honored on the very first getContext() call for a canvas, so
-      // this must stay true everywhere _getContext is called.
+      // Must be true on every call - attributes only apply on the first
+      // getContext(), and fill needs frequent readback.
       willReadFrequently: true,
       alpha: false,
     });
