@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaCopy, FaShare } from 'react-icons/fa6';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ReactComponent as Brand } from '@/assets/brand.svg';
 import Button from '@/components/Button';
@@ -63,12 +63,16 @@ const GameLayout = () => {
     });
 
     // When a doodler leaves the room
-    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodlerId }) => {
+    registerEvent(RoomEvents.ON_DOODLER_LEAVE, ({ doodler }) => {
       toneDoubleAlert();
       setRoom((prev) => ({
         ...prev,
-        doodlers: prev.doodlers.filter(({ id }) => id !== doodlerId),
+        doodlers: prev.doodlers.filter(({ id }) => id !== doodler.id),
       }));
+      openSnackbar({
+        message: `${doodler.name} has left the room!`,
+        color: 'warning',
+      });
     });
 
     // When a game starts
@@ -160,6 +164,14 @@ const GameLayout = () => {
     handleSetup();
   }, [roomId, socketConnectionState]);
 
+  useEffect(() => {
+    if (!roomId) return;
+    // When the room is left
+    return () => {
+      asyncEmitEvent(RoomEvents.EMIT_LEAVE_ROOM, { roomId }).catch(() => {});
+    };
+  }, [roomId]);
+
   const gameComponent = useMemo(() => {
     switch (game.status) {
       case GameStatus.LOBBY:
@@ -186,9 +198,9 @@ const GameLayout = () => {
   return (
     <div className="p-2 lg:p-4 h-screen flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
       <div className="flex flex-row justify-between items-center">
-        <a href="/">
+        <Link to="/" replace>
           <Brand className="w-32 lg:w-48" />
-        </a>
+        </Link>
       </div>
       <DetailBar />
       <div className="flex-1 flex overflow-hidden">
