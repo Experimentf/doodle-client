@@ -11,6 +11,8 @@ import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import useScreenSize from '@/hooks/useScreenSize';
 
 import Bubble from '../Game/components/Bubble';
+import AboutSection from './components/AboutSection';
+import HowToPlaySection from './components/HowToPlaySection';
 import PlayForm from './components/PlayForm';
 
 const Home = () => {
@@ -32,30 +34,36 @@ const Home = () => {
   }, [isError]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6 lg:mx-8">
+    <div className="min-h-screen flex flex-col items-center gap-8 p-6 lg:mx-8">
       <div className="fixed top-4 right-4">
         <SoundToggle />
       </div>
-      <AnimatedBrand
-        loading={isLoading}
-        className={`mt-8 ${isMobile ? 'w-[18rem]' : 'w-[32rem]'}`}
-      />
-      <PlayForm
-        roomId={roomIdFromLink}
-        className="w-[380px] flex-1"
-        disableActions={isError && dismissedError}
-      />
-      {roomIdFromLink && roomIdFromLink.length > 0 && (
-        <Bubble>
-          <FaLock />
-          <Text className="text-center text-sm" color="primary">
-            {texts.home.privateRoomBubble}
-            <Text component="span" color="warning">
-              {roomIdFromLink}
+      <div className="flex-1 flex flex-col items-center justify-center gap-8 w-full">
+        <AnimatedBrand
+          loading={isLoading}
+          className={`mt-8 ${isMobile ? 'w-[18rem]' : 'w-[32rem]'}`}
+        />
+        <PlayForm
+          roomId={roomIdFromLink}
+          className="w-[380px] flex-1"
+          disableActions={isError && dismissedError}
+        />
+        {roomIdFromLink && roomIdFromLink.length > 0 && (
+          <Bubble>
+            <FaLock />
+            <Text className="text-center text-sm" color="primary">
+              {texts.home.privateRoomBubble}
+              <Text component="span" color="warning">
+                {roomIdFromLink}
+              </Text>
             </Text>
-          </Text>
-        </Bubble>
-      )}
+          </Bubble>
+        )}
+      </div>
+      <div className="w-full max-w-2xl flex flex-col gap-4 pb-8">
+        <HowToPlaySection />
+        <AboutSection />
+      </div>
       <Dialog
         visible={isError && !dismissedError}
         onClose={() => setDismissedError(true)}
