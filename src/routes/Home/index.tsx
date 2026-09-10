@@ -24,7 +24,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6 lg:mx-8">
-      <Brand className={isMobile ? 'w-[18rem]' : 'w-[32rem]'} />
+      <Brand
+        className={`animate-brand-entrance mt-8 ${
+          isMobile ? 'w-[18rem]' : 'w-[32rem]'
+        }`}
+      />
       {isLoading || isError ? (
         isLoading ? (
           <Loading />

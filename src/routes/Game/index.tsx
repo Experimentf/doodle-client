@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { FaCopy, FaShare } from 'react-icons/fa6';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
@@ -177,24 +177,38 @@ const GameLayout = () => {
   }, [roomId]);
 
   const gameComponent = useMemo(() => {
+    let statusView: ReactNode = null;
     switch (game.status) {
       case GameStatus.LOBBY:
-        return <Lobby />;
+        statusView = <Lobby />;
+        break;
       case GameStatus.CHOOSE_WORD:
-        return (
+        statusView = (
           <ChooseWord
             wordOptions={statusChangeData?.[game.status]?.wordOptions}
           />
         );
+        break;
       case GameStatus.TURN_END:
-        return <TurnEnd scores={statusChangeData?.[game.status]?.scores} />;
+        statusView = (
+          <TurnEnd scores={statusChangeData?.[game.status]?.scores} />
+        );
+        break;
       case GameStatus.ROUND_START:
-        return <RoundStart />;
+        statusView = <RoundStart />;
+        break;
       case GameStatus.RESULT:
-        return <Result results={statusChangeData?.[game.status]?.results} />;
-      default:
-        return null;
+        statusView = (
+          <Result results={statusChangeData?.[game.status]?.results} />
+        );
+        break;
     }
+    if (!statusView) return null;
+    return (
+      <div key={game.status} className="w-full h-full animate-fade-in-up">
+        {statusView}
+      </div>
+    );
   }, [game.status]);
 
   if (loading) return <Loading fullScreen />;

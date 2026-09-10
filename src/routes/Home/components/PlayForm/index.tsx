@@ -148,7 +148,12 @@ const PlayForm = ({ roomId, ...props }: PlayFormProps) => {
               icon={<GiPerspectiveDiceSixFacesRandom />}
             />
           </div>
-          <Avatar className="mb-8" avatarProps={userInfo.avatar} />
+          <Avatar
+            className="mb-8"
+            avatarProps={userInfo.avatar}
+            animate
+            glanceAtCursor
+          />
         </div>
         <input
           autoFocus
