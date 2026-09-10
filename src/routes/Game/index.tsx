@@ -130,15 +130,17 @@ const GameLayout = () => {
     if (!gameId || !roomId) return;
     const { game } = await asyncEmitEvent(GameEvents.EMIT_GET_GAME, {
       roomId,
-      gameId,
     });
     setGame(game);
   };
 
   const handleSetup = async () => {
     try {
-      await handleValidateUser();
-      const roomData = await handleGetRoom();
+      // Independent requests - run them together instead of serially.
+      const [, roomData] = await Promise.all([
+        handleValidateUser(),
+        handleGetRoom(),
+      ]);
       // ON_DOODLER_JOIN only broadcasts to players already in the room, so
       // the joiner never hears it - play the same join sound locally once
       // this client's own join is confirmed.

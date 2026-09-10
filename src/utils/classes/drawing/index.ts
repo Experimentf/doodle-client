@@ -159,20 +159,25 @@ export class Drawing implements DrawingInterface {
     const ref = this._ref;
     if (!ctx || !ref.current) return;
     if (window.Worker) {
+      const width = this._maxWidth;
+      const height = this._maxHeight;
       const previousColor = getPixelHexCode(ctx, point);
-      const imageData = ctx.getImageData(0, 0, this._maxWidth, this._maxHeight);
+      const imageData = ctx.getImageData(0, 0, width, height);
       const { buffer, bbox } = await this._asyncFillWorker(
         imageData,
         point,
         previousColor,
         color,
-        this._maxWidth,
-        this._maxHeight
+        width,
+        height
       );
+      // A resize mid-fill means this buffer no longer matches the canvas -
+      // drop it instead of constructing an ImageData with a mismatched size.
+      if (width !== this._maxWidth || height !== this._maxHeight) return;
       const newImageData = new ImageData(
         new Uint8ClampedArray(buffer),
-        this._maxWidth,
-        this._maxHeight
+        width,
+        height
       );
       // Only paint back the region that actually changed instead of the
       // whole canvas.
@@ -236,6 +241,8 @@ export class Drawing implements DrawingInterface {
       fillWorker.onerror = (error) => {
         this._pendingFillRequests.forEach(({ reject }) => reject(error));
         this._pendingFillRequests.clear();
+        // Drop the broken worker so the next fill spins up a fresh one instead of hanging forever.
+        this._fillWorker = undefined;
       };
       this._fillWorker = fillWorker;
     }

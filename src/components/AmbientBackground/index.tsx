@@ -61,11 +61,7 @@ const makeBaseDoodle = (i: number) => ({
   wide: false,
 });
 
-// R2 low-discrepancy sequence - mathematically even 2D coverage with no
-// clustering. A naive `(i * someMultiplier) % range` (as the base layer
-// above uses) can accidentally produce a near-linear walk instead of a
-// scatter depending on the multiplier - which is what made an earlier
-// desktop-only batch bunch up on one side and leave the other empty.
+// R2 low-discrepancy sequence - even 2D coverage with no clustering, unlike the base layer's naive modulo scatter.
 const G1 = 0.7548776662466927;
 const G2 = 0.5698402909980532;
 const fract = (n: number) => n - Math.floor(n);

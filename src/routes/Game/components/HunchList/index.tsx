@@ -76,9 +76,9 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
     };
   }, []);
 
-  // Non-drawers can only hunch, so put them straight into the input.
+  // Non-drawers can only hunch during an active round, so put them straight into the input.
   useEffect(() => {
-    if (game.status !== GameStatus.LOBBY && !isDrawer) {
+    if (game.status === GameStatus.GAME && !isDrawer) {
       hunchInputRef.current?.focus({ preventScroll: true });
     }
   }, [game.status, isDrawer]);

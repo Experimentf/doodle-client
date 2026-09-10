@@ -119,43 +119,46 @@ const PlayForm = ({
     }
   };
 
-  // Not connected yet - queue the action instead of failing outright, and
-  // fire it the moment the socket connects, so a click before connection
-  // confirms doesn't require the user to click again.
+  // Always set pendingAction so the buttons disable immediately, even when already connected - prevents double-submit on a fast second click.
   const handlePlay: FormEventHandler = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    setPendingAction('public');
     if (socketConnectionState === SocketConnectionState.CONNECTED) {
-      performPlay();
-    } else {
-      setPendingAction('public');
+      performPlay().finally(() => setPendingAction(null));
     }
   };
 
   const handleCreatePrivateRoom: FormEventHandler = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    setPendingAction('private');
     if (socketConnectionState === SocketConnectionState.CONNECTED) {
-      performCreatePrivateRoom();
-    } else {
-      setPendingAction('private');
+      performCreatePrivateRoom().finally(() => setPendingAction(null));
     }
   };
 
   useEffect(() => {
     if (socketConnectionState === SocketConnectionState.ERROR) {
-      setPendingAction(null);
+      setPendingAction((prev) => {
+        if (prev) {
+          openSnackbar({
+            message: 'Failed to connect. Please try again!',
+            color: 'error',
+          });
+        }
+        return null;
+      });
       return;
     }
     if (socketConnectionState !== SocketConnectionState.CONNECTED) return;
     if (pendingAction === 'public') {
-      setPendingAction(null);
-      performPlay();
+      performPlay().finally(() => setPendingAction(null));
     } else if (pendingAction === 'private') {
-      setPendingAction(null);
-      performCreatePrivateRoom();
+      performCreatePrivateRoom().finally(() => setPendingAction(null));
     }
-  }, [socketConnectionState, pendingAction]);
+    // Keyed only on the connection transition - including pendingAction would re-fire this on the setPendingAction call above, double-invoking the action.
+  }, [socketConnectionState]);
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInfo((prev) => ({ ...prev, name: e.target.value.trim() }));
@@ -206,7 +209,7 @@ const PlayForm = ({
           color="success"
           type="submit"
           loading={pendingAction === 'public'}
-          disabled={disableActions || pendingAction === 'private'}
+          disabled={disableActions || !!pendingAction}
           onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
@@ -215,7 +218,7 @@ const PlayForm = ({
           variant="secondary"
           color="secondary"
           loading={pendingAction === 'private'}
-          disabled={disableActions || pendingAction === 'public'}
+          disabled={disableActions || !!pendingAction}
           onClick={handleCreatePrivateRoom}
         >
           {texts.home.form.buttons.createPrivateRoom}

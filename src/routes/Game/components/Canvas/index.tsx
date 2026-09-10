@@ -55,18 +55,14 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   };
 
   useEffect(() => {
-    // Deferred a frame so this always measures after Game/index.tsx's own
-    // visualViewport listener (which resizes the container) has applied,
-    // regardless of which listener the browser happens to run first.
+    // Deferred a frame so this measures after the browser's own layout reflow (e.g. dvh recalculation on keyboard open) has applied.
     const scheduleCanvasResize = () => {
       requestAnimationFrame(handleCanvasResize);
     };
 
     scheduleCanvasResize();
     window.addEventListener('resize', scheduleCanvasResize);
-    // The game container resizes for the on-screen keyboard via
-    // VisualViewport (see Game/index.tsx), which doesn't fire a `resize`
-    // event on `window` - needs its own listener to stay in sync.
+    // The container resizes for the on-screen keyboard via the CSS `dvh` unit, which doesn't reliably fire a `resize` event on `window` (notably iOS Safari) - needs its own listener to stay in sync.
     window.visualViewport?.addEventListener('resize', scheduleCanvasResize);
     return () => {
       window.removeEventListener('resize', scheduleCanvasResize);

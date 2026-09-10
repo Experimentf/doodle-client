@@ -24,10 +24,7 @@ interface Pupil {
   r: number;
 }
 
-// Pupil coordinates copied from @bigheads/core's own eye components - only
-// eye styles with a plain circular pupil support glancing; the rest (happy,
-// content, dizzy, heart, simple) have no separate pupil to move and are
-// left alone.
+// Pupil coordinates copied from @bigheads/core's eye components - only styles with a plain circular pupil support glancing.
 const EYE_PUPILS: Partial<
   Record<string, { left: Pupil; right: Pupil | null }>
 > = {
@@ -91,9 +88,7 @@ const Avatar = ({
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('deviceorientation', handleOrientation);
 
-    // iOS only fires deviceorientation after an explicit, gesture-triggered
-    // permission grant - request it on the first tap, best-effort. Guarded
-    // since DeviceOrientationEvent isn't defined on every browser/webview.
+    // iOS only fires deviceorientation after a gesture-triggered permission grant - request it on first tap, best-effort.
     const requestPermission =
       typeof DeviceOrientationEvent !== 'undefined'
         ? (

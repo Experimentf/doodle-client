@@ -9,16 +9,11 @@ interface PlayToneOptions {
   type?: OscillatorType;
   attack?: number;
   release?: number;
-  // Optional pitch bend target - lets a single tone sweep from `frequency`
-  // to this value instead of staying flat, for a sound with a distinct
-  // "whoosh" character rather than a discrete note.
+  // Optional pitch bend target - sweeps from `frequency` to this instead of staying flat, for a "whoosh" character.
   sweepToFrequency?: number;
 }
 
-// Plays a single note with a short fade-in/out envelope. Starting or
-// stopping an oscillator at full volume creates an audible click/pop at
-// the note boundary - that's what made the game's sounds feel harsh rather
-// than pleasant, regardless of which notes were chosen.
+// Fade-in/out envelope avoids the click/pop of starting or stopping an oscillator at full volume.
 export const playTone = ({
   frequency,
   duration,

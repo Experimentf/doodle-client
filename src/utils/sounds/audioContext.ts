@@ -1,13 +1,8 @@
 import { isSoundEnabled } from './soundSettings';
 
-// A single shared AudioContext, reused across every game sound instead of
-// creating (and never closing) a new one per call - that was leaking audio
-// handles and adding audio-thread startup latency that made sounds land a
-// beat late. Browsers may also start a context suspended until a user
-// gesture resumes it, so resume it defensively on every use.
+// Shared across every game sound - creating a new AudioContext per call leaks handles and adds startup latency.
 let sharedContext: AudioContext | undefined;
-// Every sound routes through this instead of straight to the destination,
-// so muting can silence audio already in flight, not just future sounds.
+// Every sound routes through this so muting can silence audio already in flight, not just future sounds.
 let masterGain: GainNode | undefined;
 
 export const getAudioContext = (): AudioContext => {
@@ -17,6 +12,7 @@ export const getAudioContext = (): AudioContext => {
     masterGain.gain.value = isSoundEnabled() ? 1 : 0;
     masterGain.connect(sharedContext.destination);
   }
+  // Browsers may start a context suspended until a user gesture resumes it.
   if (sharedContext.state === 'suspended') sharedContext.resume();
   return sharedContext;
 };

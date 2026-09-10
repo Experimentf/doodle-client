@@ -53,11 +53,9 @@ fillWorker.onmessage = (event: MessageEvent<FillWorkerRequest>) => {
 };
 
 // Utilities
-// Some desktop GPU compositing paths (e.g. canvases created with `alpha:
-// false`) round RGB values by a channel or two when they're read back via
-// getImageData, even though the color was originally set to an exact hex
-// value. Comparing within a small tolerance keeps the fill robust to that.
-const COLOR_MATCH_TOLERANCE = 16;
+// Covers GPU readback rounding (typically off by 1-2 per channel) without
+// being wide enough to conflate two distinct user-picked colors.
+const COLOR_MATCH_TOLERANCE = 6;
 
 function colorsMatch(
   a: { r: number; g: number; b: number },
