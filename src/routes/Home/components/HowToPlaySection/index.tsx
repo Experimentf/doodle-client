@@ -5,13 +5,13 @@ import Text from '@/components/Text';
 const steps = [
   {
     icon: <FaPencil />,
-    title: 'Draw',
+    title: 'Doodle',
     description:
       "When it's your turn, sketch the secret word for others to guess.",
   },
   {
     icon: <FaComments />,
-    title: 'Guess',
+    title: 'Hunch',
     description:
       'Type your hunches in the chat to guess what others are drawing.',
   },

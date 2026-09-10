@@ -44,9 +44,12 @@ const COLORS = [
   'text-chalk-yellow',
 ];
 
+const BASE_COUNT = ICONS.length;
+
 // Scattered like doodles on a chalkboard - deterministic, computed once.
-const doodles = ICONS.map((Icon, i) => ({
-  Icon,
+// This is what mobile sees, unchanged.
+const makeBaseDoodle = (i: number) => ({
+  Icon: ICONS[i % ICONS.length],
   left: `${((i * 137) % 88) + 4}%`,
   top: `${((i * 71) % 88) + 4}%`,
   rotate: ((i * 47) % 60) - 30,
@@ -55,7 +58,37 @@ const doodles = ICONS.map((Icon, i) => ({
   duration: 16 + ((i * 5) % 14),
   delay: -((i * 3) % 20),
   opacity: 0.08 + (i % 3) * 0.03,
-}));
+  wide: false,
+});
+
+// R2 low-discrepancy sequence - mathematically even 2D coverage with no
+// clustering. A naive `(i * someMultiplier) % range` (as the base layer
+// above uses) can accidentally produce a near-linear walk instead of a
+// scatter depending on the multiplier - which is what made an earlier
+// desktop-only batch bunch up on one side and leave the other empty.
+const G1 = 0.7548776662466927;
+const G2 = 0.5698402909980532;
+const fract = (n: number) => n - Math.floor(n);
+
+// A second, denser layer that only shows from lg: up, since the base
+// layer's count alone reads as sparse on a much wider viewport.
+const makeWideDoodle = (i: number) => ({
+  Icon: ICONS[i % ICONS.length],
+  left: `${fract((i + 0.5) * G1) * 88 + 4}%`,
+  top: `${fract((i + 0.5) * G2) * 88 + 4}%`,
+  rotate: ((i * 47) % 60) - 30,
+  size: 22 + ((i * 13) % 18),
+  color: COLORS[i % COLORS.length],
+  duration: 16 + ((i * 5) % 14),
+  delay: -((i * 3) % 20),
+  opacity: 0.08 + (i % 3) * 0.03,
+  wide: true,
+});
+
+const doodles = [
+  ...Array.from({ length: BASE_COUNT }, (_, i) => makeBaseDoodle(i)),
+  ...Array.from({ length: BASE_COUNT }, (_, i) => makeWideDoodle(i)),
+];
 
 const AmbientBackground = () => (
   <div
@@ -64,12 +97,23 @@ const AmbientBackground = () => (
   >
     {doodles.map(
       (
-        { Icon, left, top, rotate, size, color, duration, delay, opacity },
+        {
+          Icon,
+          left,
+          top,
+          rotate,
+          size,
+          color,
+          duration,
+          delay,
+          opacity,
+          wide,
+        },
         index
       ) => (
         <div
           key={index}
-          className="absolute"
+          className={`absolute ${wide ? 'hidden lg:block' : ''}`}
           style={{ left, top, transform: `rotate(${rotate}deg)` }}
         >
           <Icon
