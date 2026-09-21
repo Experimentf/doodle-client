@@ -30,11 +30,9 @@
 }
 
 html {
-  /* Safari paints the rubber-band overscroll area with this, not body's. */
-  background-color: var(--background-primary);
-}
-
-body {
+  /* Safari paints the rubber-band overscroll area with this, not body's -
+     kept here (not body) so body can stay transparent above it, letting the
+     ambient background's negative z-index icons show through. */
   background-color: var(--background-primary);
   background-image:
     radial-gradient(
@@ -43,6 +41,9 @@ body {
       rgba(4, 18, 14, 0.7) 75%
     ),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+body {
   color: var(--text-white);
   min-height: 100dvh;
   margin: 0;
