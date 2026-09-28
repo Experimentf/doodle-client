@@ -10,7 +10,6 @@ export interface FillWorkerRequest {
   width: number;
   height: number;
   point: Coordinate;
-  previousColor: string;
   newColor: string;
 }
 
@@ -30,17 +29,9 @@ export interface FillWorkerResponse {
 }
 
 fillWorker.onmessage = (event: MessageEvent<FillWorkerRequest>) => {
-  const { id, buffer, width, height, point, previousColor, newColor } =
-    event.data;
+  const { id, buffer, width, height, point, newColor } = event.data;
   const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
-  const { bbox } = scanlineFill(
-    imageData,
-    point,
-    previousColor,
-    newColor,
-    width,
-    height
-  );
+  const { bbox } = scanlineFill(imageData, point, newColor, width, height);
   const outBuffer = imageData.data.buffer;
   const response: FillWorkerResponse = {
     id,
@@ -73,65 +64,94 @@ function colorsMatch(
 function scanlineFill(
   imageData: ImageData,
   point: Coordinate,
-  previousColor: string,
   newColor: string,
   maxWidth: number,
   maxHeight: number
 ): { imageData: ImageData; bbox: FillBoundingBox } {
+  const data = imageData.data;
   const newColorRGB = convertHexToRGB(newColor);
-  const previousColorRGB = convertHexToRGB(previousColor);
+  // Pointer coordinates arrive fractional (CSS-to-canvas scaling); indices must be integers.
+  const seedX = Math.min(Math.max(Math.floor(point.x), 0), maxWidth - 1);
+  const seedY = Math.min(Math.max(Math.floor(point.y), 0), maxHeight - 1);
+  const seedIndex = (seedY * maxWidth + seedX) * 4;
+  const previousColorRGB = {
+    r: data[seedIndex],
+    g: data[seedIndex + 1],
+    b: data[seedIndex + 2],
+  };
 
+  // Empty box (zero width) so the caller's putImageData is a no-op.
   const bbox: FillBoundingBox = {
-    minX: point.x,
-    minY: point.y,
-    maxX: point.x,
-    maxY: point.y,
+    minX: seedX,
+    minY: seedY,
+    maxX: seedX - 1,
+    maxY: seedY - 1,
   };
 
-  const fillPoint = (coord: Coordinate) => {
-    const index = (coord.y * maxWidth + coord.x) * 4;
-    imageData.data[index] = newColorRGB.r;
-    imageData.data[index + 1] = newColorRGB.g;
-    imageData.data[index + 2] = newColorRGB.b;
-    imageData.data[index + 3] = 255;
-    if (coord.x < bbox.minX) bbox.minX = coord.x;
-    if (coord.x > bbox.maxX) bbox.maxX = coord.x;
-    if (coord.y < bbox.minY) bbox.minY = coord.y;
-    if (coord.y > bbox.maxY) bbox.maxY = coord.y;
+  // Filled pixels would still match the target and be revisited forever.
+  if (
+    colorsMatch(previousColorRGB, newColorRGB.r, newColorRGB.g, newColorRGB.b)
+  )
+    return { imageData, bbox };
+
+  const matches = (x: number, y: number) => {
+    const index = (y * maxWidth + x) * 4;
+    return colorsMatch(
+      previousColorRGB,
+      data[index],
+      data[index + 1],
+      data[index + 2]
+    );
   };
 
-  const validate = (coord: Coordinate) => {
-    if (coord.x < 0 || coord.x >= maxWidth) return false;
-    if (coord.y < 0 || coord.y >= maxHeight) return false;
-    const data = imageData.data;
-    const index = (coord.y * maxWidth + coord.x) * 4;
-    const r = data[index];
-    const g = data[index + 1];
-    const b = data[index + 2];
-    return colorsMatch(previousColorRGB, r, g, b);
+  const fillPoint = (x: number, y: number) => {
+    const index = (y * maxWidth + x) * 4;
+    data[index] = newColorRGB.r;
+    data[index + 1] = newColorRGB.g;
+    data[index + 2] = newColorRGB.b;
+    data[index + 3] = 255;
   };
 
-  // Index-based queue instead of Array#shift(), which is O(n) per call and
-  // would make a large fill degrade toward O(n^2).
-  const queue: Coordinate[] = [point];
+  // Queue one seed per contiguous run on the adjacent row, not every pixel.
+  const queueRuns = (startX: number, endX: number, y: number) => {
+    if (y < 0 || y >= maxHeight) return;
+    let inRun = false;
+    for (let x = startX; x <= endX; x++) {
+      if (matches(x, y)) {
+        if (!inRun) queue.push(x, y);
+        inRun = true;
+      } else {
+        inRun = false;
+      }
+    }
+  };
+
+  bbox.maxX = seedX;
+  bbox.maxY = seedY;
+
+  // Flat [x, y, x, y, ...] with a head index: Array#shift() is O(n) per call.
+  const queue: number[] = [seedX, seedY];
   let head = 0;
   while (head < queue.length) {
-    const neighbour = queue[head++];
-    if (!validate(neighbour)) continue;
-    const { x, y } = neighbour;
-    let startX = x;
-    while (startX >= 0 && validate({ x: startX, y })) startX--;
-    startX++;
-    let endX = x;
-    while (endX < maxWidth && validate({ x: endX, y })) endX++;
-    endX--;
+    const x = queue[head++];
+    const y = queue[head++];
+    // Already filled via another run since it was queued.
+    if (!matches(x, y)) continue;
 
-    for (let i = startX; i <= endX; i++) {
-      fillPoint({ x: i, y: y });
-      if (y > 0 && validate({ x: i, y: y - 1 })) queue.push({ x: i, y: y - 1 });
-      if (y < maxHeight - 1 && validate({ x: i, y: y + 1 }))
-        queue.push({ x: i, y: y + 1 });
-    }
+    let startX = x;
+    while (startX > 0 && matches(startX - 1, y)) startX--;
+    let endX = x;
+    while (endX < maxWidth - 1 && matches(endX + 1, y)) endX++;
+
+    for (let i = startX; i <= endX; i++) fillPoint(i, y);
+
+    if (startX < bbox.minX) bbox.minX = startX;
+    if (endX > bbox.maxX) bbox.maxX = endX;
+    if (y < bbox.minY) bbox.minY = y;
+    if (y > bbox.maxY) bbox.maxY = y;
+
+    queueRuns(startX, endX, y - 1);
+    queueRuns(startX, endX, y + 1);
   }
 
   return { imageData, bbox };

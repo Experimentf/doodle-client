@@ -3,7 +3,6 @@ import { RefObject } from 'react';
 import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
-import { getPixelHexCode } from '@/utils/colors';
 import { floorCoordinate } from '@/utils/coordinate';
 import {
   FillWorkerRequest,
@@ -161,12 +160,10 @@ export class Drawing implements DrawingInterface {
     if (window.Worker) {
       const width = this._maxWidth;
       const height = this._maxHeight;
-      const previousColor = getPixelHexCode(ctx, point);
       const imageData = ctx.getImageData(0, 0, width, height);
       const { buffer, bbox } = await this._asyncFillWorker(
         imageData,
         point,
-        previousColor,
         color,
         width,
         height
@@ -252,7 +249,6 @@ export class Drawing implements DrawingInterface {
   private async _asyncFillWorker(
     imageData: ImageData,
     point: Coordinate,
-    previousColor: string,
     newColor: string,
     maxWidth: number,
     maxHeight: number
@@ -266,7 +262,6 @@ export class Drawing implements DrawingInterface {
       width: maxWidth,
       height: maxHeight,
       point,
-      previousColor,
       newColor,
     };
     return new Promise((resolve, reject) => {
