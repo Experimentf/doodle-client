@@ -25,11 +25,26 @@ const getBrushCursor = (brushSize: number, color: string) => {
   )}") ${c} ${c}, crosshair`;
 };
 
+// Paths from react-icons (FaFill + the drip of FaFillDrip, the toolbar's Fill icon) so the drip can take the fill color.
+const BUCKET_PATH =
+  'M502.63 217.06L294.94 9.37C288.69 3.12 280.5 0 272.31 0s-16.38 3.12-22.62 9.37l-81.58 81.58L81.93 4.77c-6.24-6.25-16.38-6.25-22.62 0L36.69 27.38c-6.24 6.25-6.24 16.38 0 22.63l86.19 86.18-94.76 94.76c-37.49 37.49-37.49 98.26 0 135.75l117.19 117.19c18.75 18.74 43.31 28.12 67.87 28.12 24.57 0 49.13-9.37 67.88-28.12l221.57-221.57c12.49-12.5 12.49-32.76 0-45.26zm-116.22 70.97H65.93c1.36-3.84 3.57-7.98 7.43-11.83l13.15-13.15 81.61-81.61 58.61 58.6c12.49 12.49 32.75 12.49 45.24 0 12.49-12.49 12.49-32.75 0-45.24l-58.61-58.6 58.95-58.95 162.45 162.44-48.35 48.34z';
+const DRIP_PATH =
+  'M512 320s-64 92.65-64 128c0 35.35 28.66 64 64 64s64-28.65 64-64-64-128-64-128z';
+
+// 648-unit viewBox at 24px (27 units per px), offset so the drip's tip (512, 512) lands on the integer hotspot (20, 21).
+const getFillCursor = (color: string) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="-28 -55 648 648"><g stroke="black" stroke-opacity="0.6" stroke-width="60" stroke-linejoin="round" fill="none"><path d="${BUCKET_PATH}"/><path d="${DRIP_PATH}"/></g><path d="${BUCKET_PATH}" fill="white"/><path d="${DRIP_PATH}" fill="${color}" stroke="white" stroke-width="20"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(
+    svg
+  )}") 20 21, crosshair`;
+};
+
 interface CanvasProps {
   optionConfig?: OptionConfig;
+  canDraw?: boolean;
 }
 
-const Canvas = ({ optionConfig }: CanvasProps) => {
+const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
   const { ref: canvasRef, drawing } = useCanvas();
   const {
     game: { canvasOperations, status },
@@ -37,7 +52,8 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
   const isMountedRef = useRef(false);
   const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
   const pointerConfig = useCanvasActions(optionConfig);
-  usePointerTracker(canvasRef, pointerConfig);
+  // No listeners at all for non-drawers, whatever tool they have selected.
+  usePointerTracker(canvasRef, canDraw ? pointerConfig : undefined);
 
   const handleCanvasResize = async () => {
     if (!canvasRef.current) return;
@@ -94,6 +110,8 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
 
   const cursor = useMemo(() => {
     const type = optionConfig?.type;
+    if (type === OptionKey.FILL)
+      return getFillCursor(optionConfig?.color ?? '#ffffff');
     if (type !== OptionKey.PENCIL && type !== OptionKey.ERASER)
       return undefined;
     const color =

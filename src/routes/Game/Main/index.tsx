@@ -42,7 +42,7 @@ interface MainProps extends HTMLAttributes<HTMLDivElement> {
 const Main = ({ component, ...props }: MainProps) => {
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
     color: '#ffffff',
-    type: undefined,
+    type: OptionKey.PENCIL,
     brushSize: 5,
   });
 
@@ -68,9 +68,6 @@ const Main = ({ component, ...props }: MainProps) => {
         GameEvents.ON_GAME_CANVAS_OPERATION,
         handleOnGameCanvasOperation
       );
-      setOptionConfig((prev) => ({ ...prev, type: undefined }));
-    } else {
-      setOptionConfig((prev) => ({ ...prev, type: OptionKey.PENCIL }));
     }
     return () => {
       unregisterEvent(
@@ -81,6 +78,7 @@ const Main = ({ component, ...props }: MainProps) => {
   }, [isDrawing]);
 
   const handleClear = async () => {
+    if (!isDrawing) return;
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation: { actionType: CanvasAction.CLEAR },
@@ -99,13 +97,12 @@ const Main = ({ component, ...props }: MainProps) => {
     ...option,
     icon: icons[option.key],
     handler: handlers[option.key],
-    disabled: !isDrawing,
   }));
 
   return (
     <div {...props}>
       <div className="relative">
-        <Canvas optionConfig={optionConfig} />
+        <Canvas optionConfig={optionConfig} canDraw={isDrawing} />
         {component && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-scroll">
             {component}
@@ -133,7 +130,6 @@ const Main = ({ component, ...props }: MainProps) => {
             onChange={(color) =>
               setOptionConfig((prev) => ({ ...prev, color }))
             }
-            disabled={!isDrawing}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -144,7 +140,7 @@ const Main = ({ component, ...props }: MainProps) => {
               onClick={() =>
                 setOptionConfig((prev) => ({ ...prev, brushSize: size }))
               }
-              disabled={!isDrawing}
+              disabled={false}
               label={label}
               icon={
                 // Negative margin keeps the button the same size as the other tools while the dot overflows the 1em icon box.
