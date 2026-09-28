@@ -1,13 +1,29 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
+import { DARK_BOARD_GREEN_HEX } from '@/constants/common';
 import { useCanvas } from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
 import usePointerTracker from '@/hooks/usePointerTracker';
 import { CanvasAction } from '@/types/canvas';
 import { GameStatus } from '@/types/models/game';
+import { getCanvasPixelRatio } from '@/utils/canvas';
 import { playGameStatusSound } from '@/utils/sounds/gameStatusSound';
 
+import { OptionKey } from '../Option/utils';
 import useCanvasActions, { OptionConfig } from './useCanvasActions';
+
+// Dark halo around a white ring keeps the outline visible on both the board and white strokes.
+const getBrushCursor = (brushSize: number, color: string) => {
+  const diameter = Math.max(brushSize / getCanvasPixelRatio(), 4);
+  // Even box so the hotspot is an integer - a fractional one invalidates the whole cursor rule.
+  const box = 2 * Math.ceil((diameter + 4) / 2);
+  const c = box / 2;
+  const r = diameter / 2;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${box}" height="${box}"><circle cx="${c}" cy="${c}" r="${r}" fill="${color}" stroke="black" stroke-opacity="0.6" stroke-width="3"/><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="white" stroke-width="1"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(
+    svg
+  )}") ${c} ${c}, crosshair`;
+};
 
 interface CanvasProps {
   optionConfig?: OptionConfig;
@@ -27,9 +43,7 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     if (!canvasRef.current) return;
 
     // Size Handling
-    // Cap backing-store resolution at 2x - 3x (common on phones) costs fill
-    // performance for barely-visible sharpness gains.
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = getCanvasPixelRatio();
     const rect = canvasRef.current.getBoundingClientRect();
     const width = Math.round(rect.width * dpr);
     const height = Math.round(rect.height * dpr);
@@ -78,9 +92,21 @@ const Canvas = ({ optionConfig }: CanvasProps) => {
     drawing?.reset();
   }, [status]);
 
+  const cursor = useMemo(() => {
+    const type = optionConfig?.type;
+    if (type !== OptionKey.PENCIL && type !== OptionKey.ERASER)
+      return undefined;
+    const color =
+      type === OptionKey.ERASER
+        ? DARK_BOARD_GREEN_HEX
+        : optionConfig?.color ?? '#ffffff';
+    return getBrushCursor(optionConfig?.brushSize ?? 0, color);
+  }, [optionConfig?.type, optionConfig?.brushSize, optionConfig?.color]);
+
   return (
     <canvas
       ref={canvasRef}
+      style={{ cursor }}
       className={`bg-dark-board-green rounded-xl w-full h-full aspect-video touch-none ${
         status === GameStatus.GAME
           ? 'pointer-events-auto'

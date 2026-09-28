@@ -23,3 +23,11 @@ export const convertRGBToHex = (red: number, green: number, blue: number) => {
   const hexBlue = blue.toString(16).padStart(2, '0');
   return `#${hexRed}${hexGreen}${hexBlue}`;
 };
+
+// Linear RGB blend; `amount` 0 keeps `from`, 1 gives `to`.
+export const mixHexColors = (from: string, to: string, amount: number) => {
+  const a = convertHexToRGB(from);
+  const b = convertHexToRGB(to);
+  const mix = (x: number, y: number) => Math.round(x + (y - x) * amount);
+  return convertRGBToHex(mix(a.r, b.r), mix(a.g, b.g), mix(a.b, b.b));
+};

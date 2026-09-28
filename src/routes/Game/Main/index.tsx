@@ -1,16 +1,12 @@
 import React, {
-  ChangeEvent,
   HTMLAttributes,
   ReactElement,
   ReactNode,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { FaEraser, FaFillDrip, FaPencilAlt, FaTrash } from 'react-icons/fa';
-import { IoMdColorPalette } from 'react-icons/io';
 
-import Tooltip from '@/components/Tooltip';
 import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
 import { useRoom } from '@/contexts/room';
@@ -18,9 +14,11 @@ import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
 import { ServerToClientEvents } from '@/types/socket';
+import { getCanvasPixelRatio } from '@/utils/canvas';
 
 import Canvas from '../components/Canvas';
 import { OptionConfig } from '../components/Canvas/useCanvasActions';
+import ColorPicker from '../components/ColorPicker';
 import EditOption from '../components/Option';
 import { OptionKey, options } from '../components/Option/utils';
 
@@ -31,12 +29,17 @@ const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.CLEAR]: <FaTrash />,
 };
 
+const brushSizes = [
+  { label: 'Small', size: 5 },
+  { label: 'Medium', size: 10 },
+  { label: 'Large', size: 20 },
+];
+
 interface MainProps extends HTMLAttributes<HTMLDivElement> {
   component: ReactNode;
 }
 
 const Main = ({ component, ...props }: MainProps) => {
-  const colorInputRef = useRef<HTMLInputElement>(null);
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
     color: '#ffffff',
     type: undefined,
@@ -85,17 +88,6 @@ const Main = ({ component, ...props }: MainProps) => {
     });
   };
 
-  const handleOptionConfigChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = ev.target;
-    setOptionConfig((prev) => ({
-      ...prev,
-      [name]:
-        typeof optionConfig[name as keyof OptionConfig] === 'number'
-          ? Number(value)
-          : value,
-    }));
-  };
-
   const handlers: Record<OptionKey, () => void> = {
     [OptionKey.PENCIL]: () => {},
     [OptionKey.ERASER]: () => {},
@@ -136,47 +128,40 @@ const Main = ({ component, ...props }: MainProps) => {
               icon={icon}
             />
           ))}
-          <Tooltip label="Color">
-            <button
-              onClick={() => colorInputRef.current?.click()}
-              className="relative p-2 border-none rounded-full overflow-clip hover:scale-125 active:scale-125 transition-all"
-              style={{ backgroundColor: optionConfig.color }}
-            >
-              <IoMdColorPalette className="text-lg mix-blend-difference" />
-              <input
-                ref={colorInputRef}
-                type="color"
-                name="color"
-                className="absolute opacity-0 w-full h-full top-0 left-0 cursor-pointer"
-                value={optionConfig.color}
-                onChange={handleOptionConfigChange}
-              />
-            </button>
-          </Tooltip>
+          <ColorPicker
+            color={optionConfig.color}
+            onChange={(color) =>
+              setOptionConfig((prev) => ({ ...prev, color }))
+            }
+            disabled={!isDrawing}
+          />
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative w-8 h-8">
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white`}
-              style={{
-                width: `${optionConfig.brushSize}px`,
-                height: `${optionConfig.brushSize}px`,
-              }}
-            ></div>
-            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-4 top-0 bg-dark-chalk-white" />
-            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-4 top-1/2 bg-dark-chalk-white" />
-            <div className="absolute left-0 -translate-y-1/2 w-4 h-[2px] top-1/2 bg-dark-chalk-white" />
-            <div className="absolute left-1/2 -translate-y-1/2 w-4 h-[2px] top-1/2 bg-dark-chalk-white" />
-          </div>
-          <input
-            type="range"
-            min={5}
-            max={31}
-            step={2}
-            name="brushSize"
-            value={optionConfig.brushSize}
-            onChange={handleOptionConfigChange}
-          />
+          {brushSizes.map(({ label, size }) => (
+            <EditOption
+              key={size}
+              isSelected={size === optionConfig.brushSize}
+              onClick={() =>
+                setOptionConfig((prev) => ({ ...prev, brushSize: size }))
+              }
+              disabled={!isDrawing}
+              label={label}
+              icon={
+                // Negative margin keeps the button the same size as the other tools while the dot overflows the 1em icon box.
+                <span className="flex items-center justify-center w-5 h-5 -m-0.5">
+                  <span
+                    className="rounded-full"
+                    // Inline: the custom Tailwind palette has no `current`, so `bg-current` emits nothing.
+                    style={{
+                      backgroundColor: 'currentColor',
+                      width: size / getCanvasPixelRatio(),
+                      height: size / getCanvasPixelRatio(),
+                    }}
+                  />
+                </span>
+              }
+            />
+          ))}
         </div>
       </div>
     </div>
