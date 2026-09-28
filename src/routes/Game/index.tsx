@@ -1,9 +1,10 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
-import { FaCopy, FaShare } from 'react-icons/fa6';
+import { FaCopy, FaShare, FaShareNodes } from 'react-icons/fa6';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import AnimatedBrand from '@/components/AnimatedBrand';
 import Button from '@/components/Button';
+import IconButton from '@/components/Button/IconButton';
 import Loading from '@/components/Loading';
 import SoundToggle from '@/components/SoundToggle';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
@@ -160,10 +161,18 @@ const GameLayout = () => {
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     const inviteLink = `${location.origin}?roomId=${roomId}`;
-    navigator.clipboard.writeText(inviteLink);
-    openSnackbar({ message: 'Copied invite link!', color: 'success' });
+    try {
+      // navigator.clipboard is undefined on insecure origins (e.g. a LAN IP over http), so this can throw too.
+      await navigator.clipboard.writeText(inviteLink);
+      openSnackbar({ message: 'Copied invite link!', color: 'success' });
+    } catch {
+      openSnackbar({
+        message: `Couldn't copy - ${inviteLink}`,
+        color: 'error',
+      });
+    }
   };
 
   useEffect(() => {
@@ -220,37 +229,56 @@ const GameLayout = () => {
   if (loading) return <Loading fullScreen />;
 
   return (
-    <div className="p-2 lg:p-4 h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
+    <div className="p-2 lg:p-4 h-[100dvh] lg:h-auto lg:min-h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
       <div className="flex flex-row justify-between items-center">
         <Link to="/" replace>
           <AnimatedBrand className="w-32 lg:w-48" />
         </Link>
-        <SoundToggle />
+        <div className="flex items-center gap-2">
+          {isPrivate && (
+            <IconButton
+              variant="primary"
+              color="primary"
+              className="text-2xl"
+              onClick={handleCopy}
+              type="button"
+              tooltip="Copy invite link"
+              icon={<FaShareNodes />}
+            />
+          )}
+          <SoundToggle />
+        </div>
       </div>
       <DetailBar />
-      <div className="flex-1 flex overflow-hidden">
-        <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full">
-          <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
+      {/* On lg the page grows with the canvas + toolbar instead of clipping them under the invite bubble. */}
+      <div className="flex-1 flex overflow-hidden lg:overflow-visible">
+        <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full lg:h-auto">
+          <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
           <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
             <CanvasProvider>
               <Main component={gameComponent} className="relative" />
             </CanvasProvider>
           </div>
-          <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full flex flex-col min-h-0 pr-2 pb-2" />
+          <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
         </div>
       </div>
-      {isPrivate && (
-        <Bubble>
-          <FaShare />
-          {texts.game.privateLobby.share}
-          <Button
-            variant="primary"
-            className="flex items-center gap-2 px-1 !py-1"
-            onClick={handleCopy}
-          >
-            Copy <FaCopy />
-          </Button>
-        </Bubble>
+      {isPrivate && game.status === GameStatus.LOBBY && (
+        // Mirrors the game grid's columns so on lg the bubble spans only the canvas column.
+        <div className="lg:grid lg:grid-cols-[15rem_1fr_15rem] lg:gap-4">
+          <div className="lg:col-start-2">
+            <Bubble>
+              <FaShare />
+              {texts.game.privateLobby.share}
+              <Button
+                variant="primary"
+                className="flex items-center gap-2 px-1 !py-1"
+                onClick={handleCopy}
+              >
+                Copy <FaCopy />
+              </Button>
+            </Bubble>
+          </div>
+        </div>
       )}
     </div>
   );
