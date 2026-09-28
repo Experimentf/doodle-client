@@ -11,7 +11,6 @@ interface SnackbarOptions {
   message: string;
   handleClose: () => void;
   color?: ColorType;
-  isInfinite: boolean;
   duration: number;
   timestamp: number;
 }
@@ -20,7 +19,6 @@ const Snackbar = ({
   open,
   message,
   handleClose,
-  isInfinite,
   duration,
   timestamp,
   color = 'primary',
@@ -58,9 +56,7 @@ const Snackbar = ({
         </button>
       </div>
       <p className="py-5 px-8">{message}</p>
-      {open && !isInfinite && (
-        <div ref={progressRef} className="line-loader h-1" />
-      )}
+      {open && <div ref={progressRef} className="line-loader h-1" />}
     </div>
   );
 };

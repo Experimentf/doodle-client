@@ -152,7 +152,6 @@ const GameLayout = () => {
         openSnackbar({
           message: e.message,
           color: 'error',
-          isInfinite: true,
         });
       }
       returnToHomePage();
@@ -234,7 +233,7 @@ const GameLayout = () => {
         <Link to="/" replace>
           <AnimatedBrand className="w-32 lg:w-48" />
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           {isPrivate && (
             <IconButton
               variant="primary"
