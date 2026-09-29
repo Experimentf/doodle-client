@@ -54,16 +54,12 @@ export class Drawing implements DrawingInterface {
 
       switch (actionType) {
         case CanvasAction.LINE:
-          if (points?.length === 2 && color && size) {
-            const [from, to] = points;
-            this._line(from, to, color, size);
-          }
+          if (points?.length && color && size)
+            this._polyline(points, color, size);
           break;
         case CanvasAction.ERASE:
-          if (points?.length === 2 && size) {
-            const [from, to] = points;
-            this._erase(from, to, size);
-          }
+          if (points?.length && size)
+            this._polyline(points, DARK_BOARD_GREEN_HEX, size);
           break;
         case CanvasAction.FILL:
           if (points?.length === 1 && color) {
@@ -114,6 +110,13 @@ export class Drawing implements DrawingInterface {
   ) => size * this._maxWidth;
 
   // PRIVATE METHODS
+  // One point draws a dot; more draw connected segments (batched strokes).
+  private _polyline = (points: Coordinate[], color: string, size: number) => {
+    if (points.length === 1) this._line(points[0], points[0], color, size);
+    for (let i = 1; i < points.length; i++)
+      this._line(points[i - 1], points[i], color, size);
+  };
+
   private _line = (
     from: Coordinate,
     to: Coordinate,
@@ -134,9 +137,11 @@ export class Drawing implements DrawingInterface {
     const sx = x1 < x2 ? 1 : -1;
     const sy = y1 < y2 ? 1 : -1;
     let err = dx - dy;
-    while (x1 != x2 || y1 != y2) {
-      ctx.fillStyle = color;
+    ctx.fillStyle = color;
+    // Includes the end pixel, so from === to still draws a dot
+    for (;;) {
       ctx.fillRect(x1, y1, size, size);
+      if (x1 === x2 && y1 === y2) break;
       const err2 = err * 2;
       if (err2 > -dy) {
         err -= dy;
@@ -147,10 +152,6 @@ export class Drawing implements DrawingInterface {
         y1 += sy;
       }
     }
-  };
-
-  private _erase = (from: Coordinate, to: Coordinate, size: number) => {
-    this._line(from, to, DARK_BOARD_GREEN_HEX, size);
   };
 
   private _fill = async (point: Coordinate, color: string): Promise<void> => {
