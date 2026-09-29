@@ -28,6 +28,7 @@ import DoodlerList from './components/DoodlerList';
 import HunchFeed from './components/HunchFeed';
 import HunchInput from './components/HunchInput';
 import HunchList from './components/HunchList';
+import HunchProgress from './components/HunchProgress';
 import PlayerPanel from './components/PlayerPanel';
 import Main from './Main';
 import ChooseWord from './Status/ChooseWord';
@@ -291,7 +292,15 @@ const GameLayout = () => {
               }`}
               feed={<HunchFeed className="flex-1" />}
               hunchInput={<HunchInput showCaption={false} />}
-              players={<PlayerPanel dense={isShortLandscape} />}
+              players={
+                <div className="min-h-0 flex flex-col gap-2">
+                  <PlayerPanel
+                    dense={isShortLandscape}
+                    className={isShortLandscape ? '' : 'flex-1'}
+                  />
+                  <HunchProgress />
+                </div>
+              }
             />
           </CanvasProvider>
           {showInvite && inviteBubble}

@@ -13,16 +13,18 @@
     "you": "You",
     "points": "pts",
     "labels": {
-      "rank": "Rank",
       "points": "Points",
-      "drawing": "Drawing",
-      "guessed": "Guessed"
+      "drawing": "Drawing"
     },
     "status": {
       "drawing": "Drawing",
-      "guessed": "Guessed",
-      "guessing": "Guessing"
-    }
+      "hunched": "Hunched",
+      "hunching": "Hunching"
+    },
+    "rankTitle": "Rank"
+  },
+  "hunchProgress": {
+    "suffix": "hunched the word"
   },
   "hunchList": {
     "input": {

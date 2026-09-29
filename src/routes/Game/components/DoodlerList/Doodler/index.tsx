@@ -5,6 +5,7 @@ import Text from '@/components/Text';
 import texts from '@/constants/texts';
 import { useUser } from '@/contexts/user';
 import { DoodlerInterface } from '@/types/models/doodler';
+import { CROWN_COLORS } from '@/utils/rank';
 
 interface DoodlerProps {
   doodler: DoodlerInterface;
@@ -12,8 +13,6 @@ interface DoodlerProps {
   isDrawing: boolean;
   crownRank?: number;
 }
-
-const CROWN_COLORS = ['#f7e99e', '#c0c0c0', '#cd7f32']; // gold, silver, bronze
 
 const Doodler = ({ doodler, isDrawing, crownRank }: DoodlerProps) => {
   const { user } = useUser();

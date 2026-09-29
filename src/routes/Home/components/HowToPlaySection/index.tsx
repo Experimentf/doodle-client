@@ -7,18 +7,18 @@ const steps = [
     icon: <FaPencil />,
     title: 'Doodle',
     description:
-      "When it's your turn, sketch the secret word for others to guess.",
+      "When it's your turn, sketch the secret word for others to hunch.",
   },
   {
     icon: <FaComments />,
     title: 'Hunch',
     description:
-      'Type your hunches in the chat to guess what others are drawing.',
+      'Type your hunches in the chat to crack what others are drawing.',
   },
   {
     icon: <FaTrophy />,
     title: 'Score',
-    description: 'Earn points for correct guesses and fast, clever drawing.',
+    description: 'Earn points for correct hunches and fast, clever drawing.',
   },
 ];
 

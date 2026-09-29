@@ -51,7 +51,7 @@ const HunchProvider = ({ children }: PropsWithChildren) => {
     const { guesserId } = hunchResponse;
     if (hunchResponse.status === HunchStatus.CORRECT && guesserId)
       setHunchedIds((prev) => new Set(prev).add(guesserId));
-    // Only a genuine correct guess gets the celebratory sound - other
+    // Only a genuine correct hunch gets the celebratory sound - other
     // system messages (e.g. "not enough players") stay silent instead of
     // playing a mismatched success cue.
     if (hunchResponse.status === HunchStatus.CORRECT) playCorrectGuessSound();

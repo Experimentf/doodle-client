@@ -2,23 +2,12 @@ import { Fragment, HTMLAttributes } from 'react';
 
 import texts from '@/constants/texts';
 import { useRoom } from '@/contexts/room';
+import { getCrownRank } from '@/utils/rank';
 
 import Doodler from './Doodler';
 
 const DoodlerList = (props: HTMLAttributes<HTMLDivElement>) => {
   const { room } = useRoom();
-
-  // Dense rank by distinct score - ties share a medal, and no one gets a
-  // crown before anyone's actually scored.
-  const topScores = [...new Set(room.doodlers.map(({ score }) => score))]
-    .filter((score) => score > 0)
-    .sort((a, b) => b - a)
-    .slice(0, 3);
-
-  const getCrownRank = (score: number) => {
-    const rank = topScores.indexOf(score);
-    return rank === -1 ? undefined : rank;
-  };
 
   return (
     <div {...props}>
@@ -35,7 +24,7 @@ const DoodlerList = (props: HTMLAttributes<HTMLDivElement>) => {
                 doodler={doodler}
                 position={index}
                 isDrawing={room.drawerId === doodler.id}
-                crownRank={getCrownRank(doodler.score)}
+                crownRank={getCrownRank(room.doodlers, doodler.score)}
               />
               {index !== room.doodlers.length - 1 && (
                 <hr className="mx-4 text-dark-chalk-white lg:mt-2" />
