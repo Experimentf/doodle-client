@@ -49,7 +49,9 @@ const DoodlerList = ({ flat = false, ...props }: DoodlerListProps) => {
                 isDrawing={room.drawerId === doodler.id}
                 crownRank={getCrownRank(room.doodlers, doodler.score)}
                 hunched={hunchedIds.has(doodler.id)}
-                highlighted={highlight?.id === doodler.id}
+                highlightNonce={
+                  highlight?.id === doodler.id ? highlight.nonce : undefined
+                }
               />
               {index !== room.doodlers.length - 1 && (
                 <hr className="mx-4 text-dark-chalk-white lg:mt-2" />

@@ -32,7 +32,8 @@ interface HunchContextInterface {
   highlightDoodler: (id: string) => void;
 }
 
-const HIGHLIGHT_MS = 2500;
+// Long enough for the row's two bursts (.animate-flash-twice, 0.8s).
+const HIGHLIGHT_MS = 1000;
 
 const HunchContext = createContext<HunchContextInterface>({
   hunches: [],

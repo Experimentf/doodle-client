@@ -53,6 +53,18 @@
   }
 }
 
+@keyframes flash-twice {
+  0%,
+  50%,
+  100% {
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+}
+
 .animate-chalk-breathe {
   animation: chalk-breathe ease-in-out infinite;
 }
@@ -64,6 +76,11 @@
 .animate-alarm-wiggle {
   animation: alarm-wiggle 1s ease-in-out infinite;
   transform-origin: 50% 85%;
+}
+
+/* Two quick bursts, then gone (e.g. pointing at a doodler from a hunch). */
+.animate-flash-twice {
+  animation: flash-twice 0.8s ease-in-out both;
 }
 
 .animate-mouth-talk {

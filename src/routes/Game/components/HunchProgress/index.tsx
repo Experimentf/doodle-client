@@ -15,8 +15,8 @@ const NEUTRAL_COLOR = '#c2c2c2'; // chalk-white
 const URGENCY = {
   // Half the other hunchers are in and you aren't: a slow orange fade for a nudge.
   warning: { color: '#ffa94d', duration: 1.6, threshold: 0.5 },
-  // Most are in: a fast chalk-pink fade to get real attention.
-  critical: { color: '#ff5e5e', duration: 0.6, threshold: 0.8 },
+  // Three quarters are in: a fast chalk-pink fade to get real attention.
+  critical: { color: '#ff5e5e', duration: 0.6, threshold: 0.75 },
 };
 
 interface HunchProgressProps {

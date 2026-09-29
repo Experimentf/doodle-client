@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaCrown, FaPencil, FaUsers, FaXmark } from 'react-icons/fa6';
 
 import texts from '@/constants/texts';
@@ -25,7 +25,7 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const { room } = useRoom();
   const { user } = useUser();
   const { game } = useGame();
-  const { hunchedIds, highlight } = useHunches();
+  const { hunchedIds, highlight, highlightDoodler } = useHunches();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const isLandscape = useMediaQuery('(orientation: landscape)');
   const { doodlers: t } = texts.game;
@@ -37,9 +37,13 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const rank = me ? getDenseRank(room.doodlers, me.score) : undefined;
   const crownRank = me ? getCrownRank(room.doodlers, me.score) : undefined;
 
-  // A sender name clicked in the hunch feed: show them in the full list.
+  // A name clicked (hunch feed or drawer): show them in the full list. Only new requests - a panel
+  // remounted by a layout switch (e.g. rotation) mustn't reopen the sheet for one it already handled.
+  const handledNonceRef = useRef(highlight?.nonce);
   useEffect(() => {
-    if (highlight) setIsSheetOpen(true);
+    if (!highlight || highlight.nonce === handledNonceRef.current) return;
+    handledNonceRef.current = highlight.nonce;
+    setIsSheetOpen(true);
   }, [highlight?.nonce]);
 
   useEffect(() => {
@@ -109,9 +113,18 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const drawingValue = (
     <span className="flex items-center justify-end gap-1 min-w-0 text-chalk-white">
       <FaPencil className="shrink-0 text-chalk-yellow" />
-      <span className="truncate">
-        {isMeDrawing ? t.you : drawer?.name ?? '-'}
-      </span>
+      {drawer && !isMeDrawing ? (
+        // Same as hunch sender names: point at this exact doodler in the full list.
+        <button
+          type="button"
+          onClick={() => highlightDoodler(drawer.id)}
+          className="truncate hover:underline focus-visible:underline outline-none"
+        >
+          {drawer.name}
+        </button>
+      ) : (
+        <span className="truncate">{isMeDrawing ? t.you : '-'}</span>
+      )}
     </span>
   );
 
