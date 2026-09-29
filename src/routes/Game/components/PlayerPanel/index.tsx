@@ -52,61 +52,74 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isSheetOpen]);
 
+  const hasHunched = hunchedIds.has(user.id);
+  // Own status as a label rather than icons that come and go, so the panel never changes shape.
+  const status = !isTurn
+    ? undefined
+    : isMeDrawing
+    ? {
+        text: t.status.drawing,
+        className: 'bg-chalk-yellow text-dark-board-green',
+      }
+    : hasHunched
+    ? {
+        text: t.status.guessed,
+        className: 'bg-chalk-green text-dark-board-green',
+      }
+    : {
+        text: t.status.guessing,
+        className: 'bg-dark-board-green text-chalk-white',
+      };
+
   const you = (
-    <span className="flex items-center gap-1 text-light-chalk-blue">
-      {t.you}
-      {isMeDrawing && (
-        <FaPencil
-          className="text-chalk-yellow"
-          title={t.youAreDrawing}
-          aria-label={t.youAreDrawing}
-        />
-      )}
-      {hunchedIds.has(user.id) && (
-        <FaCheck
-          className="text-chalk-green"
-          title={t.youGuessed}
-          aria-label={t.youGuessed}
-        />
-      )}
-    </span>
-  );
-  const standing = (
-    <>
-      {rank !== undefined && (
-        <span className="text-chalk-white whitespace-nowrap">
-          #{rank}
-          <span className="text-light-chalk-white">
-            /{room.doodlers.length}
-          </span>
+    <span className="flex items-center gap-1.5 min-w-0">
+      <span className="text-light-chalk-blue">{t.you}</span>
+      {status && (
+        <span
+          className={`px-1.5 rounded-full text-[0.65rem] leading-4 whitespace-nowrap ${status.className}`}
+        >
+          {status.text}
         </span>
       )}
-      <span className="text-chalk-yellow whitespace-nowrap">
-        {me?.score ?? 0} {t.points}
-      </span>
-    </>
+    </span>
   );
-  const drawerInfo = drawer && !isMeDrawing && (
-    <span className="flex items-center gap-1 min-w-0 text-light-chalk-white">
+  const rankValue = (
+    <span className="text-chalk-white whitespace-nowrap">
+      #{rank ?? '-'}
+      <span className="text-light-chalk-white">/{room.doodlers.length}</span>
+    </span>
+  );
+  const pointsValue = (
+    <span className="text-chalk-yellow whitespace-nowrap">
+      {me?.score ?? 0}
+    </span>
+  );
+  const drawingValue = (
+    <span className="flex items-center justify-end gap-1 min-w-0 text-chalk-white">
       <FaPencil className="shrink-0 text-chalk-yellow" />
-      <span className="truncate">{drawer.name}</span>
+      <span className="truncate">
+        {isMeDrawing ? t.you : drawer?.name ?? '-'}
+      </span>
     </span>
   );
-  const guessedInfo = isTurn && (
-    <span className="flex items-center gap-1 whitespace-nowrap text-chalk-green">
+  const guessedValue = (
+    <span className="flex items-center justify-end gap-1 whitespace-nowrap text-chalk-green">
       <FaCheck className="shrink-0" />
-      {guessedCount}/{guessers} {t.guessed}
+      {isTurn ? `${guessedCount}/${guessers}` : '-'}
     </span>
   );
+
+  // Icon + count so it fits next to "You" even in the narrow phone card.
   const showAll = (
     <button
       type="button"
       onClick={() => setIsSheetOpen(true)}
       aria-label={`${t.showAll} (${room.doodlers.length})`}
-      className="shrink-0 flex items-center justify-center gap-1 px-2 py-1 rounded-full bg-white text-dark-board-green"
+      title={`${t.showAll} (${room.doodlers.length})`}
+      className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white text-dark-board-green"
     >
       <FaUsers />
-      {dense ? room.doodlers.length : `${t.showAll} (${room.doodlers.length})`}
+      {room.doodlers.length}
     </button>
   );
 
@@ -121,27 +134,38 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
           <div className="flex-1 min-w-0 flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
               {you}
-              {standing}
+              {rankValue}
+              <span className="whitespace-nowrap">
+                {pointsValue}{' '}
+                <span className="text-light-chalk-white">{t.points}</span>
+              </span>
             </div>
-            <div className="flex items-center gap-2 min-w-0">
-              {drawerInfo}
-              {guessedInfo}
+            <div className="flex items-center gap-3 min-w-0">
+              {drawingValue}
+              {guessedValue}
             </div>
           </div>
           {showAll}
         </div>
       ) : (
+        // Fills its column (grid stretch); every row is always present so roles don't reflow it.
         <div
-          // self-start: a grid item would otherwise stretch to the full row height.
-          className={`self-start flex flex-col gap-1.5 p-2 bg-card-surface-2 rounded-lg text-xs overflow-hidden ${className}`}
+          className={`h-full min-h-0 flex flex-col gap-2 p-2 bg-card-surface-2 rounded-lg text-xs overflow-y-auto ${className}`}
         >
           <div className="flex items-center justify-between gap-2">
             {you}
-            {standing}
+            {showAll}
           </div>
-          {drawerInfo}
-          {guessedInfo}
-          <div className="pt-1">{showAll}</div>
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5">
+            <dt className="text-light-chalk-white">{t.labels.rank}</dt>
+            <dd className="text-right">{rankValue}</dd>
+            <dt className="text-light-chalk-white">{t.labels.points}</dt>
+            <dd className="text-right">{pointsValue}</dd>
+            <dt className="text-light-chalk-white">{t.labels.drawing}</dt>
+            <dd className="min-w-0">{drawingValue}</dd>
+            <dt className="text-light-chalk-white">{t.labels.guessed}</dt>
+            <dd>{guessedValue}</dd>
+          </dl>
         </div>
       )}
       <AnimatePresence>

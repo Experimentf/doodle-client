@@ -11,11 +11,18 @@
     "userMarker": "(You)",
     "showAll": "Show all",
     "you": "You",
-    "youAreDrawing": "You're drawing",
-    "isDrawing": " is drawing",
     "points": "pts",
-    "guessed": "guessed",
-    "youGuessed": "You hunched it!"
+    "labels": {
+      "rank": "Rank",
+      "points": "Points",
+      "drawing": "Drawing",
+      "guessed": "Guessed"
+    },
+    "status": {
+      "drawing": "Drawing",
+      "guessed": "Guessed",
+      "guessing": "Guessing"
+    }
   },
   "hunchList": {
     "input": {

@@ -248,11 +248,12 @@ const Main = ({
         </div>
       </>
     );
+    // Dark translucent section so the hunches read as their own area; the fade only masks the messages.
     const hunchColumn = (
-      <>
+      <div className="flex-1 min-h-0 flex flex-col gap-2 p-2 rounded-lg bg-black/30">
         {feed}
         {hunchInput}
-      </>
+      </div>
     );
 
     if (side) {
@@ -284,7 +285,7 @@ const Main = ({
             style={{ minHeight: BOTTOM_ROW_MIN }}
           >
             {players}
-            <div className="min-h-0 flex flex-col gap-2">{hunchColumn}</div>
+            {hunchColumn}
           </div>
         </div>
       </div>

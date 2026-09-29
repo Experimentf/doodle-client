@@ -130,7 +130,8 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     <canvas
       ref={canvasRef}
       style={{ cursor }}
-      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video touch-none ${
+      // ring, not border: it doesn't change the element box, which pointer coordinates are scaled against.
+      className={`bg-dark-board-green rounded-xl ring-1 ring-chalk-white/20 w-full h-full aspect-video touch-none ${
         status === GameStatus.GAME
           ? 'pointer-events-auto'
           : 'pointer-events-none'
