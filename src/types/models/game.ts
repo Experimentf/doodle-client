@@ -44,4 +44,6 @@ export interface GameInterface {
   status: GameStatus;
   options: GameOptions;
   canvasOperations: Array<CanvasOperation>;
+  // Ms left in the current phase when the server sent this snapshot
+  timeLeft?: number;
 }
