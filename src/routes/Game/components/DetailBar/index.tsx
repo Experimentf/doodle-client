@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GiAlarmClock } from 'react-icons/gi';
 
 import Text from '@/components/Text';
@@ -7,55 +7,56 @@ import { useRoom } from '@/contexts/room';
 import { useUser } from '@/contexts/user';
 import { GameOptions, GameStatus } from '@/types/models/game';
 
+const TICK_MS = 250;
+
+const timerKeys: Partial<Record<GameStatus, keyof GameOptions['timers']>> = {
+  [GameStatus.GAME]: 'drawing',
+  [GameStatus.TURN_END]: 'turnEndCooldownTime',
+  [GameStatus.CHOOSE_WORD]: 'chooseWordTime',
+  [GameStatus.ROUND_START]: 'roundStartCooldownTime',
+  [GameStatus.RESULT]: 'resultCooldownTime',
+};
+
 const DetailBar = () => {
   const { game } = useGame();
   const { room } = useRoom();
   const { user } = useUser();
-  const [key, setKey] = useState<keyof GameOptions['timers']>();
-  const [currentTime, setCurrentTime] = useState(0);
-  const timerRef = useRef<NodeJS.Timer | null>(null);
+  // performance.now() based; derived from the server's timeLeft rather than counted down tick by tick,
+  // because background tabs throttle timers and missed ticks would never be subtracted.
+  const [deadline, setDeadline] = useState<number>();
+  const [now, setNow] = useState(() => performance.now());
   const shouldDisplay =
     game.status === GameStatus.GAME ||
     (game.status === GameStatus.CHOOSE_WORD && user.id === room.drawerId);
 
+  // Every game object is a fresh server snapshot, so re-anchor on each one.
   useEffect(() => {
-    if (game.status === GameStatus.GAME) {
-      setKey('drawing');
-    } else if (game.status === GameStatus.TURN_END) {
-      setKey('turnEndCooldownTime');
-    } else if (game.status === GameStatus.CHOOSE_WORD) {
-      setKey('chooseWordTime');
-    } else if (game.status === GameStatus.ROUND_START) {
-      setKey('roundStartCooldownTime');
-    } else if (game.status === GameStatus.RESULT) {
-      setKey('resultCooldownTime');
-    } else setKey(undefined);
-  }, [game.status]);
-
-  const startTimer = (key: keyof GameOptions['timers']) => {
-    setCurrentTime(game.options.timers[key].max);
-    timerRef.current = setInterval(() => {
-      setCurrentTime((prev) => prev - 1);
-    }, 1000);
-  };
-
-  const resetTimer = () => {
-    setCurrentTime(0);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = null;
-  };
-
-  useEffect(() => {
-    resetTimer();
-    let t: NodeJS.Timeout | undefined = undefined;
-    if (key) {
-      startTimer(key);
-      t = setTimeout(resetTimer, game.options.timers[key].max * 1000);
+    const key = timerKeys[game.status];
+    if (!key) {
+      setDeadline(undefined);
+      return;
     }
+    const timeLeft = game.timeLeft ?? game.options.timers[key].max * 1000;
+    setDeadline(performance.now() + timeLeft);
+  }, [game]);
+
+  useEffect(() => {
+    if (deadline === undefined) return;
+    const tick = () => setNow(performance.now());
+    tick();
+    const interval = setInterval(tick, TICK_MS);
+    // Correct immediately when a throttled background tab becomes visible again.
+    document.addEventListener('visibilitychange', tick);
     return () => {
-      clearTimeout(t);
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', tick);
     };
-  }, [key]);
+  }, [deadline]);
+
+  const currentTime =
+    deadline === undefined
+      ? 0
+      : Math.max(0, Math.ceil((deadline - now) / 1000));
 
   return (
     <div className="w-full text-xs lg:text-base">
