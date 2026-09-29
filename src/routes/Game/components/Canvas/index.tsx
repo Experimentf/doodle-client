@@ -45,7 +45,7 @@ interface CanvasProps {
 }
 
 const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
-  const { ref: canvasRef, drawing } = useCanvas();
+  const { ref: canvasRef, drawing, handledStatusRef } = useCanvas();
   const {
     game: { canvasOperations, status },
   } = useGame();
@@ -79,7 +79,10 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
 
     // Drawing Handlinga
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
-    if (isMountedRef.current) await drawing?.reloadOperations();
+    // A Canvas remounted by a layout switch reuses the provider's history (which has the live
+    // strokes); only a first mount starts from the game snapshot.
+    if (isMountedRef.current || drawing?.hasOperations)
+      await drawing?.reloadOperations();
     else await drawing?.loadOperations(canvasOperations, false);
     isMountedRef.current = true;
   };
@@ -107,7 +110,10 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     };
   }, []);
 
+  // Only on a real status change: a remount (layout switch) must not wipe the board or replay the sound.
   useEffect(() => {
+    if (handledStatusRef.current === status) return;
+    handledStatusRef.current = status;
     playGameStatusSound(status);
     drawing?.reset();
   }, [status]);

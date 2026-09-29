@@ -24,7 +24,6 @@ import { ServerToClientEvents } from '@/types/socket';
 import { getCanvasPixelRatio } from '@/utils/canvas';
 
 import Canvas from '../components/Canvas';
-import { OptionConfig } from '../components/Canvas/useCanvasActions';
 import ColorPicker from '../components/ColorPicker';
 import EditOption from '../components/Option';
 import { OptionKey, options } from '../components/Option/utils';
@@ -68,12 +67,6 @@ const Main = ({
   players,
   ...props
 }: MainProps) => {
-  const [optionConfig, setOptionConfig] = useState<OptionConfig>({
-    color: '#ffffff',
-    type: OptionKey.PENCIL,
-    brushSize: 5,
-  });
-
   const { registerEvent, unregisterEvent, asyncEmitEvent } = useSocket();
   const {
     room: { drawerId, id: roomId },
@@ -81,7 +74,7 @@ const Main = ({
   const {
     user: { id },
   } = useUser();
-  const { drawing } = useCanvas();
+  const { drawing, optionConfig, setOptionConfig } = useCanvas();
   const isDrawing = id === drawerId;
 
   // The toolbar wraps on narrow screens, so its height is measured to size the canvas above it.

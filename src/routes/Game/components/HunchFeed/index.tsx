@@ -10,6 +10,8 @@ import HunchMessage from '../HunchMessage';
 const FADE_MASK =
   'linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.45) 45%, #000 calc(100% - 1.75rem))';
 const AT_BOTTOM_THRESHOLD_PX = 24;
+// Safety net in case a smooth scroll never reaches the bottom (e.g. content changed mid-way).
+const AUTO_SCROLL_TIMEOUT_MS = 1000;
 
 interface HunchFeedProps {
   className?: string;
@@ -22,23 +24,46 @@ const HunchFeed = ({ className = '' }: HunchFeedProps) => {
   const isAtBottomRef = useRef(true);
   const seenCountRef = useRef(hunches.length);
   const [unreadCount, setUnreadCount] = useState(0);
+  // Set while our own smooth scroll runs: its intermediate scroll events aren't the reader leaving the bottom.
+  const isAutoScrollingRef = useRef(false);
+  const autoScrollTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const endAutoScroll = () => {
+    isAutoScrollingRef.current = false;
+    clearTimeout(autoScrollTimerRef.current);
+  };
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior });
     isAtBottomRef.current = true;
     setUnreadCount(0);
+    if (behavior === 'smooth') {
+      isAutoScrollingRef.current = true;
+      clearTimeout(autoScrollTimerRef.current);
+      autoScrollTimerRef.current = setTimeout(
+        endAutoScroll,
+        AUTO_SCROLL_TIMEOUT_MS
+      );
+    }
+    el.scrollTo({ top: el.scrollHeight, behavior });
   };
 
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
-    isAtBottomRef.current =
+    const isAtBottom =
       el.scrollHeight - el.scrollTop - el.clientHeight <=
       AT_BOTTOM_THRESHOLD_PX;
-    if (isAtBottomRef.current) setUnreadCount(0);
+    if (isAutoScrollingRef.current) {
+      if (isAtBottom) endAutoScroll();
+      return;
+    }
+    isAtBottomRef.current = isAtBottom;
+    if (isAtBottom) setUnreadCount(0);
   };
+
+  useEffect(() => () => clearTimeout(autoScrollTimerRef.current), []);
 
   useLayoutEffect(() => scrollToBottom('auto'), []);
 
@@ -67,6 +92,10 @@ const HunchFeed = ({ className = '' }: HunchFeedProps) => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
+        // The reader taking over mid-animation cancels our auto scroll; judge their scrolls normally.
+        onWheel={endAutoScroll}
+        onTouchStart={endAutoScroll}
+        onPointerDown={endAutoScroll}
         className="h-full overflow-y-auto overflow-x-hidden"
         style={{ maskImage: FADE_MASK, WebkitMaskImage: FADE_MASK }}
       >

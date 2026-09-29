@@ -80,6 +80,10 @@ export class Drawing implements DrawingInterface {
     executeOperation();
   };
 
+  public get hasOperations() {
+    return this._operations.length > 0;
+  }
+
   public reloadOperations: DrawingInterface['reloadOperations'] = async () => {
     await this.loadOperations(this._operations, false, false);
   };
