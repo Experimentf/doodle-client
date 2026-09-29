@@ -3,26 +3,13 @@ import { FaArrowDown } from 'react-icons/fa6';
 
 import texts from '@/constants/texts';
 import { useHunches } from '@/contexts/hunch';
-import { useRoom } from '@/contexts/room';
-import { HunchInterface, HunchStatus } from '@/types/models/hunch';
-import { getDoodlerById } from '@/utils/game';
+
+import HunchMessage from '../HunchMessage';
 
 // Fully transparent at the top, fully opaque only for the bottom-most line.
 const FADE_MASK =
   'linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.45) 45%, #000 calc(100% - 1.75rem))';
 const AT_BOTTOM_THRESHOLD_PX = 24;
-
-const statusClass = (hunch: HunchInterface) => {
-  if (hunch.isSystemMessage) return 'text-light-chalk-green text-center';
-  switch (hunch.status) {
-    case HunchStatus.CORRECT:
-      return 'text-chalk-green font-bold';
-    case HunchStatus.NEARBY:
-      return 'text-chalk-yellow';
-    default:
-      return 'text-chalk-white';
-  }
-};
 
 interface HunchFeedProps {
   className?: string;
@@ -31,7 +18,6 @@ interface HunchFeedProps {
 // Compact-layout hunch list: sits below the canvas (never over it) and fades older messages out.
 const HunchFeed = ({ className = '' }: HunchFeedProps) => {
   const { hunches } = useHunches();
-  const { room } = useRoom();
   const scrollRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef(true);
   const seenCountRef = useRef(hunches.length);
@@ -85,26 +71,9 @@ const HunchFeed = ({ className = '' }: HunchFeedProps) => {
         style={{ maskImage: FADE_MASK, WebkitMaskImage: FADE_MASK }}
       >
         <ul className="min-h-full flex flex-col justify-end gap-0.5 px-1">
-          {hunches.map((hunch, index) => {
-            const sender = hunch.isSystemMessage
-              ? undefined
-              : getDoodlerById(room.doodlers, hunch.senderId);
-            return (
-              <li
-                key={index}
-                className={`text-xs whitespace-pre-wrap break-words ${statusClass(
-                  hunch
-                )}`}
-              >
-                {!hunch.isSystemMessage && (
-                  <span className="text-light-chalk-white mr-1">
-                    {sender?.name ?? '???'}:
-                  </span>
-                )}
-                {hunch.message}
-              </li>
-            );
-          })}
+          {hunches.map((hunch, index) => (
+            <HunchMessage key={index} hunch={hunch} className="text-xs" />
+          ))}
         </ul>
       </div>
       {unreadCount > 0 && (

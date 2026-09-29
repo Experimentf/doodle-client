@@ -4,7 +4,7 @@ import texts from '@/constants/texts';
 import { useHunches } from '@/contexts/hunch';
 
 import HunchInput from '../HunchInput';
-import Hunch from './Hunch';
+import HunchMessage from '../HunchMessage';
 
 const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
   const { hunches } = useHunches();
@@ -29,14 +29,10 @@ const HunchList = (props: HTMLAttributes<HTMLDivElement>) => {
           className="my-2 flex-1 overflow-y-scroll overflow-x-hidden bg-scroll min-h-0"
         >
           {hunches.map((hunch, index) => (
-            <Hunch
-              hunch={hunch}
+            <HunchMessage
               key={index}
-              className={`flex flex-row items-start my-1 rounded-lg whitespace-pre-wrap break-all hyphens-none ${
-                hunch.isSystemMessage
-                  ? 'justify-center [&>p]:text-light-chalk-green px-2'
-                  : 'justify-start'
-              }`}
+              hunch={hunch}
+              className="my-1 text-xs lg:text-sm"
             />
           ))}
         </ul>

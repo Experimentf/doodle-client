@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { FaCheck, FaPencil, FaUsers, FaXmark } from 'react-icons/fa6';
 
 import texts from '@/constants/texts';
@@ -53,6 +53,20 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   }, [isSheetOpen]);
 
   const hasHunched = hunchedIds.has(user.id);
+  // Pressure for a guesser who hasn't hunched while others already have.
+  const isBehind = isTurn && !isMeDrawing && !hasHunched && guessedCount > 0;
+
+  // Pop only when someone new hunches - not on the reset to 0 at turn start or on first render.
+  const guessedControls = useAnimationControls();
+  const prevGuessedRef = useRef(guessedCount);
+  useEffect(() => {
+    if (guessedCount > prevGuessedRef.current)
+      guessedControls.start({
+        scale: [1, 1.4, 1],
+        transition: { duration: 0.45, ease: 'easeOut' },
+      });
+    prevGuessedRef.current = guessedCount;
+  }, [guessedCount]);
   // Own status as a label rather than icons that come and go, so the panel never changes shape.
   const status = !isTurn
     ? undefined
@@ -103,10 +117,32 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
     </span>
   );
   const guessedValue = (
-    <span className="flex items-center justify-end gap-1 whitespace-nowrap text-chalk-green">
+    <motion.span
+      animate={guessedControls}
+      className={`flex items-center justify-end gap-1 whitespace-nowrap origin-right transition-colors ${
+        isBehind ? 'text-chalk-pink font-bold' : 'text-chalk-green'
+      }`}
+    >
       <FaCheck className="shrink-0" />
       {isTurn ? `${guessedCount}/${guessers}` : '-'}
-    </span>
+    </motion.span>
+  );
+  // Always rendered (empty between turns) so it never shifts the layout.
+  const guessedBar = (
+    <div className="flex gap-0.5" aria-hidden="true">
+      {Array.from({ length: Math.max(guessers, 1) }, (_, i) => (
+        <span
+          key={i}
+          className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+            !isTurn || i >= guessedCount
+              ? 'bg-dark-board-green'
+              : isBehind
+              ? 'bg-chalk-pink'
+              : 'bg-chalk-green'
+          }`}
+        />
+      ))}
+    </div>
   );
 
   // Icon + count so it fits next to "You" even in the narrow phone card.
@@ -166,6 +202,7 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
             <dt className="text-light-chalk-white">{t.labels.guessed}</dt>
             <dd>{guessedValue}</dd>
           </dl>
+          {guessedBar}
         </div>
       )}
       <AnimatePresence>
