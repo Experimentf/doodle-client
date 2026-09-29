@@ -87,13 +87,13 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
         <span className="text-light-chalk-white">/{room.doodlers.length}</span>
       </span>
       <span className="text-light-chalk-blue">{t.you}</span>
-      {status && (
-        <span
-          className={`px-1.5 rounded-full text-[0.65rem] leading-4 whitespace-nowrap ${status.className}`}
-        >
-          {status.text}
-        </span>
-      )}
+    </span>
+  );
+  const statusChip = status && (
+    <span
+      className={`px-1.5 rounded-full text-[0.65rem] leading-4 whitespace-nowrap ${status.className}`}
+    >
+      {status.text}
     </span>
   );
   const pointsValue = (
@@ -135,6 +135,7 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
           <div className="flex-1 min-w-0 flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
               {title}
+              {statusChip}
               <span className="whitespace-nowrap">
                 {pointsValue}{' '}
                 <span className="text-light-chalk-white">{t.points}</span>
@@ -153,6 +154,9 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
             {title}
             {showAll}
           </div>
+          {/* Own line: the narrow phone card can't fit it beside the title. Always present (empty
+              between turns) so the card keeps its height. */}
+          <div className="h-4 flex items-center">{statusChip}</div>
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5">
             <dt className="text-light-chalk-white">{t.labels.points}</dt>
             <dd className="text-right">{pointsValue}</dd>

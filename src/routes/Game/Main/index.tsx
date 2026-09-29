@@ -156,7 +156,7 @@ const Main = ({
     <div
       className={`flex items-center ${
         compact
-          ? 'flex-none flex-wrap justify-center gap-x-4 gap-y-2'
+          ? 'flex-none flex-wrap justify-between gap-x-4 gap-y-2'
           : 'flex-auto justify-between mt-2 lg:mt-4 mx-2 lg:mx-4 gap-6'
       }`}
     >
@@ -199,7 +199,8 @@ const Main = ({
           onChange={(color) => setOptionConfig((prev) => ({ ...prev, color }))}
         />
       </div>
-      <div className="flex items-center gap-2">
+      {/* ml-auto keeps sizes at the right end even when the row wraps. */}
+      <div className="ml-auto flex items-center gap-2">
         {brushSizes.map(({ label, size }) => (
           <EditOption
             key={size}
@@ -233,21 +234,23 @@ const Main = ({
     // Toolbar sits directly under the canvas so drawers keep the two visually connected.
     // Shown to everyone, like on desktop, so the canvas doesn't resize whenever the drawer changes.
     const toolbarReserve = ` - ${toolbarHeight}px - ${GAP}`;
-    const canvasAndToolbar = (reserve: string) => (
-      <>
-        <div
-          className="relative shrink-0 mx-auto aspect-video"
-          style={{
-            width: `min(100cqw, calc((100cqh${reserve}${toolbarReserve}) * 16 / 9))`,
-          }}
-        >
-          {canvasContent}
-        </div>
-        <div ref={toolbarRef} className="shrink-0">
-          {toolbar}
-        </div>
-      </>
-    );
+    const canvasAndToolbar = (reserve: string) => {
+      const width = `min(100cqw, calc((100cqh${reserve}${toolbarReserve}) * 16 / 9))`;
+      return (
+        <>
+          <div
+            className="relative shrink-0 mx-auto aspect-video"
+            style={{ width }}
+          >
+            {canvasContent}
+          </div>
+          {/* Same width as the canvas so the tool groups line up with its left and right edges. */}
+          <div ref={toolbarRef} className="shrink-0 mx-auto" style={{ width }}>
+            {toolbar}
+          </div>
+        </>
+      );
+    };
     // Dark translucent section so the hunches read as their own area; the fade only masks the messages.
     const hunchColumn = (
       <div className="flex-1 min-h-0 flex flex-col gap-2 p-2 rounded-lg bg-black/30">
