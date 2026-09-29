@@ -5,7 +5,13 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { FaEraser, FaFillDrip, FaPencilAlt, FaTrash } from 'react-icons/fa';
+import {
+  FaEraser,
+  FaFillDrip,
+  FaPencilAlt,
+  FaShapes,
+  FaTrash,
+} from 'react-icons/fa';
 
 import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
@@ -21,11 +27,13 @@ import { OptionConfig } from '../components/Canvas/useCanvasActions';
 import ColorPicker from '../components/ColorPicker';
 import EditOption from '../components/Option';
 import { OptionKey, options } from '../components/Option/utils';
+import ShapePicker from '../components/ShapePicker';
 
 const icons: Record<OptionKey, ReactElement> = {
   [OptionKey.PENCIL]: <FaPencilAlt />,
   [OptionKey.ERASER]: <FaEraser />,
   [OptionKey.FILL]: <FaFillDrip />,
+  [OptionKey.SHAPE]: <FaShapes />,
   [OptionKey.CLEAR]: <FaTrash />,
 };
 
@@ -90,6 +98,7 @@ const Main = ({ component, ...props }: MainProps) => {
     [OptionKey.PENCIL]: () => {},
     [OptionKey.ERASER]: () => {},
     [OptionKey.FILL]: () => {},
+    [OptionKey.SHAPE]: () => {},
     [OptionKey.CLEAR]: handleClear,
   };
 
@@ -111,20 +120,39 @@ const Main = ({ component, ...props }: MainProps) => {
       </div>
       <div className="flex flex-auto justify-between items-center mt-2 lg:mt-4 mx-2 lg:mx-4 gap-6">
         <div className="flex flex-auto flex-grow-0 justify-center items-center gap-2">
-          {editOptions.map(({ isSelectable, handler, icon, key, disabled }) => (
-            <EditOption
-              key={key}
-              isSelected={key === optionConfig.type}
-              onClick={() => {
-                if (isSelectable)
-                  setOptionConfig((prev) => ({ ...prev, type: key }));
-                handler?.();
-              }}
-              disabled={disabled}
-              label={key}
-              icon={icon}
-            />
-          ))}
+          {editOptions.map(({ isSelectable, handler, icon, key, disabled }) =>
+            key === OptionKey.SHAPE ? (
+              <ShapePicker
+                key={key}
+                selectedShape={
+                  optionConfig.type === OptionKey.SHAPE
+                    ? optionConfig.shape
+                    : undefined
+                }
+                onSelect={(shape) =>
+                  setOptionConfig((prev) => ({
+                    ...prev,
+                    type: OptionKey.SHAPE,
+                    shape,
+                  }))
+                }
+                disabled={disabled}
+              />
+            ) : (
+              <EditOption
+                key={key}
+                isSelected={key === optionConfig.type}
+                onClick={() => {
+                  if (isSelectable)
+                    setOptionConfig((prev) => ({ ...prev, type: key }));
+                  handler?.();
+                }}
+                disabled={disabled}
+                label={key}
+                icon={icon}
+              />
+            )
+          )}
           <ColorPicker
             color={optionConfig.color}
             onChange={(color) =>
