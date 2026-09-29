@@ -45,7 +45,7 @@ interface CanvasProps {
 }
 
 const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
-  const { ref: canvasRef, drawing } = useCanvas();
+  const { ref: canvasRef, drawing, handledStatusRef } = useCanvas();
   const {
     game: { canvasOperations, status },
   } = useGame();
@@ -79,7 +79,10 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
 
     // Drawing Handlinga
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
-    if (isMountedRef.current) await drawing?.reloadOperations();
+    // A Canvas remounted by a layout switch reuses the provider's history (which has the live
+    // strokes); only a first mount starts from the game snapshot.
+    if (isMountedRef.current || drawing?.hasOperations)
+      await drawing?.reloadOperations();
     else await drawing?.loadOperations(canvasOperations, false);
     isMountedRef.current = true;
   };
@@ -94,7 +97,11 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     window.addEventListener('resize', scheduleCanvasResize);
     // The container resizes for the on-screen keyboard via the CSS `dvh` unit, which doesn't reliably fire a `resize` event on `window` (notably iOS Safari) - needs its own listener to stay in sync.
     window.visualViewport?.addEventListener('resize', scheduleCanvasResize);
+    // Layout-driven size changes (e.g. the compact layout's bottom row swapping) don't touch the window at all.
+    const resizeObserver = new ResizeObserver(scheduleCanvasResize);
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', scheduleCanvasResize);
       window.visualViewport?.removeEventListener(
         'resize',
@@ -103,7 +110,10 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     };
   }, []);
 
+  // Only on a real status change: a remount (layout switch) must not wipe the board or replay the sound.
   useEffect(() => {
+    if (handledStatusRef.current === status) return;
+    handledStatusRef.current = status;
     playGameStatusSound(status);
     drawing?.reset();
   }, [status]);
@@ -126,7 +136,8 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     <canvas
       ref={canvasRef}
       style={{ cursor }}
-      className={`bg-dark-board-green rounded-xl w-full h-full aspect-video touch-none ${
+      // ring, not border: it doesn't change the element box, which pointer coordinates are scaled against.
+      className={`bg-dark-board-green rounded-xl ring-1 ring-chalk-white/20 w-full h-full aspect-video touch-none ${
         status === GameStatus.GAME
           ? 'pointer-events-auto'
           : 'pointer-events-none'

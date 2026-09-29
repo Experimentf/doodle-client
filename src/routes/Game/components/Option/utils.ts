@@ -37,6 +37,12 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
     isSelectable: true,
     disabled: false,
   },
+  // Shapes draw strokes, so they sit with the pencil rather than eraser/fill/clear.
+  {
+    key: OptionKey.SHAPE,
+    isSelectable: true,
+    disabled: false,
+  },
   {
     key: OptionKey.ERASER,
     isSelectable: true,
@@ -44,11 +50,6 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   },
   {
     key: OptionKey.FILL,
-    isSelectable: true,
-    disabled: false,
-  },
-  {
-    key: OptionKey.SHAPE,
     isSelectable: true,
     disabled: false,
   },

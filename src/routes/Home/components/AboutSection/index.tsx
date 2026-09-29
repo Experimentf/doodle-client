@@ -6,10 +6,10 @@ const AboutSection = () => (
       About Doodle
     </Text>
     <Text className="text-xs text-light-chalk-white">
-      Doodle is a real-time multiplayer drawing and guessing game. Take turns
-      sketching a secret word while everyone else races to guess it in chat.
-      Jump into a public match instantly, or create a private room and share the
-      link to play with friends.
+      Doodle is a real-time multiplayer drawing game. Take turns sketching a
+      secret word while everyone else races to hunch it in chat. Jump into a
+      public match instantly, or create a private room and share the link to
+      play with friends.
     </Text>
   </div>
 );

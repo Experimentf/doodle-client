@@ -11,10 +11,12 @@ import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
 import texts from '@/constants/texts';
 import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
+import HunchProvider from '@/contexts/hunch';
 import { useRoom } from '@/contexts/room';
 import { useSnackbar } from '@/contexts/snackbar';
 import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
+import useMediaQuery from '@/hooks/useMediaQuery';
 import { GameStatus } from '@/types/models/game';
 import { GameStatusChangeData } from '@/types/socket/game';
 import { ErrorFromServer } from '@/utils/error';
@@ -23,7 +25,11 @@ import { playDoodlerJoinSound } from '@/utils/sounds/soundDoodlerJoin';
 import Bubble from './components/Bubble';
 import DetailBar from './components/DetailBar';
 import DoodlerList from './components/DoodlerList';
+import HunchFeed from './components/HunchFeed';
+import HunchInput from './components/HunchInput';
 import HunchList from './components/HunchList';
+import HunchProgress from './components/HunchProgress';
+import PlayerPanel from './components/PlayerPanel';
 import Main from './Main';
 import ChooseWord from './Status/ChooseWord';
 import Lobby from './Status/Lobby';
@@ -45,6 +51,12 @@ const GameLayout = () => {
 
   const { openSnackbar } = useSnackbar();
 
+  // Matches Tailwind's lg breakpoint; below it the compact layout keeps the canvas fully on screen.
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  // Phones in landscape: too short to stack canvas + feed + input, so they go side by side.
+  const isShortLandscape = useMediaQuery(
+    '(orientation: landscape) and (max-height: 500px)'
+  );
   const [loading, setLoading] = useState(true);
   const [statusChangeData, setStatusChangeData] =
     useState<GameStatusChangeData>();
@@ -227,59 +239,101 @@ const GameLayout = () => {
 
   if (loading) return <Loading fullScreen />;
 
-  return (
-    <div className="p-2 lg:p-4 h-[100dvh] lg:h-auto lg:min-h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
-      <div className="flex flex-row justify-between items-center">
-        <Link to="/" replace>
-          <AnimatedBrand className="w-32 lg:w-48" />
-        </Link>
-        <div className="flex items-center gap-4">
-          {isPrivate && (
-            <IconButton
-              variant="primary"
-              color="primary"
-              className="text-2xl"
-              onClick={handleCopy}
-              type="button"
-              tooltip="Copy invite link"
-              icon={<FaShareNodes />}
-            />
-          )}
-          <SoundToggle />
-        </div>
+  const header = (
+    <div className="flex flex-row justify-between items-center">
+      <Link to="/" replace>
+        <AnimatedBrand className="w-32 lg:w-48" />
+      </Link>
+      <div className="flex items-center gap-4">
+        {isPrivate && (
+          <IconButton
+            variant="primary"
+            color="primary"
+            className="text-2xl"
+            onClick={handleCopy}
+            type="button"
+            tooltip="Copy invite link"
+            icon={<FaShareNodes />}
+          />
+        )}
+        <SoundToggle />
       </div>
-      <DetailBar />
-      {/* On lg the page grows with the canvas + toolbar instead of clipping them under the invite bubble. */}
-      <div className="flex-1 flex overflow-hidden lg:overflow-visible">
-        <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full lg:h-auto">
-          <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
-          <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
-            <CanvasProvider>
-              <Main component={gameComponent} className="relative" />
-            </CanvasProvider>
-          </div>
-          <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
-        </div>
-      </div>
-      {isPrivate && game.status === GameStatus.LOBBY && (
-        // Mirrors the game grid's columns so on lg the bubble spans only the canvas column.
-        <div className="lg:grid lg:grid-cols-[15rem_1fr_15rem] lg:gap-4">
-          <div className="lg:col-start-2">
-            <Bubble>
-              <FaShare />
-              {texts.game.privateLobby.share}
-              <Button
-                variant="primary"
-                className="flex items-center gap-2 px-1 !py-1"
-                onClick={handleCopy}
-              >
-                Copy <FaCopy />
-              </Button>
-            </Bubble>
-          </div>
-        </div>
-      )}
     </div>
+  );
+
+  const inviteBubble = (
+    <Bubble>
+      <FaShare />
+      {texts.game.privateLobby.share}
+      <Button
+        variant="primary"
+        className="flex items-center gap-2 px-1 !py-1"
+        onClick={handleCopy}
+      >
+        Copy <FaCopy />
+      </Button>
+    </Bubble>
+  );
+  const showInvite = isPrivate && game.status === GameStatus.LOBBY;
+
+  if (!isDesktop) {
+    return (
+      <HunchProvider>
+        <CanvasProvider>
+          <div className="p-2 h-[100dvh] flex flex-col gap-2 max-w-7xl m-auto sm:text-sm text-base overflow-hidden">
+            {header}
+            <DetailBar />
+            <Main
+              compact
+              side={isShortLandscape}
+              component={gameComponent}
+              className={`flex-1 min-h-0 flex gap-2 ${
+                isShortLandscape ? 'flex-row' : 'flex-col'
+              }`}
+              feed={<HunchFeed className="flex-1" />}
+              hunchInput={<HunchInput showCaption={false} />}
+              players={
+                <div className="min-h-0 flex flex-col gap-2">
+                  <PlayerPanel
+                    dense={isShortLandscape}
+                    className={isShortLandscape ? '' : 'flex-1'}
+                  />
+                  <HunchProgress />
+                </div>
+              }
+            />
+            {showInvite && inviteBubble}
+          </div>
+        </CanvasProvider>
+      </HunchProvider>
+    );
+  }
+
+  return (
+    <HunchProvider>
+      <CanvasProvider>
+        <div className="p-2 lg:p-4 h-[100dvh] lg:h-auto lg:min-h-[100dvh] flex flex-col gap-2 lg:gap-4 max-w-7xl m-auto sm:text-sm text-base">
+          {header}
+          <DetailBar />
+          {/* On lg the page grows with the canvas + toolbar instead of clipping them under the invite bubble. */}
+          <div className="flex-1 flex overflow-hidden lg:overflow-visible">
+            <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full lg:h-auto">
+              <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
+              <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
+                <Main component={gameComponent} className="relative" />
+              </div>
+              <HunchList className="col-start-2 row-start-2 lg:col-start-3 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
+            </div>
+          </div>
+          {showInvite && (
+            // Mirrors the game grid's columns so on lg the bubble spans only the canvas column.
+            <div className="lg:grid lg:grid-cols-[15rem_1fr_15rem] lg:gap-4">
+              <div className="lg:col-start-2">{inviteBubble}</div>
+            </div>
+          )}
+        </div>
+      </CanvasProvider>
+    </HunchProvider>
   );
 };
 

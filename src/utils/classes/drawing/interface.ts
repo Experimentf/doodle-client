@@ -11,6 +11,7 @@ export interface DrawingInterface {
 
   // RELOAD EXISTING OPERATIONS
   reloadOperations: () => Promise<void>;
+  readonly hasOperations: boolean;
 
   // RESET EVERYTHING
   reset: () => void;

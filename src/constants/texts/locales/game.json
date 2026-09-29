@@ -8,14 +8,31 @@
   "detailBar": {},
   "doodlers": {
     "sectionTitle": "doodlers",
-    "userMarker": "(You)"
+    "userMarker": "(You)",
+    "showAll": "Show all",
+    "you": "You",
+    "points": "pts",
+    "labels": {
+      "points": "Points",
+      "drawing": "Drawing"
+    },
+    "status": {
+      "drawing": "Drawing",
+      "hunched": "Hunched",
+      "hunching": "Hunching"
+    },
+    "rankTitle": "Rank"
+  },
+  "hunchProgress": {
+    "suffix": "hunched the word"
   },
   "hunchList": {
     "input": {
       "caption": "Press enter to hunch",
       "placeholder": "Type your hunch . . ."
     },
-    "sectionTitle": "hunch time !"
+    "sectionTitle": "hunch time !",
+    "newMessages": "New messages"
   },
   "lobby": {
     "properties": {

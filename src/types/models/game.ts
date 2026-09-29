@@ -46,4 +46,6 @@ export interface GameInterface {
   canvasOperations: Array<CanvasOperation>;
   // Ms left in the current phase when the server sent this snapshot
   timeLeft?: number;
+  // Doodlers who hunched the word this turn
+  hunchedIds?: Array<string>;
 }

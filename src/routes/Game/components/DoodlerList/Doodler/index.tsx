@@ -5,21 +5,42 @@ import Text from '@/components/Text';
 import texts from '@/constants/texts';
 import { useUser } from '@/contexts/user';
 import { DoodlerInterface } from '@/types/models/doodler';
+import { CROWN_COLORS } from '@/utils/rank';
 
 interface DoodlerProps {
   doodler: DoodlerInterface;
   position: number;
   isDrawing: boolean;
   crownRank?: number;
+  hunched?: boolean;
+  // Set briefly when the doodler's name is clicked in the hunch list; a new value replays the flash
+  highlightNonce?: number;
 }
 
-const CROWN_COLORS = ['#f7e99e', '#c0c0c0', '#cd7f32']; // gold, silver, bronze
-
-const Doodler = ({ doodler, isDrawing, crownRank }: DoodlerProps) => {
+const Doodler = ({
+  doodler,
+  isDrawing,
+  crownRank,
+  hunched = false,
+  highlightNonce,
+}: DoodlerProps) => {
   const { user } = useUser();
 
   return (
-    <div className="flex items-center gap-1 text-xs lg:text-sm">
+    <div
+      data-doodler-id={doodler.id}
+      // isolate: the flash overlay (-z-10) paints above this row's background but below its content.
+      className={`relative isolate flex items-center gap-1 px-1 rounded-lg text-xs lg:text-sm transition-colors duration-500 ${
+        hunched ? 'bg-chalk-green/10' : ''
+      }`}
+    >
+      {highlightNonce !== undefined && (
+        <span
+          key={highlightNonce}
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 rounded-lg bg-chalk-yellow/30 animate-flash-twice pointer-events-none"
+        />
+      )}
       <div className="relative w-fit">
         <Avatar
           className="w-[75px] lg:min-w-[80px]"
