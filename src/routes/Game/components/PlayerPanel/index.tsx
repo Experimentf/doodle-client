@@ -1,4 +1,9 @@
-import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  useAnimationControls,
+  useReducedMotion,
+} from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { FaCheck, FaPencil, FaUsers, FaXmark } from 'react-icons/fa6';
 
@@ -12,6 +17,16 @@ import { GameStatus } from '@/types/models/game';
 import { getDoodlerById } from '@/utils/game';
 
 import DoodlerList from '../DoodlerList';
+
+// Hex, not Tailwind classes: framer-motion animates colour values.
+const CALM_COLOR = '#a4d8b2'; // chalk-green
+const NEUTRAL_COLOR = '#c2c2c2'; // chalk-white
+const URGENCY = {
+  // Half the guessers are in and you aren't: a slow orange fade for a nudge.
+  warning: { color: '#ffa94d', duration: 1.6, threshold: 0.5 },
+  // Most are in: a fast chalk-pink fade to get real attention.
+  critical: { color: '#ff5e5e', duration: 0.6, threshold: 0.8 },
+};
 
 interface PlayerPanelProps {
   // Two lines instead of a card, for the narrow side column on short landscape screens.
@@ -53,8 +68,19 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   }, [isSheetOpen]);
 
   const hasHunched = hunchedIds.has(user.id);
-  // Pressure for a guesser who hasn't hunched while others already have.
+  // Pressure only for a guesser who hasn't hunched while others already have.
   const isBehind = isTurn && !isMeDrawing && !hasHunched && guessedCount > 0;
+  const guessedRatio = guessers > 0 ? guessedCount / guessers : 0;
+  const urgency = !isBehind
+    ? undefined
+    : guessedRatio >= URGENCY.critical.threshold
+    ? URGENCY.critical
+    : guessedRatio >= URGENCY.warning.threshold
+    ? URGENCY.warning
+    : undefined;
+  // Green only when more hunches are good news for you; a guesser still guessing starts neutral.
+  const baseColor = isMeDrawing || hasHunched ? CALM_COLOR : NEUTRAL_COLOR;
+  const reduceMotion = useReducedMotion();
 
   // Pop only when someone new hunches - not on the reset to 0 at turn start or on first render.
   const guessedControls = useAnimationControls();
@@ -117,32 +143,32 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
     </span>
   );
   const guessedValue = (
+    // Outer span pops on a new hunch; inner span carries the urgency colour pulse.
     <motion.span
       animate={guessedControls}
-      className={`flex items-center justify-end gap-1 whitespace-nowrap origin-right transition-colors ${
-        isBehind ? 'text-chalk-pink font-bold' : 'text-chalk-green'
-      }`}
+      className="flex items-center justify-end whitespace-nowrap origin-right"
     >
-      <FaCheck className="shrink-0" />
-      {isTurn ? `${guessedCount}/${guessers}` : '-'}
+      <motion.span
+        animate={
+          urgency && !reduceMotion
+            ? { color: [baseColor, urgency.color, baseColor] }
+            : { color: urgency?.color ?? baseColor }
+        }
+        transition={
+          urgency && !reduceMotion
+            ? {
+                duration: urgency.duration,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }
+            : { duration: 0.3 }
+        }
+        className={`flex items-center gap-1 ${urgency ? 'font-bold' : ''}`}
+      >
+        <FaCheck className="shrink-0" />
+        {isTurn ? `${guessedCount}/${guessers}` : '-'}
+      </motion.span>
     </motion.span>
-  );
-  // Always rendered (empty between turns) so it never shifts the layout.
-  const guessedBar = (
-    <div className="flex gap-0.5" aria-hidden="true">
-      {Array.from({ length: Math.max(guessers, 1) }, (_, i) => (
-        <span
-          key={i}
-          className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-            !isTurn || i >= guessedCount
-              ? 'bg-dark-board-green'
-              : isBehind
-              ? 'bg-chalk-pink'
-              : 'bg-chalk-green'
-          }`}
-        />
-      ))}
-    </div>
   );
 
   // Icon + count so it fits next to "You" even in the narrow phone card.
@@ -202,7 +228,6 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
             <dt className="text-light-chalk-white">{t.labels.guessed}</dt>
             <dd>{guessedValue}</dd>
           </dl>
-          {guessedBar}
         </div>
       )}
       <AnimatePresence>
