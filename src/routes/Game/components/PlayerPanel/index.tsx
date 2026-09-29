@@ -70,7 +70,9 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const hasHunched = hunchedIds.has(user.id);
   // Pressure only for a guesser who hasn't hunched while others already have.
   const isBehind = isTurn && !isMeDrawing && !hasHunched && guessedCount > 0;
-  const guessedRatio = guessers > 0 ? guessedCount / guessers : 0;
+  // Share of the *other* guessers who are in, so being the last one left is always 100% (critical) even in small rooms.
+  const otherGuessers = guessers - 1;
+  const guessedRatio = otherGuessers > 0 ? guessedCount / otherGuessers : 0;
   const urgency = !isBehind
     ? undefined
     : guessedRatio >= URGENCY.critical.threshold
