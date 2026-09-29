@@ -28,7 +28,7 @@ import DoodlerList from './components/DoodlerList';
 import HunchFeed from './components/HunchFeed';
 import HunchInput from './components/HunchInput';
 import HunchList from './components/HunchList';
-import PlayerBar from './components/PlayerBar';
+import PlayerPanel from './components/PlayerPanel';
 import Main from './Main';
 import ChooseWord from './Status/ChooseWord';
 import Lobby from './Status/Lobby';
@@ -289,9 +289,9 @@ const GameLayout = () => {
               className={`flex-1 min-h-0 flex gap-2 ${
                 isShortLandscape ? 'flex-row' : 'flex-col'
               }`}
-              feed={<HunchFeed className="flex-1 min-h-[5rem]" />}
-              guesserBar={<HunchInput showCaption={false} />}
-              footer={<PlayerBar />}
+              feed={<HunchFeed className="flex-1" />}
+              hunchInput={<HunchInput showCaption={false} />}
+              players={<PlayerPanel dense={isShortLandscape} />}
             />
           </CanvasProvider>
           {showInvite && inviteBubble}

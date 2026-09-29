@@ -92,7 +92,7 @@ const HunchFeed = ({ className = '' }: HunchFeedProps) => {
             return (
               <li
                 key={index}
-                className={`text-xs sm:text-sm whitespace-pre-wrap break-words ${statusClass(
+                className={`text-xs whitespace-pre-wrap break-words ${statusClass(
                   hunch
                 )}`}
               >

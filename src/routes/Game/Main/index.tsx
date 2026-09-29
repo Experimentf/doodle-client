@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -15,12 +16,10 @@ import {
 
 import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
-import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
-import { GameStatus } from '@/types/models/game';
 import { ServerToClientEvents } from '@/types/socket';
 import { getCanvasPixelRatio } from '@/utils/canvas';
 
@@ -52,20 +51,21 @@ interface MainProps extends HTMLAttributes<HTMLDivElement> {
   // Short landscape screens: canvas on the left at full height, everything else in a side column.
   side?: boolean;
   feed?: ReactNode;
-  guesserBar?: ReactNode;
-  footer?: ReactNode;
+  hunchInput?: ReactNode;
+  players?: ReactNode;
 }
 
-// Room the canvas always leaves below itself for the feed (its min height + gap).
-const FEED_RESERVE = '5.5rem';
+// Minimum height of the players + hunches row below the canvas (and toolbar).
+const BOTTOM_ROW_MIN = '7.5rem';
+const GAP = '0.5rem';
 
 const Main = ({
   component,
   compact = false,
   side = false,
   feed,
-  guesserBar,
-  footer,
+  hunchInput,
+  players,
   ...props
 }: MainProps) => {
   const [optionConfig, setOptionConfig] = useState<OptionConfig>({
@@ -82,8 +82,20 @@ const Main = ({
     user: { id },
   } = useUser();
   const { drawing } = useCanvas();
-  const { game } = useGame();
   const isDrawing = id === drawerId;
+
+  // The toolbar wraps on narrow screens, so its height is measured to size the canvas above it.
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const [toolbarHeight, setToolbarHeight] = useState(0);
+  useEffect(() => {
+    const el = toolbarRef.current;
+    if (!compact || !el) return;
+    const resizeObserver = new ResizeObserver(() =>
+      setToolbarHeight(el.offsetHeight)
+    );
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  }, [compact, side]);
 
   const handleOnGameCanvasOperation: ServerToClientEvents[GameEvents.ON_GAME_CANVAS_OPERATION] =
     ({ canvasOperation }) => {
@@ -218,27 +230,43 @@ const Main = ({
   );
 
   if (compact) {
-    const showToolbar = isDrawing && game.status === GameStatus.GAME;
-    const bottomRow = showToolbar ? toolbar : guesserBar;
+    // Toolbar sits directly under the canvas so drawers keep the two visually connected.
+    // Shown to everyone, like on desktop, so the canvas doesn't resize whenever the drawer changes.
+    const toolbarReserve = ` - ${toolbarHeight}px - ${GAP}`;
+    const canvasAndToolbar = (reserve: string) => (
+      <>
+        <div
+          className="relative shrink-0 mx-auto aspect-video"
+          style={{
+            width: `min(100cqw, calc((100cqh${reserve}${toolbarReserve}) * 16 / 9))`,
+          }}
+        >
+          {canvasContent}
+        </div>
+        <div ref={toolbarRef} className="shrink-0">
+          {toolbar}
+        </div>
+      </>
+    );
+    const hunchColumn = (
+      <>
+        {feed}
+        {hunchInput}
+      </>
+    );
 
     if (side) {
       return (
         <div {...props}>
           <div
-            className="flex-1 min-w-0 min-h-0 flex items-start justify-center"
+            className="flex-1 min-w-0 min-h-0 flex flex-col gap-2"
             style={{ containerType: 'size' }}
           >
-            <div
-              className="relative shrink-0 aspect-video"
-              style={{ width: 'min(100cqw, calc(100cqh * 16 / 9))' }}
-            >
-              {canvasContent}
-            </div>
+            {canvasAndToolbar('')}
           </div>
-          <div className="w-[38%] max-w-sm flex flex-col gap-2 min-h-0">
-            {feed}
-            {bottomRow}
-            {footer}
+          <div className="w-[36%] max-w-sm min-h-0 flex flex-col gap-2">
+            {players}
+            {hunchColumn}
           </div>
         </div>
       );
@@ -250,19 +278,15 @@ const Main = ({
           className="flex-1 min-h-0 flex flex-col gap-2"
           style={{ containerType: 'size' }}
         >
-          {/* Largest 16:9 box that fits both the width and the height left above the feed. */}
+          {canvasAndToolbar(` - ${BOTTOM_ROW_MIN} - ${GAP}`)}
           <div
-            className="relative shrink-0 mx-auto aspect-video"
-            style={{
-              width: `min(100cqw, calc((100cqh - ${FEED_RESERVE}) * 16 / 9))`,
-            }}
+            className="flex-1 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2"
+            style={{ minHeight: BOTTOM_ROW_MIN }}
           >
-            {canvasContent}
+            {players}
+            <div className="min-h-0 flex flex-col gap-2">{hunchColumn}</div>
           </div>
-          {feed}
         </div>
-        {bottomRow}
-        {footer}
       </div>
     );
   }

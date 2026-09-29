@@ -13,7 +13,9 @@
     "you": "You",
     "youAreDrawing": "You're drawing",
     "isDrawing": " is drawing",
-    "points": "pts"
+    "points": "pts",
+    "guessed": "guessed",
+    "youGuessed": "You hunched it!"
   },
   "hunchList": {
     "input": {
