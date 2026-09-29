@@ -8,11 +8,11 @@ import { getCrownRank } from '@/utils/rank';
 import Doodler from './Doodler';
 
 interface DoodlerListProps extends HTMLAttributes<HTMLDivElement> {
-  // Inside a sheet: no card shadow, the sheet is already the surface.
-  flat?: boolean;
+  // Inside a Sheet: the sheet is the surface and shows the title, so no card shadow or own header.
+  embedded?: boolean;
 }
 
-const DoodlerList = ({ flat = false, ...props }: DoodlerListProps) => {
+const DoodlerList = ({ embedded = false, ...props }: DoodlerListProps) => {
   const { room } = useRoom();
   const { hunchedIds, highlight } = useHunches();
   const listRef = useRef<HTMLDivElement>(null);
@@ -28,14 +28,18 @@ const DoodlerList = ({ flat = false, ...props }: DoodlerListProps) => {
   return (
     <div {...props}>
       <div
-        className={`p-2 lg:p-4 bg-card-surface-2 rounded-lg flex flex-col min-h-0 ${
-          flat ? '' : 'shadowed'
+        className={`bg-card-surface-2 rounded-lg flex flex-col min-h-0 ${
+          embedded ? '' : 'p-2 lg:p-4 shadowed'
         }`}
       >
-        <h1 className="text-lg whitespace-nowrap text-ellipsis text-chalk-white">
-          {texts.game.doodlers.sectionTitle} ({room.doodlers.length})
-        </h1>
-        <hr className="my-2 text-chalk-white" />
+        {!embedded && (
+          <>
+            <h1 className="text-lg whitespace-nowrap text-ellipsis text-chalk-white">
+              {texts.game.doodlers.sectionTitle} ({room.doodlers.length})
+            </h1>
+            <hr className="my-2 text-chalk-white" />
+          </>
+        )}
         <div
           ref={listRef}
           className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-auto flex-1"

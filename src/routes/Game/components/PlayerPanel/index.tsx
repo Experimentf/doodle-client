@@ -1,13 +1,12 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { FaCrown, FaPencil, FaUsers, FaXmark } from 'react-icons/fa6';
+import { FaCrown, FaPencil, FaUsers } from 'react-icons/fa6';
 
+import Sheet from '@/components/Sheet';
 import texts from '@/constants/texts';
 import { useGame } from '@/contexts/game';
 import { useHunches } from '@/contexts/hunch';
 import { useRoom } from '@/contexts/room';
 import { useUser } from '@/contexts/user';
-import useMediaQuery from '@/hooks/useMediaQuery';
 import { GameStatus } from '@/types/models/game';
 import { getDoodlerById } from '@/utils/game';
 import { CROWN_COLORS, getCrownRank, getDenseRank } from '@/utils/rank';
@@ -27,7 +26,6 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const { game } = useGame();
   const { hunchedIds, highlight, highlightDoodler } = useHunches();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const isLandscape = useMediaQuery('(orientation: landscape)');
   const { doodlers: t } = texts.game;
 
   const me = getDoodlerById(room.doodlers, user.id);
@@ -45,15 +43,6 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
     handledNonceRef.current = highlight.nonce;
     setIsSheetOpen(true);
   }, [highlight?.nonce]);
-
-  useEffect(() => {
-    if (!isSheetOpen) return;
-    const handleKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key === 'Escape') setIsSheetOpen(false);
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isSheetOpen]);
 
   // Own status as a label rather than icons that come and go, so the panel never changes shape.
   const status = !isTurn
@@ -142,8 +131,6 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
     </button>
   );
 
-  const offscreen = isLandscape ? { x: '100%' } : { y: '100%' };
-
   return (
     <>
       {dense ? (
@@ -183,45 +170,13 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
           </dl>
         </div>
       )}
-      <AnimatePresence>
-        {isSheetOpen && (
-          <motion.div
-            key="backdrop"
-            className="fixed inset-0 z-40 bg-black/50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsSheetOpen(false)}
-          />
-        )}
-        {isSheetOpen && (
-          <motion.div
-            key="sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label={t.sectionTitle}
-            className={`fixed z-50 overflow-y-auto bg-card-surface-2 shadow-lg p-2 ${
-              isLandscape
-                ? 'top-0 right-0 h-full w-80 max-w-[85vw] rounded-l-2xl'
-                : 'bottom-0 inset-x-0 max-h-[75dvh] rounded-t-2xl'
-            }`}
-            initial={offscreen}
-            animate={{ x: 0, y: 0 }}
-            exit={offscreen}
-            transition={{ type: 'tween', duration: 0.2 }}
-          >
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={() => setIsSheetOpen(false)}
-              className="absolute top-3 right-3 z-10 p-1 text-chalk-white"
-            >
-              <FaXmark />
-            </button>
-            <DoodlerList flat className="flex flex-col" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Sheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        title={`${t.sectionTitle} (${room.doodlers.length})`}
+      >
+        <DoodlerList embedded />
+      </Sheet>
     </>
   );
 };
