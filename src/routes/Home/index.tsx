@@ -45,7 +45,7 @@ const Home = () => {
         />
         <PlayForm
           roomId={roomIdFromLink}
-          className="w-[380px] flex-1"
+          className="w-full max-w-[380px] flex-1"
           disableActions={isError && dismissedError}
         />
         {roomIdFromLink && roomIdFromLink.length > 0 && (
