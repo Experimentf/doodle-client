@@ -30,11 +30,7 @@ const Doodler = ({
     <div
       data-doodler-id={doodler.id}
       className={`flex items-center gap-1 px-1 rounded-lg text-xs lg:text-sm transition-colors duration-500 ${
-        highlighted
-          ? 'bg-chalk-yellow/20 ring-1 ring-chalk-yellow'
-          : hunched
-          ? 'bg-chalk-green/10'
-          : ''
+        highlighted ? 'bg-chalk-yellow/20' : hunched ? 'bg-chalk-green/10' : ''
       }`}
     >
       <div className="relative w-fit">
