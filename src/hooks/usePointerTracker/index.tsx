@@ -3,7 +3,8 @@ import { MutableRefObject, useEffect, useRef } from 'react';
 import { Coordinate } from '@/types/common';
 
 interface PointerTrackerConfig {
-  onPointerDrag?: (from: Coordinate, to: Coordinate) => void;
+  onPointerDown?: (point: Coordinate, ev: PointerEvent) => void;
+  onPointerDrag?: (from: Coordinate, to: Coordinate, ev: PointerEvent) => void;
   onPointerDragEnd?: (_dragPoints: Array<Coordinate>) => void;
   onPointerClick?: (point: Coordinate) => void;
 }
@@ -33,7 +34,11 @@ const usePointerTracker = <T extends HTMLCanvasElement>(
     if (!_pointerDownCoordinate.current) return;
     _isDragging.current = true;
     const currentCoordinate = _getCoordinate(ev);
-    config?.onPointerDrag?.(_pointerDownCoordinate.current, currentCoordinate);
+    config?.onPointerDrag?.(
+      _pointerDownCoordinate.current,
+      currentCoordinate,
+      ev
+    );
     _pointerDownCoordinate.current = currentCoordinate;
     _dragPoints.current.push(currentCoordinate);
   };
@@ -42,6 +47,7 @@ const usePointerTracker = <T extends HTMLCanvasElement>(
     const currentCoordinate = _getCoordinate(ev);
     _pointerDownCoordinate.current = currentCoordinate;
     _dragPoints.current.push(currentCoordinate);
+    config?.onPointerDown?.(currentCoordinate, ev);
   };
 
   const _handlePointerUp = (ev: PointerEvent) => {

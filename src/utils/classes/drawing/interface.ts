@@ -15,6 +15,11 @@ export interface DrawingInterface {
   // RESET EVERYTHING
   reset: () => void;
 
+  // TEMPORARY OPERATION PREVIEW (E.G. STRAIGHT LINES) THAT IS NOT RECORDED
+  beginPreview: () => void;
+  preview: (canvasOperation: CanvasOperation) => void;
+  endPreview: () => void;
+
   // NORMALIZE AND DENORMALIZE COORDINATES ACCORDING TO CANVAS
   normalizeCoordinate: (coord: Coordinate) => Coordinate;
   denormalizeCoordinate: (coord: Coordinate) => Coordinate;
