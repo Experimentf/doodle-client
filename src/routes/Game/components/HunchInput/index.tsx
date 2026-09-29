@@ -1,4 +1,4 @@
-import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 
 import texts from '@/constants/texts';
 import { useGame } from '@/contexts/game';
@@ -23,13 +23,24 @@ const HunchInput = ({
   } = useUser();
   const { sendHunch } = useHunches();
   const inputRef = useRef<HTMLInputElement>(null);
+  const isSendingRef = useRef(false);
   const [hunch, setHunch] = useState('');
   const isDrawer = id === room.drawerId;
 
-  const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = async (e) => {
-    if (e.key !== 'Enter' || !hunch) return;
-    await sendHunch(hunch.trim());
-    setHunch('');
+  // Form submit, not keydown === 'Enter': virtual keyboards (e.g. Quest, many Android IMEs) report
+  // key "Unidentified", but every keyboard's Enter/Send triggers implicit submission of a
+  // single-field form.
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    const message = hunch.trim();
+    if (!message || isSendingRef.current) return;
+    isSendingRef.current = true;
+    try {
+      await sendHunch(message);
+      setHunch('');
+    } finally {
+      isSendingRef.current = false;
+    }
   };
 
   // Non-drawers can only hunch during an active round, so put them straight into the input.
@@ -40,14 +51,16 @@ const HunchInput = ({
   }, [game.status, isDrawer]);
 
   return (
-    <div className={`flex flex-col items-end gap-1 ${className}`}>
+    <form
+      onSubmit={handleSubmit}
+      className={`flex flex-col items-end gap-1 ${className}`}
+    >
       <input
         ref={inputRef}
         type="text"
         value={hunch}
         placeholder={texts.game.hunchList.input.placeholder}
         className="w-full bg-dark-board-green rounded-lg p-2 outline-none text-base lg:text-sm font-thin disabled:cursor-not-allowed"
-        onKeyDown={handleKeyDown}
         onChange={(e) => setHunch(e.target.value)}
         enterKeyHint="send"
       />
@@ -56,7 +69,7 @@ const HunchInput = ({
           {texts.game.hunchList.input.caption}
         </p>
       )}
-    </div>
+    </form>
   );
 };
 
