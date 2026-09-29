@@ -3,6 +3,7 @@ import {
   PropsWithChildren,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -15,17 +16,29 @@ import { HunchInterface, HunchStatus } from '@/types/models/hunch';
 import { playCorrectGuessSound } from '@/utils/sounds/soundCorrectGuess';
 import { playMessageSentSound } from '@/utils/sounds/soundMessageSent';
 
+// nonce changes on every request, so clicking the same name again re-triggers effects.
+interface DoodlerHighlight {
+  id: string;
+  nonce: number;
+}
+
 interface HunchContextInterface {
   hunches: HunchInterface[];
   sendHunch: (message: string) => Promise<void>;
   // Doodlers who hunched the word this turn
   hunchedIds: Set<string>;
+  // A doodler picked from a hunch's sender name, briefly highlighted in the doodler list
+  highlight?: DoodlerHighlight;
+  highlightDoodler: (id: string) => void;
 }
+
+const HIGHLIGHT_MS = 2500;
 
 const HunchContext = createContext<HunchContextInterface>({
   hunches: [],
   sendHunch: () => Promise.resolve(),
   hunchedIds: new Set(),
+  highlightDoodler: () => {},
 });
 
 // One history and one socket listener shared by every hunch view, so switching
@@ -38,6 +51,19 @@ const HunchProvider = ({ children }: PropsWithChildren) => {
   const { asyncEmitEvent, registerEvent, unregisterEvent } = useSocket();
   const { game } = useGame();
   const [hunchedIds, setHunchedIds] = useState<Set<string>>(new Set());
+  const [highlight, setHighlight] = useState<DoodlerHighlight>();
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const highlightDoodler = (doodlerId: string) => {
+    clearTimeout(highlightTimerRef.current);
+    setHighlight({ id: doodlerId, nonce: Date.now() });
+    highlightTimerRef.current = setTimeout(
+      () => setHighlight(undefined),
+      HIGHLIGHT_MS
+    );
+  };
+
+  useEffect(() => () => clearTimeout(highlightTimerRef.current), []);
   const [hunches, setHunches] = useState<HunchInterface[]>([
     { isSystemMessage: true, message: 'Your hunches go here!' },
   ]);
@@ -79,7 +105,9 @@ const HunchProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   return (
-    <HunchContext.Provider value={{ hunches, sendHunch, hunchedIds }}>
+    <HunchContext.Provider
+      value={{ hunches, sendHunch, hunchedIds, highlight, highlightDoodler }}
+    >
       {children}
     </HunchContext.Provider>
   );

@@ -1,3 +1,4 @@
+import { useHunches } from '@/contexts/hunch';
 import { useRoom } from '@/contexts/room';
 import { HunchInterface, HunchStatus } from '@/types/models/hunch';
 import { getDoodlerById } from '@/utils/game';
@@ -26,6 +27,7 @@ interface HunchMessageProps {
 // One "name: message" row, shared by the compact feed and the desktop list.
 const HunchMessage = ({ hunch, className = '' }: HunchMessageProps) => {
   const { room } = useRoom();
+  const { highlightDoodler } = useHunches();
   const sender = hunch.isSystemMessage
     ? undefined
     : getDoodlerById(room.doodlers, hunch.senderId);
@@ -41,11 +43,19 @@ const HunchMessage = ({ hunch, className = '' }: HunchMessageProps) => {
         hunch
       )} ${className}`}
     >
-      {!hunch.isSystemMessage && (
-        <span className="text-light-chalk-white mr-1">
-          {sender?.name ?? '???'}:
-        </span>
-      )}
+      {!hunch.isSystemMessage &&
+        (sender ? (
+          // Names can repeat, so a click points at the exact doodler in the list.
+          <button
+            type="button"
+            onClick={() => highlightDoodler(sender.id)}
+            className="mr-1 text-light-chalk-white hover:underline focus-visible:underline outline-none"
+          >
+            {sender.name}:
+          </button>
+        ) : (
+          <span className="mr-1 text-light-chalk-white">???:</span>
+        ))}
       {isMutedNotice ? (
         <span className="text-[0.85em]">{hunch.message}</span>
       ) : (

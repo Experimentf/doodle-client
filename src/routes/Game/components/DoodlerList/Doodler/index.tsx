@@ -12,13 +12,31 @@ interface DoodlerProps {
   position: number;
   isDrawing: boolean;
   crownRank?: number;
+  hunched?: boolean;
+  // Briefly set when the doodler's name is clicked in the hunch list
+  highlighted?: boolean;
 }
 
-const Doodler = ({ doodler, isDrawing, crownRank }: DoodlerProps) => {
+const Doodler = ({
+  doodler,
+  isDrawing,
+  crownRank,
+  hunched = false,
+  highlighted = false,
+}: DoodlerProps) => {
   const { user } = useUser();
 
   return (
-    <div className="flex items-center gap-1 text-xs lg:text-sm">
+    <div
+      data-doodler-id={doodler.id}
+      className={`flex items-center gap-1 px-1 rounded-lg text-xs lg:text-sm transition-colors duration-500 ${
+        highlighted
+          ? 'bg-chalk-yellow/20 ring-1 ring-chalk-yellow'
+          : hunched
+          ? 'bg-chalk-green/10'
+          : ''
+      }`}
+    >
       <div className="relative w-fit">
         <Avatar
           className="w-[75px] lg:min-w-[80px]"

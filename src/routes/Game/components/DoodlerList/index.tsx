@@ -1,22 +1,45 @@
-import { Fragment, HTMLAttributes } from 'react';
+import { Fragment, HTMLAttributes, useEffect, useRef } from 'react';
 
 import texts from '@/constants/texts';
+import { useHunches } from '@/contexts/hunch';
 import { useRoom } from '@/contexts/room';
 import { getCrownRank } from '@/utils/rank';
 
 import Doodler from './Doodler';
 
-const DoodlerList = (props: HTMLAttributes<HTMLDivElement>) => {
+interface DoodlerListProps extends HTMLAttributes<HTMLDivElement> {
+  // Inside a sheet: no card shadow, the sheet is already the surface.
+  flat?: boolean;
+}
+
+const DoodlerList = ({ flat = false, ...props }: DoodlerListProps) => {
   const { room } = useRoom();
+  const { hunchedIds, highlight } = useHunches();
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Also runs on mount, so a list inside a just-opened sheet scrolls to the highlighted doodler.
+  useEffect(() => {
+    if (!highlight) return;
+    listRef.current
+      ?.querySelector(`[data-doodler-id="${CSS.escape(highlight.id)}"]`)
+      ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [highlight?.nonce]);
 
   return (
     <div {...props}>
-      <div className="p-2 lg:p-4 bg-card-surface-2 rounded-lg shadowed flex flex-col min-h-0">
+      <div
+        className={`p-2 lg:p-4 bg-card-surface-2 rounded-lg flex flex-col min-h-0 ${
+          flat ? '' : 'shadowed'
+        }`}
+      >
         <h1 className="text-lg whitespace-nowrap text-ellipsis text-chalk-white">
           {texts.game.doodlers.sectionTitle} ({room.doodlers.length})
         </h1>
         <hr className="my-2 text-chalk-white" />
-        <div className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-auto flex-1">
+        <div
+          ref={listRef}
+          className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-auto flex-1"
+        >
           {room.doodlers.map((doodler, index) => (
             <Fragment key={doodler.id}>
               <Doodler
@@ -25,6 +48,8 @@ const DoodlerList = (props: HTMLAttributes<HTMLDivElement>) => {
                 position={index}
                 isDrawing={room.drawerId === doodler.id}
                 crownRank={getCrownRank(room.doodlers, doodler.score)}
+                hunched={hunchedIds.has(doodler.id)}
+                highlighted={highlight?.id === doodler.id}
               />
               {index !== room.doodlers.length - 1 && (
                 <hr className="mx-4 text-dark-chalk-white lg:mt-2" />

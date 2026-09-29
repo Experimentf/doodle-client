@@ -25,7 +25,7 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const { room } = useRoom();
   const { user } = useUser();
   const { game } = useGame();
-  const { hunchedIds } = useHunches();
+  const { hunchedIds, highlight } = useHunches();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const isLandscape = useMediaQuery('(orientation: landscape)');
   const { doodlers: t } = texts.game;
@@ -36,6 +36,11 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
   const isTurn = game.status === GameStatus.GAME;
   const rank = me ? getDenseRank(room.doodlers, me.score) : undefined;
   const crownRank = me ? getCrownRank(room.doodlers, me.score) : undefined;
+
+  // A sender name clicked in the hunch feed: show them in the full list.
+  useEffect(() => {
+    if (highlight) setIsSheetOpen(true);
+  }, [highlight?.nonce]);
 
   useEffect(() => {
     if (!isSheetOpen) return;
@@ -200,7 +205,7 @@ const PlayerPanel = ({ dense = false, className = '' }: PlayerPanelProps) => {
             >
               <FaXmark />
             </button>
-            <DoodlerList className="flex flex-col" />
+            <DoodlerList flat className="flex flex-col" />
           </motion.div>
         )}
       </AnimatePresence>
