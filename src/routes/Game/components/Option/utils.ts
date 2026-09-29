@@ -6,6 +6,7 @@ export enum OptionKey {
   PENCIL = 'Pencil',
   ERASER = 'Eraser',
   FILL = 'Fill',
+  SHAPE = 'Shape',
   CLEAR = 'Clear',
 }
 
@@ -21,6 +22,7 @@ const optionToCanvasActionMap = {
   [OptionKey.PENCIL]: CanvasAction.LINE,
   [OptionKey.ERASER]: CanvasAction.ERASE,
   [OptionKey.FILL]: CanvasAction.FILL,
+  [OptionKey.SHAPE]: CanvasAction.LINE,
   [OptionKey.CLEAR]: CanvasAction.CLEAR,
 };
 
@@ -42,6 +44,11 @@ export const options: Array<Omit<Option, 'icon' | 'handler'>> = [
   },
   {
     key: OptionKey.FILL,
+    isSelectable: true,
+    disabled: false,
+  },
+  {
+    key: OptionKey.SHAPE,
     isSelectable: true,
     disabled: false,
   },

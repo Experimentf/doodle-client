@@ -112,6 +112,7 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     const type = optionConfig?.type;
     if (type === OptionKey.FILL)
       return getFillCursor(optionConfig?.color ?? '#ffffff');
+    if (type === OptionKey.SHAPE) return 'crosshair';
     if (type !== OptionKey.PENCIL && type !== OptionKey.ERASER)
       return undefined;
     const color =

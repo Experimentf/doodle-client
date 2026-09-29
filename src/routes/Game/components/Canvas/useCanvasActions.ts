@@ -7,6 +7,7 @@ import { useSocket } from '@/contexts/socket';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
 import { floorCoordinate, snapTo45 } from '@/utils/coordinate';
+import { getShapePoints, ShapeKind } from '@/utils/shapes';
 
 import { OptionKey } from '../Option/utils';
 
@@ -14,6 +15,7 @@ export interface OptionConfig {
   type?: OptionKey;
   color: string;
   brushSize: number;
+  shape?: ShapeKind;
 }
 
 // Strokes render locally at once but go to the server in batches instead of one message per pointer move.
@@ -37,6 +39,11 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const flushTimerRef = useRef<ReturnType<typeof setTimeout>>();
   // Pixel coords, so 45° is measured on screen rather than in normalized (aspect-stretched) space.
   const straightRef = useRef<{ anchor: Coordinate; end: Coordinate }>();
+  const shapeRef = useRef<{
+    kind: ShapeKind;
+    anchor: Coordinate;
+    end: Coordinate;
+  }>();
 
   useEffect(() => () => clearTimeout(flushTimerRef.current), []);
 
@@ -131,9 +138,48 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     return straight.end;
   };
 
+  const _shapeOperation = (
+    kind: ShapeKind,
+    anchor: Coordinate,
+    end: Coordinate
+  ): CanvasOperation | undefined => {
+    if (!drawing || !optionConfig) return;
+    return {
+      actionType: CanvasAction.LINE,
+      points: getShapePoints(kind, anchor, end).map(
+        drawing.normalizeCoordinate
+      ),
+      color: optionConfig.color,
+      size: drawing.normalizeSize(optionConfig.brushSize),
+    };
+  };
+
+  // Shapes are previewed while dragging and sent whole on release, as one LINE polyline.
+  const _commitShape = () => {
+    const shape = shapeRef.current;
+    if (!drawing || !shape) return;
+    shapeRef.current = undefined;
+    drawing.endPreview();
+    // A click without dragging draws nothing, so a misclick doesn't leave a dot.
+    if (shape.anchor.x === shape.end.x && shape.anchor.y === shape.end.y)
+      return;
+    const operation = _shapeOperation(shape.kind, shape.anchor, shape.end);
+    if (!operation) return;
+    drawing.loadOperations([operation], false);
+    _emitCanvasOperation(operation);
+  };
+
   const onPointerDown = (point: Coordinate) => {
     if (!drawing) return;
     straightRef.current = undefined;
+    if (optionConfig?.type === OptionKey.SHAPE) {
+      _flushStroke(true);
+      if (!optionConfig.shape) return;
+      const anchor = floorCoordinate(point);
+      shapeRef.current = { kind: optionConfig.shape, anchor, end: anchor };
+      drawing.beginPreview();
+      return;
+    }
     const normalizedPoint = drawing.normalizeCoordinate(point);
     const operation = _brushOperation([normalizedPoint]);
     if (!operation) return;
@@ -152,7 +198,19 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     to: Coordinate,
     ev: PointerEvent
   ) => {
-    if (!drawing || !_brushOperation([])) return;
+    if (!drawing) return;
+    const shape = shapeRef.current;
+    if (shape) {
+      // Ctrl/Cmd snaps the line shape to 45°, same as a freehand straight line.
+      shape.end =
+        shape.kind === ShapeKind.LINE && (ev.ctrlKey || ev.metaKey)
+          ? snapTo45(shape.anchor, to)
+          : floorCoordinate(to);
+      const preview = _shapeOperation(shape.kind, shape.anchor, shape.end);
+      if (preview) drawing.preview(preview);
+      return;
+    }
+    if (!_brushOperation([])) return;
     // Ctrl (Cmd on Mac) held: straight line from where it was pressed, snapped to 45°.
     if (ev.ctrlKey || ev.metaKey) {
       if (!straightRef.current) {
@@ -175,11 +233,13 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   };
 
   const onPointerDragEnd = () => {
+    _commitShape();
     _commitStraightLine();
     _flushStroke(true);
   };
 
   const onPointerClick = (point: Coordinate) => {
+    _commitShape();
     _commitStraightLine();
     _flushStroke(true);
     if (!drawing || optionConfig?.type !== OptionKey.FILL) return;
