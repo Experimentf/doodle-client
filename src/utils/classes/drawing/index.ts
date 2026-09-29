@@ -22,6 +22,7 @@ export class Drawing implements DrawingInterface {
   private _fillWorker?: Worker;
   private _fillRequestId = 0;
   private _pendingFillRequests = new Map<number, PendingFillRequest>();
+  private _previewSnapshot?: ImageData;
 
   constructor(ref: RefObject<HTMLCanvasElement | null>) {
     this._ref = ref;
@@ -86,6 +87,29 @@ export class Drawing implements DrawingInterface {
   public reset: DrawingInterface['reset'] = () => {
     this.loadOperations([{ actionType: CanvasAction.CLEAR }], false, false);
     this._operations = [];
+    this._previewSnapshot = undefined;
+  };
+
+  // Preview = restore the pixels from before the preview, then draw the candidate on top without recording it.
+  public beginPreview: DrawingInterface['beginPreview'] = () => {
+    const ctx = this._getContext();
+    if (!ctx) return;
+    this._previewSnapshot = ctx.getImageData(
+      0,
+      0,
+      this._maxWidth,
+      this._maxHeight
+    );
+  };
+
+  public preview: DrawingInterface['preview'] = (canvasOperation) => {
+    this._restorePreviewSnapshot();
+    this.loadOperations([canvasOperation], false, false);
+  };
+
+  public endPreview: DrawingInterface['endPreview'] = () => {
+    this._restorePreviewSnapshot();
+    this._previewSnapshot = undefined;
   };
 
   public normalizeCoordinate: DrawingInterface['normalizeCoordinate'] = (
@@ -110,6 +134,20 @@ export class Drawing implements DrawingInterface {
   ) => size * this._maxWidth;
 
   // PRIVATE METHODS
+  private _restorePreviewSnapshot = () => {
+    const ctx = this._getContext();
+    const snapshot = this._previewSnapshot;
+    // A resize redraws from history; a stale-sized snapshot must not be painted back.
+    if (
+      !ctx ||
+      !snapshot ||
+      snapshot.width !== this._maxWidth ||
+      snapshot.height !== this._maxHeight
+    )
+      return;
+    ctx.putImageData(snapshot, 0, 0);
+  };
+
   // One point draws a dot; more draw connected segments (batched strokes).
   private _polyline = (points: Coordinate[], color: string, size: number) => {
     if (points.length === 1) this._line(points[0], points[0], color, size);

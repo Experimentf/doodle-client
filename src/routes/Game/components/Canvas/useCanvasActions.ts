@@ -6,6 +6,7 @@ import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { CanvasAction, CanvasOperation } from '@/types/canvas';
 import { Coordinate } from '@/types/common';
+import { floorCoordinate, snapTo45 } from '@/utils/coordinate';
 
 import { OptionKey } from '../Option/utils';
 
@@ -34,6 +35,8 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
   const { drawing } = useCanvas();
   const strokeRef = useRef<PendingStroke>();
   const flushTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  // Pixel coords, so 45° is measured on screen rather than in normalized (aspect-stretched) space.
+  const straightRef = useRef<{ anchor: Coordinate; end: Coordinate }>();
 
   useEffect(() => () => clearTimeout(flushTimerRef.current), []);
 
@@ -87,13 +90,55 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     }
   };
 
+  // Adds an already-drawn segment's end to the pending stroke.
+  const _addToStroke = (
+    segment: CanvasOperation,
+    from: Coordinate,
+    to: Coordinate
+  ) => {
+    const stroke = strokeRef.current;
+    if (stroke) {
+      stroke.points.push(to);
+      stroke.hasUnsentPoints = true;
+    } else {
+      strokeRef.current = {
+        operation: segment,
+        points: [from, to],
+        hasUnsentPoints: true,
+      };
+    }
+    _scheduleFlush();
+  };
+
+  // Drawn synchronously (not in the next frame) so a straight-line preview snapshot always includes it.
+  const _drawSegment = (from: Coordinate, to: Coordinate) => {
+    if (!drawing) return;
+    const normalizedFrom = drawing.normalizeCoordinate(from);
+    const normalizedTo = drawing.normalizeCoordinate(to);
+    const segment = _brushOperation([normalizedFrom, normalizedTo]);
+    if (!segment) return;
+    drawing.loadOperations([segment], false);
+    _addToStroke(segment, normalizedFrom, normalizedTo);
+  };
+
+  // Replaces the preview with the real line; returns where the line ended (pixel coords).
+  const _commitStraightLine = () => {
+    const straight = straightRef.current;
+    if (!drawing || !straight) return undefined;
+    straightRef.current = undefined;
+    drawing.endPreview();
+    _drawSegment(straight.anchor, straight.end);
+    return straight.end;
+  };
+
   const onPointerDown = (point: Coordinate) => {
     if (!drawing) return;
+    straightRef.current = undefined;
     const normalizedPoint = drawing.normalizeCoordinate(point);
     const operation = _brushOperation([normalizedPoint]);
     if (!operation) return;
     _flushStroke(true);
-    drawing.loadOperations([operation]);
+    drawing.loadOperations([operation], false);
     strokeRef.current = {
       operation,
       points: [normalizedPoint],
@@ -102,30 +147,40 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
     _scheduleFlush();
   };
 
-  const onPointerDrag = (from: Coordinate, to: Coordinate) => {
-    if (!drawing) return;
-    const normalizedFrom = drawing.normalizeCoordinate(from);
-    const normalizedTo = drawing.normalizeCoordinate(to);
-    const segment = _brushOperation([normalizedFrom, normalizedTo]);
-    if (!segment) return;
-    drawing.loadOperations([segment]);
-    const stroke = strokeRef.current;
-    if (stroke) {
-      stroke.points.push(normalizedTo);
-      stroke.hasUnsentPoints = true;
-    } else {
-      strokeRef.current = {
-        operation: segment,
-        points: [normalizedFrom, normalizedTo],
-        hasUnsentPoints: true,
-      };
+  const onPointerDrag = (
+    from: Coordinate,
+    to: Coordinate,
+    ev: PointerEvent
+  ) => {
+    if (!drawing || !_brushOperation([])) return;
+    // Ctrl (Cmd on Mac) held: straight line from where it was pressed, snapped to 45°.
+    if (ev.ctrlKey || ev.metaKey) {
+      if (!straightRef.current) {
+        const anchor = floorCoordinate(from);
+        straightRef.current = { anchor, end: anchor };
+        drawing.beginPreview();
+      }
+      const straight = straightRef.current;
+      straight.end = snapTo45(straight.anchor, to);
+      const preview = _brushOperation([
+        drawing.normalizeCoordinate(straight.anchor),
+        drawing.normalizeCoordinate(straight.end),
+      ]);
+      if (preview) drawing.preview(preview);
+      return;
     }
-    _scheduleFlush();
+    // Modifier released mid-drag: keep the line and continue freehand from its end.
+    const lineEnd = _commitStraightLine();
+    _drawSegment(lineEnd ?? from, to);
   };
 
-  const onPointerDragEnd = () => _flushStroke(true);
+  const onPointerDragEnd = () => {
+    _commitStraightLine();
+    _flushStroke(true);
+  };
 
   const onPointerClick = (point: Coordinate) => {
+    _commitStraightLine();
     _flushStroke(true);
     if (!drawing || optionConfig?.type !== OptionKey.FILL) return;
     const operation: CanvasOperation = {
