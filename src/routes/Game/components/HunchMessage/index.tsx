@@ -2,15 +2,19 @@ import { useRoom } from '@/contexts/room';
 import { HunchInterface, HunchStatus } from '@/types/models/hunch';
 import { getDoodlerById } from '@/utils/game';
 
+// System messages are coloured by meaning too, so the placeholder and notices stay muted
+// instead of looking like a correct hunch.
 const statusClass = (hunch: HunchInterface) => {
-  if (hunch.isSystemMessage) return 'text-light-chalk-green text-center';
+  const align = hunch.isSystemMessage ? 'text-center' : '';
   switch (hunch.status) {
     case HunchStatus.CORRECT:
-      return 'text-chalk-green font-bold';
+      return `text-chalk-green font-bold ${align}`;
     case HunchStatus.NEARBY:
-      return 'text-chalk-yellow';
+      return `text-chalk-yellow ${align}`;
     default:
-      return 'text-chalk-white';
+      return hunch.isSystemMessage
+        ? `text-light-chalk-white ${align}`
+        : 'text-chalk-white';
   }
 };
 
@@ -25,6 +29,11 @@ const HunchMessage = ({ hunch, className = '' }: HunchMessageProps) => {
   const sender = hunch.isSystemMessage
     ? undefined
     : getDoodlerById(room.doodlers, hunch.senderId);
+  // Muted notices (e.g. the placeholder) are also smaller; em keeps them relative to each list's size.
+  const isMutedNotice =
+    hunch.isSystemMessage &&
+    hunch.status !== HunchStatus.CORRECT &&
+    hunch.status !== HunchStatus.NEARBY;
 
   return (
     <li
@@ -37,7 +46,11 @@ const HunchMessage = ({ hunch, className = '' }: HunchMessageProps) => {
           {sender?.name ?? '???'}:
         </span>
       )}
-      {hunch.message}
+      {isMutedNotice ? (
+        <span className="text-[0.85em]">{hunch.message}</span>
+      ) : (
+        hunch.message
+      )}
     </li>
   );
 };
