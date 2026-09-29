@@ -94,7 +94,11 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
     window.addEventListener('resize', scheduleCanvasResize);
     // The container resizes for the on-screen keyboard via the CSS `dvh` unit, which doesn't reliably fire a `resize` event on `window` (notably iOS Safari) - needs its own listener to stay in sync.
     window.visualViewport?.addEventListener('resize', scheduleCanvasResize);
+    // Layout-driven size changes (e.g. the compact layout's bottom row swapping) don't touch the window at all.
+    const resizeObserver = new ResizeObserver(scheduleCanvasResize);
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', scheduleCanvasResize);
       window.visualViewport?.removeEventListener(
         'resize',
