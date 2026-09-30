@@ -101,7 +101,7 @@
 
 .shadowed-text::before {
   content: attr(data-content);
-  font-family: 'SolidChalk';
+  font-family: 'Mali';
   position: absolute;
   left: 10%;
   top: 15%;

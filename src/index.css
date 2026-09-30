@@ -12,16 +12,6 @@
   --text-yellow: #f7e99e;
 }
 
-@font-face {
-  font-family: SolidChalk;
-  src: url('/public/fonts/chalk/KGSecondChancesSolid.ttf');
-}
-
-@font-face {
-  font-family: SketchChalk;
-  src: url('/public/fonts/chalk/KGSecondChancesSketch.ttf');
-}
-
 * {
   box-sizing: border-box;
   padding: 0;
@@ -47,9 +37,11 @@ body {
   color: var(--text-white);
   min-height: 100dvh;
   margin: 0;
-  font-family: 'SolidChalk', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-    'Helvetica Neue', sans-serif;
+  font-family: 'Mali', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  /* Mali's semibold matches the chunky hand-lettered feel of the UI. */
+  font-weight: 600;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

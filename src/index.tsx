@@ -1,3 +1,6 @@
+// Self-hosted, SIL Open Font License.
+import '@fontsource/mali/latin-600.css';
+import '@fontsource/mali/latin-700.css';
 import './index.css';
 
 import React from 'react';
