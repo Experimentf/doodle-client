@@ -18,6 +18,7 @@ import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { getSeededAvatar } from '@/utils/avatar';
 import { ErrorFromServer } from '@/utils/error';
+import { generateUsername } from '@/utils/username';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
@@ -34,7 +35,13 @@ const PlayForm = ({
   const { user, updateUser } = useUser();
   const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
-  const [name, setName] = useState(user.name);
+  // First visit gets a generated name, so the field and seeded avatar aren't blank.
+  const [name, setName] = useState(
+    () =>
+      user.name ||
+      localStorage.getItem(LocalStorageKeys.USER_NAME) ||
+      generateUsername()
+  );
   const avatar = useMemo(
     () => getSeededAvatar(user.id + name),
     [user.id, name]
@@ -164,11 +171,6 @@ const PlayForm = ({
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value.trim());
   };
-
-  useEffect(() => {
-    const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
-    if (storedName) setName(storedName);
-  }, []);
 
   return (
     <div {...props}>
