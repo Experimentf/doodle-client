@@ -42,16 +42,22 @@ const getFillCursor = (color: string) => {
 interface CanvasProps {
   optionConfig?: OptionConfig;
   canDraw?: boolean;
+  // Lobby scratchpad: drawable outside a turn and never sent to the server.
+  local?: boolean;
 }
 
-const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
+const Canvas = ({
+  optionConfig,
+  canDraw = false,
+  local = false,
+}: CanvasProps) => {
   const { ref: canvasRef, drawing, handledStatusRef } = useCanvas();
   const {
     game: { canvasOperations, status },
   } = useGame();
   const isMountedRef = useRef(false);
   const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
-  const pointerConfig = useCanvasActions(optionConfig);
+  const pointerConfig = useCanvasActions(optionConfig, local);
   // No listeners at all for non-drawers, whatever tool they have selected.
   usePointerTracker(canvasRef, canDraw ? pointerConfig : undefined);
 
@@ -138,7 +144,7 @@ const Canvas = ({ optionConfig, canDraw = false }: CanvasProps) => {
       style={{ cursor }}
       // ring, not border: it doesn't change the element box, which pointer coordinates are scaled against.
       className={`bg-dark-board-green rounded-xl ring-1 ring-chalk-white/20 w-full h-full aspect-video touch-none ${
-        status === GameStatus.GAME
+        status === GameStatus.GAME || local
           ? 'pointer-events-auto'
           : 'pointer-events-none'
       }`}

@@ -16,10 +16,12 @@ import {
 
 import { GameEvents } from '@/constants/Events';
 import { useCanvas } from '@/contexts/canvas';
+import { useGame } from '@/contexts/game';
 import { useRoom } from '@/contexts/room';
 import { useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
 import { CanvasAction } from '@/types/canvas';
+import { GameStatus } from '@/types/models/game';
 import { ServerToClientEvents } from '@/types/socket';
 import { getCanvasPixelRatio } from '@/utils/canvas';
 
@@ -69,13 +71,18 @@ const Main = ({
 }: MainProps) => {
   const { registerEvent, unregisterEvent, asyncEmitEvent } = useSocket();
   const {
-    room: { drawerId, id: roomId },
+    room: { drawerId, id: roomId, isPrivate },
   } = useRoom();
+  const {
+    game: { status },
+  } = useGame();
   const {
     user: { id },
   } = useUser();
   const { drawing, optionConfig, setOptionConfig } = useCanvas();
   const isDrawing = id === drawerId;
+  // Waiting alone in a public room: the canvas is a local scratchpad to try the tools on.
+  const isScratchpad = status === GameStatus.LOBBY && !isPrivate;
 
   // The toolbar wraps on narrow screens, so its height is measured to size the canvas above it.
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -112,8 +119,9 @@ const Main = ({
   }, [isDrawing]);
 
   const handleClear = async () => {
-    if (!isDrawing) return;
+    if (!isDrawing && !isScratchpad) return;
     drawing?.loadOperations([{ actionType: CanvasAction.CLEAR }]);
+    if (isScratchpad) return;
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation: { actionType: CanvasAction.CLEAR },
       roomId,
@@ -136,9 +144,17 @@ const Main = ({
 
   const canvasContent = (
     <>
-      <Canvas optionConfig={optionConfig} canDraw={isDrawing} />
+      <Canvas
+        optionConfig={optionConfig}
+        canDraw={isDrawing || isScratchpad}
+        local={isScratchpad}
+      />
       {component && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-scroll">
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-scroll ${
+            isScratchpad ? 'pointer-events-none' : ''
+          }`}
+        >
           {component}
         </div>
       )}

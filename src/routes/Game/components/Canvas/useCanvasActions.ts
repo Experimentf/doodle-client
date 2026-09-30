@@ -29,7 +29,8 @@ interface PendingStroke {
   hasUnsentPoints: boolean;
 }
 
-const useCanvasActions = (optionConfig?: OptionConfig) => {
+// local: draw only on this client (the lobby scratchpad), nothing goes to the server.
+const useCanvasActions = (optionConfig?: OptionConfig, local = false) => {
   const { asyncEmitEvent } = useSocket();
   const {
     room: { id: roomId },
@@ -47,7 +48,17 @@ const useCanvasActions = (optionConfig?: OptionConfig) => {
 
   useEffect(() => () => clearTimeout(flushTimerRef.current), []);
 
+  // Entering or leaving the scratchpad: drop any half-drawn stroke so scratch points can't be flushed as a real turn.
+  useEffect(() => {
+    clearTimeout(flushTimerRef.current);
+    flushTimerRef.current = undefined;
+    strokeRef.current = undefined;
+    straightRef.current = undefined;
+    shapeRef.current = undefined;
+  }, [local]);
+
   const _emitCanvasOperation = async (canvasOperation: CanvasOperation) => {
+    if (local) return;
     await asyncEmitEvent(GameEvents.EMIT_GAME_CANVAS_OPERATION, {
       canvasOperation,
       roomId,
