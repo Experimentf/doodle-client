@@ -20,20 +20,91 @@
       content="width=device-width, initial-scale=1, interactive-widget=overlays-content"
     />
     <meta name="theme-color" content="#071f19" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Search -->
     <meta
       name="description"
-      content="A multi-platform pictionary game where you can play with your friends or random players online."
+      content="Draw, guess and laugh with friends in hunchpad, a free real-time multiplayer drawing game. Sketch the secret word while everyone races to hunch it."
     />
-    <meta property="og:title" content="hunchpad" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <!--
+      Absolute URLs (canonical, previews, structured data) come from
+      REACT_APP_SITE_URL at build time - link previews ignore relative ones.
+      Room links share the home page's canonical URL.
+    -->
+    <link rel="canonical" href="%REACT_APP_SITE_URL%/" />
+
+    <!-- Link previews: WhatsApp, iMessage, Facebook, LinkedIn, Slack, Discord, Telegram -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="hunchpad" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="%REACT_APP_SITE_URL%/" />
+    <meta property="og:title" content="hunchpad · Draw it. Hunch it." />
     <meta
       property="og:description"
-      content="A multi-platform pictionary game where you can play with your friends or random players online."
+      content="A free real-time multiplayer drawing game. Sketch the secret word while your friends race to hunch it - no sign-up, just share a link."
     />
-    <meta property="og:image" content="%PUBLIC_URL%/assets/og_image.png" />
+    <meta
+      property="og:image"
+      content="%REACT_APP_SITE_URL%/assets/og_image.png"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="%REACT_APP_SITE_URL%/assets/og_image.png"
+    />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:type" content="website" />
+    <meta
+      property="og:image:alt"
+      content="The hunchpad logo: hunch in yellow chalk next to a small chalkboard reading pad"
+    />
+
+    <!-- X / Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="hunchpad · Draw it. Hunch it." />
+    <meta
+      name="twitter:description"
+      content="A free real-time multiplayer drawing game. Sketch the secret word while your friends race to hunch it."
+    />
+    <meta
+      name="twitter:image"
+      content="%REACT_APP_SITE_URL%/assets/og_image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="The hunchpad logo: hunch in yellow chalk next to a small chalkboard reading pad"
+    />
+
+    <!-- Installed app / home screen -->
+    <meta name="application-name" content="hunchpad" />
+    <meta name="apple-mobile-web-app-title" content="hunchpad" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Structured data for search engines -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "hunchpad",
+        "url": "%REACT_APP_SITE_URL%/",
+        "image": "%REACT_APP_SITE_URL%/assets/og_image.png",
+        "description": "A free real-time multiplayer drawing game. Sketch the secret word while everyone races to hunch it.",
+        "applicationCategory": "GameApplication",
+        "genre": "Drawing and guessing game",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -53,7 +124,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>hunchpad</title>
+    <title>hunchpad · Multiplayer drawing &amp; guessing game</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
