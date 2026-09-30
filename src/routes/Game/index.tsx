@@ -244,7 +244,7 @@ const GameLayout = () => {
   const header = (
     <div className="flex flex-row justify-between items-center">
       <Link to="/" replace>
-        <AnimatedBrand className="w-32 lg:w-48" />
+        <AnimatedBrand className="w-24 lg:w-36" />
       </Link>
       <div className="flex items-center gap-4">
         {isPrivate && (

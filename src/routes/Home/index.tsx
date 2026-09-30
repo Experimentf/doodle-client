@@ -38,6 +38,7 @@ const Home = () => {
       </div>
       <div className="flex flex-col items-center gap-4 w-full">
         <AnimatedBrand
+          dropIn
           loading={isLoading}
           className="mt-4 w-[16rem] sm:w-[24rem]"
         />

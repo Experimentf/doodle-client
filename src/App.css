@@ -81,6 +81,36 @@
   transform-origin: 50% 85%;
 }
 
+/* Home page logo entrance: "hunch" drops in, then the chalkboard as it lands. */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-brand-drop {
+    animation: brand-drop 0.75s both;
+  }
+
+  .animate-brand-drop-late {
+    animation: brand-drop 0.75s 0.55s both;
+  }
+}
+
+/* Falls from above the viewport, lands, and settles with a small bounce. */
+@keyframes brand-drop {
+  0% {
+    transform: translateY(-100vh);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  70% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1);
+  }
+  84% {
+    transform: translateY(-10%);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 /* Two quick bursts, then gone (e.g. pointing at a doodler from a hunch). */
 .animate-flash-twice {
   animation: flash-twice 0.8s ease-in-out both;
@@ -101,7 +131,7 @@
 
 .shadowed-text::before {
   content: attr(data-content);
-  font-family: 'SolidChalk';
+  font-family: 'Mali';
   position: absolute;
   left: 10%;
   top: 15%;
