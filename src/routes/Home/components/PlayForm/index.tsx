@@ -3,22 +3,22 @@ import {
   FormEventHandler,
   HTMLAttributes,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
-import { GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
 
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
-import IconButton from '@/components/Button/IconButton';
 import { DoodlerEvents, RoomEvents } from '@/constants/Events';
 import { LocalStorageKeys } from '@/constants/LocalStorage';
 import texts from '@/constants/texts';
 import { useSnackbar } from '@/contexts/snackbar';
 import { SocketConnectionState, useSocket } from '@/contexts/socket';
 import { useUser } from '@/contexts/user';
-import { getRandomAvatarProps } from '@/utils/avatar';
+import { getSeededAvatar } from '@/utils/avatar';
 import { ErrorFromServer } from '@/utils/error';
+import { generateUsername } from '@/utils/username';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
@@ -35,17 +35,22 @@ const PlayForm = ({
   const { user, updateUser } = useUser();
   const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState<
-    Pick<typeof user, 'name' | 'avatar'>
-  >({
-    name: user.name,
-    avatar: user.avatar,
-  });
+  // First visit gets a generated name, so the field and seeded avatar aren't blank.
+  const [name, setName] = useState(
+    () =>
+      user.name ||
+      localStorage.getItem(LocalStorageKeys.USER_NAME) ||
+      generateUsername()
+  );
+  const avatar = useMemo(
+    () => getSeededAvatar(user.id + name),
+    [user.id, name]
+  );
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const { openSnackbar } = useSnackbar();
 
   const validate = () => {
-    if (!userInfo.name) {
+    if (!name) {
       openSnackbar({
         message: texts.home.form.validation.error,
         color: 'error',
@@ -57,10 +62,13 @@ const PlayForm = ({
 
   const handleSetUser = async () => {
     if (!validate()) return false;
-    updateUser('name', userInfo.name);
-    updateUser('avatar', userInfo.avatar);
-    localStorage.setItem(LocalStorageKeys.USER_NAME, userInfo.name);
-    const data = await asyncEmitEvent(DoodlerEvents.EMIT_SET_DOODLER, userInfo);
+    updateUser('name', name);
+    updateUser('avatar', avatar);
+    localStorage.setItem(LocalStorageKeys.USER_NAME, name);
+    const data = await asyncEmitEvent(DoodlerEvents.EMIT_SET_DOODLER, {
+      name,
+      avatar,
+    });
     return !!data;
   };
 
@@ -161,46 +169,21 @@ const PlayForm = ({
   }, [socketConnectionState]);
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setUserInfo((prev) => ({ ...prev, name: e.target.value.trim() }));
+    setName(e.target.value.trim());
   };
-
-  const handleRandomizeAvatar = () => {
-    setUserInfo((prev) => ({ ...prev, avatar: getRandomAvatarProps() }));
-  };
-
-  useEffect(() => {
-    const storedName = localStorage.getItem(LocalStorageKeys.USER_NAME);
-    if (storedName) setUserInfo((prev) => ({ ...prev, name: storedName }));
-  }, []);
 
   return (
     <div {...props}>
-      <form className="p-8 rounded-xl flex flex-col gap-8" noValidate>
-        <div className="relative">
-          <div className="absolute right-0 bottom-0">
-            <IconButton
-              variant="primary"
-              color="warning"
-              className="text-2xl"
-              onClick={handleRandomizeAvatar}
-              type="button"
-              tooltip="Randomize"
-              icon={<GiPerspectiveDiceSixFacesRandom />}
-            />
-          </div>
-          <Avatar
-            className="mb-8"
-            avatarProps={userInfo.avatar}
-            animate
-            glanceAtCursor
-          />
+      <form className="p-4 rounded-xl flex flex-col gap-4" noValidate>
+        <div className="relative w-44 mx-auto">
+          <Avatar avatar={avatar} animate pokeable />
         </div>
         <input
           autoFocus
           type="text"
           placeholder={texts.home.form.input.name.placeholder}
           className="w-100 transition-colors bg-transparent border-chalk-green border-b-4 placeholder-light-chalk-white p-2 outline-none text-center text-chalk-white invalid:border-chalk-white"
-          value={userInfo.name}
+          value={name}
           required
           onChange={handleNameChange}
         />

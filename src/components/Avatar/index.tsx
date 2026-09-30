@@ -1,160 +1,152 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import {
-  AvatarProps,
-  BigHead,
-  mouthsMap,
-  theme,
-  ThemeContext,
-} from '@bigheads/core';
-import React, { useEffect, useRef, useState } from 'react';
+  AvatarConfig,
+  AvatarExpression,
+  canBlink,
+  getAvatarSvg,
+  toAvatarConfig,
+} from '@/utils/avatar';
 
 interface CustomAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
-  avatarProps?: AvatarProps;
+  avatar?: AvatarConfig;
+  // Idle sway.
   animate?: boolean;
-  glanceAtCursor?: boolean;
+  expression?: AvatarExpression;
+  // A new value plays a short talking animation.
+  talkNonce?: number;
+  // Clicking gives a squish and a surprised face.
+  pokeable?: boolean;
 }
 
-// Same viewBox @bigheads/core renders the full avatar with - keeping these
-// overlays aligned to the real mouth/eyes underneath.
-const AVATAR_VIEW_BOX = '0 0 1000 990';
-const MAX_PUPIL_OFFSET = 14;
-
-interface Pupil {
-  cx: number;
-  cy: number;
-  r: number;
-}
-
-// Pupil coordinates copied from @bigheads/core's eye components - only styles with a plain circular pupil support glancing.
-const EYE_PUPILS: Partial<
-  Record<string, { left: Pupil; right: Pupil | null }>
-> = {
-  normal: {
-    left: { cx: 338.51, cy: 550.79, r: 12.24 },
-    right: { cx: 659.21, cy: 550.79, r: 12.24 },
-  },
-  leftTwitch: {
-    left: { cx: 338.51, cy: 541.79, r: 12.24 },
-    right: { cx: 659.21, cy: 550.79, r: 12.24 },
-  },
-  squint: {
-    left: { cx: 338.51, cy: 559.08, r: 12.24 },
-    right: { cx: 659.21, cy: 559.08, r: 12.24 },
-  },
-  wink: {
-    left: { cx: 338.51, cy: 559.08, r: 12.24 },
-    right: null,
-  },
-};
+// Matches the last stroke's delay + duration in .avatar-draw-in.
+const DRAW_IN_MS = 1400;
+const BLINK_MS = 150;
+const TALK_MS = 1200;
+const POKE_MS = 700;
 
 const Avatar = ({
-  avatarProps,
+  avatar,
   animate = false,
-  glanceAtCursor = false,
+  expression,
+  talkNonce,
+  pokeable = false,
   className,
   style,
+  onClick,
   ...props
 }: CustomAvatarProps) => {
   // Randomized once per mount so multiple avatars don't move in sync.
   const delay = useRef(-(Math.random() * 2)).current;
-  const [look, setLook] = useState({ x: 0, y: 0 });
-  const Mouth = mouthsMap[avatarProps?.mouth ?? 'grin'];
-  const skinTone = avatarProps?.skinTone ?? 'light';
-  const pupils = EYE_PUPILS[avatarProps?.eyes ?? 'normal'];
+  const config = useMemo(() => toAvatarConfig(avatar), [avatar]);
+  const [isDrawingIn, setIsDrawingIn] = useState(true);
+  const [isBlinking, setIsBlinking] = useState(false);
+  const [isTalking, setIsTalking] = useState(false);
+  const [isPoked, setIsPoked] = useState(false);
+  const [popCount, setPopCount] = useState(0);
+  const pokeTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const shownExpression = isPoked ? 'surprised' : expression;
+  const svg = useMemo(
+    () => getAvatarSvg(config, shownExpression),
+    [config, shownExpression]
+  );
 
   useEffect(() => {
-    if (!glanceAtCursor) return;
+    const timer = setTimeout(() => setIsDrawingIn(false), DRAW_IN_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
-    const applyLook = (dx: number, dy: number) => {
-      setLook({
-        x: Math.max(-1, Math.min(1, dx)),
-        y: Math.max(-1, Math.min(1, dy)),
-      });
+  // Random gaps so a room of avatars doesn't blink in unison.
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const scheduleBlink = () => {
+      timer = setTimeout(() => {
+        setIsBlinking(true);
+        timer = setTimeout(() => {
+          setIsBlinking(false);
+          scheduleBlink();
+        }, BLINK_MS);
+      }, 2500 + Math.random() * 3500);
     };
+    scheduleBlink();
+    return () => clearTimeout(timer);
+  }, []);
 
-    // Desktop: glance toward the mouse.
-    const handleMouseMove = (e: MouseEvent) => {
-      applyLook(
-        (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2),
-        (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)
-      );
-    };
+  // Pop when the face changes (typing a name, a game expression) - compared by value so StrictMode's double effects don't pop on mount. Pokes pop on their own.
+  const faceKey = `${JSON.stringify(config)}|${expression}`;
+  const shownFaceRef = useRef(faceKey);
+  useEffect(() => {
+    if (shownFaceRef.current === faceKey) return;
+    shownFaceRef.current = faceKey;
+    setPopCount((count) => count + 1);
+  }, [faceKey]);
 
-    // Mobile with orientation sensors: glance with the tilt of the phone.
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma === null || e.beta === null) return;
-      applyLook(e.gamma / 30, (e.beta - 45) / 30);
-    };
+  useEffect(() => {
+    if (talkNonce === undefined) return;
+    setIsTalking(true);
+    const timer = setTimeout(() => setIsTalking(false), TALK_MS);
+    return () => clearTimeout(timer);
+  }, [talkNonce]);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('deviceorientation', handleOrientation);
+  useEffect(() => () => clearTimeout(pokeTimerRef.current), []);
 
-    // iOS only fires deviceorientation after a gesture-triggered permission grant - request it on first tap, best-effort.
-    const requestPermission =
-      typeof DeviceOrientationEvent !== 'undefined'
-        ? (
-            DeviceOrientationEvent as unknown as {
-              requestPermission?: () => Promise<'granted' | 'denied'>;
-            }
-          ).requestPermission
-        : undefined;
-    const grantOnFirstTouch = () => {
-      requestPermission?.().catch(() => {});
-    };
-    if (requestPermission) {
-      window.addEventListener('pointerdown', grantOnFirstTouch, {
-        once: true,
-      });
-    }
+  const poke = () => {
+    clearTimeout(pokeTimerRef.current);
+    setPopCount((count) => count + 1);
+    setIsPoked(true);
+    pokeTimerRef.current = setTimeout(() => setIsPoked(false), POKE_MS);
+  };
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('deviceorientation', handleOrientation);
-      window.removeEventListener('pointerdown', grantOnFirstTouch);
-    };
-  }, [glanceAtCursor]);
+  const pokeProps = pokeable
+    ? {
+        role: 'button',
+        tabIndex: 0,
+        'aria-label': 'Poke your doodler',
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          poke();
+        },
+      }
+    : {};
+
+  const svgClassName = [
+    isDrawingIn && 'avatar-draw-in',
+    isBlinking && canBlink(config, shownExpression) && 'avatar-blinking',
+    isTalking && 'avatar-talking',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className={`relative ${className ?? ''}`} style={style} {...props}>
-      <BigHead {...avatarProps} />
-      {animate && (
-        <svg
-          viewBox={AVATAR_VIEW_BOX}
-          className="absolute inset-0 w-full h-full animate-mouth-talk pointer-events-none"
-          style={{ animationDelay: `${delay}s` }}
+    <div
+      {...props}
+      {...pokeProps}
+      className={`relative ${pokeable ? 'cursor-pointer select-none' : ''} ${
+        className ?? ''
+      }`}
+      style={style}
+      onClick={(e) => {
+        onClick?.(e);
+        if (pokeable) poke();
+      }}
+    >
+      <div
+        className={animate ? 'animate-doodle-wobble' : undefined}
+        style={animate ? { animationDelay: `${delay}s` } : undefined}
+      >
+        <div
+          key={popCount}
+          className={popCount ? 'animate-avatar-pop' : undefined}
         >
-          <ThemeContext.Provider
-            value={{ colors: theme.colors, skin: theme.colors.skin[skinTone] }}
-          >
-            <Mouth lipColor={avatarProps?.lipColor} />
-          </ThemeContext.Provider>
-        </svg>
-      )}
-      {glanceAtCursor && pupils && (
-        <svg
-          viewBox={AVATAR_VIEW_BOX}
-          className="absolute inset-0 w-full h-full pointer-events-none"
-        >
-          {[pupils.left, pupils.right].map(
-            (pupil, i) =>
-              pupil && (
-                <g key={i}>
-                  <circle
-                    cx={pupil.cx}
-                    cy={pupil.cy}
-                    r={pupil.r + 1.5}
-                    fill={theme.colors.white}
-                  />
-                  <circle
-                    cx={pupil.cx + look.x * MAX_PUPIL_OFFSET}
-                    cy={pupil.cy + look.y * MAX_PUPIL_OFFSET}
-                    r={pupil.r}
-                    fill={theme.colors.outline}
-                  />
-                </g>
-              )
-          )}
-        </svg>
-      )}
+          <div
+            className={svgClassName}
+            // Generated locally by DiceBear from a validated config - no user markup.
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

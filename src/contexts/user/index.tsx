@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 
 import { DoodlerInterface } from '@/types/models/doodler';
-import { getRandomAvatarProps } from '@/utils/avatar';
+import { getSeededAvatar } from '@/utils/avatar';
 
 interface UserContextInterface {
   user: DoodlerInterface;
@@ -20,7 +20,7 @@ interface UserContextInterface {
 const defaultUser: DoodlerInterface = {
   id: '',
   name: '',
-  avatar: getRandomAvatarProps(),
+  avatar: getSeededAvatar(''),
   score: 0,
 };
 

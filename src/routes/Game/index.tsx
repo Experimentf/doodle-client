@@ -317,7 +317,7 @@ const GameLayout = () => {
           <DetailBar />
           {/* On lg the page grows with the canvas + toolbar instead of clipping them under the invite bubble. */}
           <div className="flex-1 flex overflow-hidden lg:overflow-visible">
-            <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[15rem_1fr_15rem] lg:grid-rows-1 w-full h-full lg:h-auto">
+            <div className="grid gap-2 lg:gap-4 grid-cols-2 grid-rows-[auto_1fr] lg:grid-cols-[17rem_1fr_15rem] lg:grid-rows-1 w-full h-full lg:h-auto">
               <DoodlerList className="col-start-1 row-start-2 lg:col-start-1 lg:row-start-1 h-full lg:h-0 flex flex-col min-h-0 lg:min-h-full pr-2 pb-2" />
               <div className="col-start-1 col-span-2 row-start-1 lg:col-start-2 lg:col-span-1 lg:row-start-1 h-full">
                 <Main component={gameComponent} className="relative" />
@@ -327,7 +327,7 @@ const GameLayout = () => {
           </div>
           {showInvite && (
             // Mirrors the game grid's columns so on lg the bubble spans only the canvas column.
-            <div className="lg:grid lg:grid-cols-[15rem_1fr_15rem] lg:gap-4">
+            <div className="lg:grid lg:grid-cols-[17rem_1fr_15rem] lg:gap-4">
               <div className="lg:col-start-2">{inviteBubble}</div>
             </div>
           )}

@@ -15,6 +15,8 @@ interface DoodlerProps {
   hunched?: boolean;
   // Set briefly when the doodler's name is clicked in the hunch list; a new value replays the flash
   highlightNonce?: number;
+  // A new value makes the avatar talk (they just sent a hunch)
+  talkNonce?: number;
 }
 
 const Doodler = ({
@@ -23,6 +25,7 @@ const Doodler = ({
   crownRank,
   hunched = false,
   highlightNonce,
+  talkNonce,
 }: DoodlerProps) => {
   const { user } = useUser();
 
@@ -41,10 +44,13 @@ const Doodler = ({
           className="absolute inset-0 -z-10 rounded-lg bg-chalk-yellow/30 animate-flash-twice pointer-events-none"
         />
       )}
-      <div className="relative w-fit">
+      <div className="relative w-fit shrink-0">
         <Avatar
-          className="w-[75px] lg:min-w-[80px]"
-          avatarProps={doodler.avatar}
+          className="w-[75px] lg:w-16"
+          avatar={doodler.avatar}
+          expression={hunched ? 'happy' : isDrawing ? 'focused' : undefined}
+          talkNonce={talkNonce}
+          pokeable={user.id === doodler.id}
         />
         {crownRank !== undefined && (
           <span
@@ -60,13 +66,13 @@ const Doodler = ({
           </span>
         )}
       </div>
-      <div className="flex flex-col items-start gap-2">
-        <div className="flex items-center gap-1">
-          <p className="text-light-chalk-white overflow-hidden text-ellipsis">
+      <div className="flex flex-col items-start gap-2 min-w-0 flex-1">
+        <div className="flex items-center gap-1 min-w-0 max-w-full">
+          <p className="text-light-chalk-white truncate" title={doodler.name}>
             {doodler.name}
           </p>
           {user.id === doodler.id && (
-            <Text component={'span'} className="text-light-chalk-blue">
+            <Text component={'span'} className="text-light-chalk-blue shrink-0">
               {texts.game.doodlers.userMarker}
             </Text>
           )}

@@ -1,4 +1,4 @@
-import { Fragment, HTMLAttributes, useEffect, useRef } from 'react';
+import { Fragment, HTMLAttributes, useEffect, useRef, useState } from 'react';
 
 import texts from '@/constants/texts';
 import { useHunches } from '@/contexts/hunch';
@@ -14,8 +14,20 @@ interface DoodlerListProps extends HTMLAttributes<HTMLDivElement> {
 
 const DoodlerList = ({ embedded = false, ...props }: DoodlerListProps) => {
   const { room } = useRoom();
-  const { hunchedIds, highlight } = useHunches();
+  const { hunches, hunchedIds, highlight } = useHunches();
   const listRef = useRef<HTMLDivElement>(null);
+  const [talk, setTalk] = useState<{ id: string; nonce: number }>();
+
+  // Only hunches that arrive while mounted - opening the sheet shouldn't replay the last one.
+  const lastHunch = hunches[hunches.length - 1];
+  const seenHunchRef = useRef(lastHunch);
+  useEffect(() => {
+    if (lastHunch === seenHunchRef.current) return;
+    seenHunchRef.current = lastHunch;
+    if (lastHunch?.senderId && !lastHunch.isSystemMessage) {
+      setTalk({ id: lastHunch.senderId, nonce: Date.now() });
+    }
+  }, [lastHunch]);
 
   // Also runs on mount, so a list inside a just-opened sheet scrolls to the highlighted doodler.
   useEffect(() => {
@@ -42,7 +54,7 @@ const DoodlerList = ({ embedded = false, ...props }: DoodlerListProps) => {
         )}
         <div
           ref={listRef}
-          className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-auto flex-1"
+          className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-y-auto overflow-x-hidden flex-1"
         >
           {room.doodlers.map((doodler, index) => (
             <Fragment key={doodler.id}>
@@ -53,6 +65,7 @@ const DoodlerList = ({ embedded = false, ...props }: DoodlerListProps) => {
                 isDrawing={room.drawerId === doodler.id}
                 crownRank={getCrownRank(room.doodlers, doodler.score)}
                 hunched={hunchedIds.has(doodler.id)}
+                talkNonce={talk?.id === doodler.id ? talk.nonce : undefined}
                 highlightNonce={
                   highlight?.id === doodler.id ? highlight.nonce : undefined
                 }

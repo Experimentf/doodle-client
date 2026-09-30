@@ -1,8 +1,8 @@
-import { AvatarProps } from '@bigheads/core';
+import { AvatarConfig } from '@/utils/avatar';
 
 export interface DoodlerInterface {
   id: string;
   name: string;
-  avatar: AvatarProps;
+  avatar: AvatarConfig;
   score: number;
 }
