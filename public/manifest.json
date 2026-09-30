@@ -1,6 +1,10 @@
 {
+  "id": "/",
   "short_name": "hunchpad",
-  "name": "hunchpad",
+  "name": "hunchpad · Draw it. Hunch it.",
+  "description": "A free real-time multiplayer drawing game. Sketch the secret word while everyone races to hunch it.",
+  "lang": "en",
+  "categories": ["games", "entertainment"],
   "icons": [
     {
       "src": "favicon.ico",
@@ -26,7 +30,8 @@
       "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#071f19",
   "background_color": "#071f19"

@@ -24,4 +24,5 @@ jobs:
       - name: Build
         env:
           REACT_APP_DOODLE_SERVER_URL: ${{ vars.REACT_APP_DOODLE_SERVER_URL }}
+          REACT_APP_SITE_URL: ${{ vars.REACT_APP_SITE_URL }}
         run: npm run build:production
