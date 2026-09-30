@@ -2,12 +2,7 @@
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {
-      fontFamily: {
-        'solid-chalk': ['SolidChalk', 'sans-serif'],
-        'sketch-chalk': ['SketchChalk', 'sans-serif'],
-      },
-    },
+    extend: {},
     colors: {
       // Basic
       black: '#000000',
