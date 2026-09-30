@@ -17,6 +17,8 @@ interface CustomAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   talkNonce?: number;
   // Clicking gives a squish and a surprised face.
   pokeable?: boolean;
+  // Strokes draw themselves in on mount - for a single featured avatar, not lists.
+  drawIn?: boolean;
 }
 
 // Matches the last stroke's delay + duration in .avatar-draw-in.
@@ -31,6 +33,7 @@ const Avatar = ({
   expression,
   talkNonce,
   pokeable = false,
+  drawIn = false,
   className,
   style,
   onClick,
@@ -39,7 +42,7 @@ const Avatar = ({
   // Randomized once per mount so multiple avatars don't move in sync.
   const delay = useRef(-(Math.random() * 2)).current;
   const config = useMemo(() => toAvatarConfig(avatar), [avatar]);
-  const [isDrawingIn, setIsDrawingIn] = useState(true);
+  const [isDrawingIn, setIsDrawingIn] = useState(drawIn);
   const [isBlinking, setIsBlinking] = useState(false);
   const [isTalking, setIsTalking] = useState(false);
   const [isPoked, setIsPoked] = useState(false);
@@ -53,6 +56,7 @@ const Avatar = ({
   );
 
   useEffect(() => {
+    if (!drawIn) return;
     const timer = setTimeout(() => setIsDrawingIn(false), DRAW_IN_MS);
     return () => clearTimeout(timer);
   }, []);
