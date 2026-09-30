@@ -15,6 +15,15 @@ const Footer = () => (
     >
       <FaGithub /> GitHub
     </a>
+    {/* Required by the Croodles CC BY 4.0 license. */}
+    <a
+      href="https://www.figma.com/community/file/966199982810283152"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-chalk-white transition-colors"
+    >
+      Avatars: Croodles by vijay verma (CC BY 4.0)
+    </a>
   </footer>
 );
 

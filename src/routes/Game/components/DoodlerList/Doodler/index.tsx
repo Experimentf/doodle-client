@@ -15,6 +15,8 @@ interface DoodlerProps {
   hunched?: boolean;
   // Set briefly when the doodler's name is clicked in the hunch list; a new value replays the flash
   highlightNonce?: number;
+  // A new value makes the avatar talk (they just sent a hunch)
+  talkNonce?: number;
 }
 
 const Doodler = ({
@@ -23,6 +25,7 @@ const Doodler = ({
   crownRank,
   hunched = false,
   highlightNonce,
+  talkNonce,
 }: DoodlerProps) => {
   const { user } = useUser();
 
@@ -42,7 +45,13 @@ const Doodler = ({
         />
       )}
       <div className="relative w-fit shrink-0">
-        <Avatar className="w-[75px] lg:w-16" avatarProps={doodler.avatar} />
+        <Avatar
+          className="w-[75px] lg:w-16"
+          avatar={doodler.avatar}
+          expression={hunched ? 'happy' : isDrawing ? 'focused' : undefined}
+          talkNonce={talkNonce}
+          pokeable={user.id === doodler.id}
+        />
         {crownRank !== undefined && (
           <span
             className="absolute top-0 left-1/2 -translate-x-1/2 text-xl lg:text-2xl drop-shadow"

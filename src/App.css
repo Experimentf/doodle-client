@@ -43,13 +43,16 @@
   }
 }
 
-@keyframes mouth-talk {
+@keyframes doodle-wobble {
   0%,
   100% {
-    transform: scaleY(1);
+    transform: rotate(0deg);
   }
-  50% {
-    transform: scaleY(1.18);
+  25% {
+    transform: rotate(-2deg) translateY(-1px);
+  }
+  75% {
+    transform: rotate(2deg) translateY(1px);
   }
 }
 
@@ -83,9 +86,9 @@
   animation: flash-twice 0.8s ease-in-out both;
 }
 
-.animate-mouth-talk {
-  animation: mouth-talk 1.8s ease-in-out infinite;
-  transform-origin: 50% 64%;
+.animate-doodle-wobble {
+  animation: doodle-wobble 2.4s ease-in-out infinite;
+  transform-origin: 50% 90%;
 }
 
 .shadowed {
@@ -104,4 +107,110 @@
   top: 15%;
   z-index: -1;
   color: #000;
+}
+
+/* Avatar liveliness - parts are tagged in utils/avatar.ts. */
+.avatar-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  overflow: visible;
+}
+
+.avatar-part {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .avatar-part-eyes {
+    transition: transform 70ms ease-in-out;
+  }
+
+  .avatar-blinking .avatar-part-eyes {
+    transform: scaleY(0.1);
+  }
+
+  .avatar-talking .avatar-part-mouth {
+    animation: avatar-talk 0.2s ease-in-out 6 alternate;
+  }
+
+  /* Strokes have pathLength="1", so a dash of 1 covers the whole line. */
+  .avatar-draw-in .avatar-part path {
+    stroke-dasharray: 1;
+    animation: avatar-draw 0.6s ease-out both;
+  }
+
+  .avatar-draw-in .avatar-part-eyes path {
+    animation-delay: 0.25s;
+  }
+
+  .avatar-draw-in .avatar-part-nose path {
+    animation-delay: 0.4s;
+  }
+
+  .avatar-draw-in .avatar-part-mouth path {
+    animation-delay: 0.5s;
+  }
+
+  .avatar-draw-in .avatar-part-top path {
+    animation-delay: 0.6s;
+  }
+
+  .avatar-draw-in .avatar-part-beard path,
+  .avatar-draw-in .avatar-part-mustache path {
+    animation-delay: 0.7s;
+  }
+
+  .avatar-draw-in .avatar-fill {
+    animation: avatar-fade 0.5s ease-out 0.3s both;
+  }
+
+  .animate-avatar-pop {
+    animation: avatar-pop 0.35s ease-out;
+    transform-origin: 50% 90%;
+  }
+}
+
+@keyframes avatar-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes avatar-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes avatar-talk {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(0.92, 1.4);
+  }
+}
+
+@keyframes avatar-pop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.1, 0.86);
+  }
+  60% {
+    transform: scale(0.94, 1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
