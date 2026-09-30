@@ -43,6 +43,11 @@ const PlayForm = ({ roomId, onConnectionError, ...props }: PlayFormProps) => {
     () => getSeededAvatar(user.id + name),
     [user.id, name]
   );
+  // The seed includes the socket id, which only exists once connected - wait for it
+  // so the avatar draws once instead of redrawing when the id arrives. If the server
+  // is unreachable, fall back to the name alone rather than an empty spot.
+  const isAvatarReady =
+    !!user.id || socketConnectionState === SocketConnectionState.ERROR;
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const { openSnackbar } = useSnackbar();
 
@@ -175,7 +180,14 @@ const PlayForm = ({ roomId, onConnectionError, ...props }: PlayFormProps) => {
     <div {...props}>
       <form className="p-4 rounded-xl flex flex-col gap-4" noValidate>
         <div className="relative w-44 mx-auto">
-          <Avatar avatar={avatar} animate pokeable />
+          {isAvatarReady ? (
+            <Avatar avatar={avatar} animate pokeable />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="w-full aspect-square rounded-full bg-chalk-white/5 animate-pulse"
+            />
+          )}
         </div>
         <input
           autoFocus
