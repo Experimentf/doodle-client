@@ -42,7 +42,7 @@ const DoodlerList = ({ embedded = false, ...props }: DoodlerListProps) => {
         )}
         <div
           ref={listRef}
-          className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-auto flex-1"
+          className="lg:py-3 flex flex-col gap-1 lg:gap-2 overflow-y-auto overflow-x-hidden flex-1"
         >
           {room.doodlers.map((doodler, index) => (
             <Fragment key={doodler.id}>

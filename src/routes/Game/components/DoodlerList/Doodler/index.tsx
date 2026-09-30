@@ -41,11 +41,8 @@ const Doodler = ({
           className="absolute inset-0 -z-10 rounded-lg bg-chalk-yellow/30 animate-flash-twice pointer-events-none"
         />
       )}
-      <div className="relative w-fit">
-        <Avatar
-          className="w-[75px] lg:min-w-[80px]"
-          avatarProps={doodler.avatar}
-        />
+      <div className="relative w-fit shrink-0">
+        <Avatar className="w-[75px] lg:w-16" avatarProps={doodler.avatar} />
         {crownRank !== undefined && (
           <span
             className="absolute top-0 left-1/2 -translate-x-1/2 text-xl lg:text-2xl drop-shadow"
@@ -60,13 +57,13 @@ const Doodler = ({
           </span>
         )}
       </div>
-      <div className="flex flex-col items-start gap-2">
-        <div className="flex items-center gap-1">
-          <p className="text-light-chalk-white overflow-hidden text-ellipsis">
+      <div className="flex flex-col items-start gap-2 min-w-0 flex-1">
+        <div className="flex items-center gap-1 min-w-0 max-w-full">
+          <p className="text-light-chalk-white truncate" title={doodler.name}>
             {doodler.name}
           </p>
           {user.id === doodler.id && (
-            <Text component={'span'} className="text-light-chalk-blue">
+            <Text component={'span'} className="text-light-chalk-blue shrink-0">
               {texts.game.doodlers.userMarker}
             </Text>
           )}

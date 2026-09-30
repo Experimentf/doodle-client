@@ -8,7 +8,6 @@ import SoundToggle from '@/components/SoundToggle';
 import Text from '@/components/Text';
 import texts from '@/constants/texts';
 import { SocketConnectionState, useSocket } from '@/contexts/socket';
-import useScreenSize from '@/hooks/useScreenSize';
 
 import Bubble from '../Game/components/Bubble';
 import AboutSection from './components/AboutSection';
@@ -16,7 +15,6 @@ import HowToPlaySection from './components/HowToPlaySection';
 import PlayForm from './components/PlayForm';
 
 const Home = () => {
-  const isMobile = useScreenSize('mobile');
   const { socketConnectionState, retryConnection } = useSocket();
   const searchParams = new URLSearchParams(document.location.search);
   const roomIdFromLink = searchParams.get('roomId'); // null | existing room | non-existing room
@@ -34,22 +32,22 @@ const Home = () => {
   }, [isError]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-8 p-6 lg:mx-8">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6 lg:mx-8">
       <div className="fixed top-4 right-4">
         <SoundToggle />
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center gap-8 w-full">
+      <div className="flex flex-col items-center gap-4 w-full">
         <AnimatedBrand
           loading={isLoading}
-          className={`mt-8 ${isMobile ? 'w-[18rem]' : 'w-[32rem]'}`}
+          className="mt-4 w-[16rem] sm:w-[24rem]"
         />
         <PlayForm
           roomId={roomIdFromLink}
-          className="w-full max-w-[380px] flex-1"
+          className="w-full max-w-[360px]"
           disableActions={isError && dismissedError}
         />
         {roomIdFromLink && roomIdFromLink.length > 0 && (
-          <div className="w-full max-w-[380px]">
+          <div className="w-full max-w-[360px]">
             <Bubble>
               <FaLock className="shrink-0" />
               <Text className="text-left text-sm" color="primary">

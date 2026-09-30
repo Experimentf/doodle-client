@@ -175,9 +175,9 @@ const PlayForm = ({
 
   return (
     <div {...props}>
-      <form className="p-8 rounded-xl flex flex-col gap-8" noValidate>
-        <div className="relative">
-          <div className="absolute right-0 bottom-0">
+      <form className="p-4 rounded-xl flex flex-col gap-4" noValidate>
+        <div className="relative w-44 mx-auto">
+          <div className="absolute right-0 bottom-0 z-10">
             <IconButton
               variant="primary"
               color="warning"
@@ -188,12 +188,7 @@ const PlayForm = ({
               icon={<GiPerspectiveDiceSixFacesRandom />}
             />
           </div>
-          <Avatar
-            className="mb-8"
-            avatarProps={userInfo.avatar}
-            animate
-            glanceAtCursor
-          />
+          <Avatar avatarProps={userInfo.avatar} animate glanceAtCursor />
         </div>
         <input
           autoFocus
