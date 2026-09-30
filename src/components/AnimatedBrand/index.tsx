@@ -1,52 +1,46 @@
-import { animate } from 'framer-motion';
-import { useEffect, useRef } from 'react';
-
-import { ReactComponent as Brand } from '@/assets/brand.svg';
+// Two same-size transparent layers of one artwork, stacked: the chalkboard
+// ("pad") behind, "hunch" with its crown in front - split so they can drop in
+// separately. The board's hidden part behind the "h" is filled in its layer.
+const BRAND_ASPECT_RATIO = '1100 / 414';
+const HUNCH_SRC = `${process.env.PUBLIC_URL}/assets/brand-hunch.webp`;
+const PAD_SRC = `${process.env.PUBLIC_URL}/assets/brand-pad.webp`;
 
 interface AnimatedBrandProps {
   className?: string;
-  // Traveling wave while connecting; a calm idle wobble once connected.
-  // Re-calling animate() on the same paths interrupts smoothly from
-  // wherever they currently are - no CSS class-swap snap.
+  // Soft pulse while connecting.
   loading?: boolean;
+  // Home page entrance: "hunch" then the "pad" chalkboard drop in from above the screen.
+  dropIn?: boolean;
 }
 
-// brand.svg has 6 letters, each with a shadow twin 6 apart (12 paths total).
-const LETTER_COUNT = 6;
-
-const AnimatedBrand = ({ className, loading = false }: AnimatedBrandProps) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const paths = wrapperRef.current?.querySelectorAll('path');
-    if (!paths || paths.length === 0) return;
-
-    const controls = animate(
-      paths,
-      loading
-        ? {
-            originX: 0.5,
-            originY: 1,
-            scale: [1, 0.92, 1],
-            opacity: [1, 0.6, 1],
-          }
-        : { originX: 0.5, originY: 1, rotate: [0, -5, 3, -4, 4, 0] },
-      {
-        duration: loading ? 0.9 : 5,
-        delay: (i) => (i % LETTER_COUNT) * (loading ? 0.1 : 0.08),
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }
-    );
-
-    return () => controls.stop();
-  }, [loading]);
-
-  return (
-    <div ref={wrapperRef} className={className}>
-      <Brand className="w-full h-full" style={{ overflow: 'visible' }} />
-    </div>
-  );
-};
+const AnimatedBrand = ({
+  className,
+  loading = false,
+  dropIn = false,
+}: AnimatedBrandProps) => (
+  <div
+    role="img"
+    aria-label="hunchpad"
+    className={`relative ${loading ? 'animate-pulse' : ''} ${className ?? ''}`}
+    style={{ aspectRatio: BRAND_ASPECT_RATIO }}
+  >
+    <img
+      src={PAD_SRC}
+      alt=""
+      draggable={false}
+      className={`absolute inset-0 w-full h-full ${
+        dropIn ? 'animate-brand-drop-late' : ''
+      }`}
+    />
+    <img
+      src={HUNCH_SRC}
+      alt=""
+      draggable={false}
+      className={`absolute inset-0 w-full h-full ${
+        dropIn ? 'animate-brand-drop' : ''
+      }`}
+    />
+  </div>
+);
 
 export default AnimatedBrand;
