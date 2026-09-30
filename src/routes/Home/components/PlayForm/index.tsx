@@ -22,16 +22,13 @@ import { generateUsername } from '@/utils/username';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
-  disableActions?: boolean;
+  // The player tried to play but the server is unreachable.
+  onConnectionError?: () => void;
 }
 
 type PendingAction = 'public' | 'private' | null;
 
-const PlayForm = ({
-  roomId,
-  disableActions = false,
-  ...props
-}: PlayFormProps) => {
+const PlayForm = ({ roomId, onConnectionError, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
@@ -131,6 +128,10 @@ const PlayForm = ({
   const handlePlay: FormEventHandler = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (socketConnectionState === SocketConnectionState.ERROR) {
+      onConnectionError?.();
+      return;
+    }
     setPendingAction('public');
     if (socketConnectionState === SocketConnectionState.CONNECTED) {
       performPlay().finally(() => setPendingAction(null));
@@ -140,6 +141,10 @@ const PlayForm = ({
   const handleCreatePrivateRoom: FormEventHandler = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (socketConnectionState === SocketConnectionState.ERROR) {
+      onConnectionError?.();
+      return;
+    }
     setPendingAction('private');
     if (socketConnectionState === SocketConnectionState.CONNECTED) {
       performCreatePrivateRoom().finally(() => setPendingAction(null));
@@ -148,15 +153,9 @@ const PlayForm = ({
 
   useEffect(() => {
     if (socketConnectionState === SocketConnectionState.ERROR) {
-      setPendingAction((prev) => {
-        if (prev) {
-          openSnackbar({
-            message: 'Failed to connect. Please try again!',
-            color: 'error',
-          });
-        }
-        return null;
-      });
+      // A Play/Create click was waiting for the connection that just failed.
+      if (pendingAction) onConnectionError?.();
+      setPendingAction(null);
       return;
     }
     if (socketConnectionState !== SocketConnectionState.CONNECTED) return;
@@ -192,7 +191,7 @@ const PlayForm = ({
           color="success"
           type="submit"
           loading={pendingAction === 'public'}
-          disabled={disableActions || !!pendingAction}
+          disabled={!!pendingAction}
           onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
@@ -201,7 +200,7 @@ const PlayForm = ({
           variant="secondary"
           color="secondary"
           loading={pendingAction === 'private'}
-          disabled={disableActions || !!pendingAction}
+          disabled={!!pendingAction}
           onClick={handleCreatePrivateRoom}
         >
           {texts.home.form.buttons.createPrivateRoom}
