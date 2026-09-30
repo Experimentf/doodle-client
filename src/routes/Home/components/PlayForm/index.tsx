@@ -181,7 +181,7 @@ const PlayForm = ({ roomId, onConnectionError, ...props }: PlayFormProps) => {
       <form className="p-4 rounded-xl flex flex-col gap-4" noValidate>
         <div className="relative w-44 mx-auto">
           {isAvatarReady ? (
-            <Avatar avatar={avatar} animate pokeable />
+            <Avatar avatar={avatar} animate pokeable drawIn />
           ) : (
             <div
               aria-hidden="true"
