@@ -18,7 +18,9 @@ const Home = () => {
   const { socketConnectionState, retryConnection } = useSocket();
   const searchParams = new URLSearchParams(document.location.search);
   const roomIdFromLink = searchParams.get('roomId'); // null | existing room | non-existing room
-  const [dismissedError, setDismissedError] = useState(false);
+  // Only shown once the player tries to play - an unprompted error dialog on
+  // load (a server blip, a redeploy, or a crawler's renderer) is just noise.
+  const [showConnectionError, setShowConnectionError] = useState(false);
 
   const isLoading = [
     SocketConnectionState.CONNECTING,
@@ -26,10 +28,10 @@ const Home = () => {
   ].includes(socketConnectionState);
   const isError = socketConnectionState === SocketConnectionState.ERROR;
 
-  // Re-arm the dialog for a fresh failure once a new attempt (retry) starts.
   useEffect(() => {
-    if (!isError) setDismissedError(false);
-  }, [isError]);
+    if (socketConnectionState === SocketConnectionState.CONNECTED)
+      setShowConnectionError(false);
+  }, [socketConnectionState]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6 lg:mx-8">
@@ -45,7 +47,7 @@ const Home = () => {
         <PlayForm
           roomId={roomIdFromLink}
           className="w-full max-w-[360px]"
-          disableActions={isError && dismissedError}
+          onConnectionError={() => setShowConnectionError(true)}
         />
         {roomIdFromLink && roomIdFromLink.length > 0 && (
           <div className="w-full max-w-[360px]">
@@ -66,15 +68,16 @@ const Home = () => {
         <AboutSection />
       </div>
       <Dialog
-        visible={isError && !dismissedError}
-        onClose={() => setDismissedError(true)}
+        // Stays armed through Retry, so a failed retry shows it again.
+        visible={isError && showConnectionError}
+        onClose={() => setShowConnectionError(false)}
         title="Connection lost"
         footer={
           <>
             <Button
               variant="secondary"
               color="primary"
-              onClick={() => setDismissedError(true)}
+              onClick={() => setShowConnectionError(false)}
             >
               Close
             </Button>

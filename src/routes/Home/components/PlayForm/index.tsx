@@ -22,16 +22,13 @@ import { generateUsername } from '@/utils/username';
 
 interface PlayFormProps extends HTMLAttributes<HTMLDivElement> {
   roomId: string | null;
-  disableActions?: boolean;
+  // The player tried to play but the server is unreachable.
+  onConnectionError?: () => void;
 }
 
 type PendingAction = 'public' | 'private' | null;
 
-const PlayForm = ({
-  roomId,
-  disableActions = false,
-  ...props
-}: PlayFormProps) => {
+const PlayForm = ({ roomId, onConnectionError, ...props }: PlayFormProps) => {
   const { user, updateUser } = useUser();
   const { socketConnectionState, asyncEmitEvent } = useSocket();
   const navigate = useNavigate();
@@ -46,6 +43,11 @@ const PlayForm = ({
     () => getSeededAvatar(user.id + name),
     [user.id, name]
   );
+  // The seed includes the socket id, which only exists once connected - wait for it
+  // so the avatar draws once instead of redrawing when the id arrives. If the server
+  // is unreachable, fall back to the name alone rather than an empty spot.
+  const isAvatarReady =
+    !!user.id || socketConnectionState === SocketConnectionState.ERROR;
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const { openSnackbar } = useSnackbar();
 
@@ -131,6 +133,10 @@ const PlayForm = ({
   const handlePlay: FormEventHandler = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (socketConnectionState === SocketConnectionState.ERROR) {
+      onConnectionError?.();
+      return;
+    }
     setPendingAction('public');
     if (socketConnectionState === SocketConnectionState.CONNECTED) {
       performPlay().finally(() => setPendingAction(null));
@@ -140,6 +146,10 @@ const PlayForm = ({
   const handleCreatePrivateRoom: FormEventHandler = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (socketConnectionState === SocketConnectionState.ERROR) {
+      onConnectionError?.();
+      return;
+    }
     setPendingAction('private');
     if (socketConnectionState === SocketConnectionState.CONNECTED) {
       performCreatePrivateRoom().finally(() => setPendingAction(null));
@@ -148,15 +158,9 @@ const PlayForm = ({
 
   useEffect(() => {
     if (socketConnectionState === SocketConnectionState.ERROR) {
-      setPendingAction((prev) => {
-        if (prev) {
-          openSnackbar({
-            message: 'Failed to connect. Please try again!',
-            color: 'error',
-          });
-        }
-        return null;
-      });
+      // A Play/Create click was waiting for the connection that just failed.
+      if (pendingAction) onConnectionError?.();
+      setPendingAction(null);
       return;
     }
     if (socketConnectionState !== SocketConnectionState.CONNECTED) return;
@@ -176,7 +180,14 @@ const PlayForm = ({
     <div {...props}>
       <form className="p-4 rounded-xl flex flex-col gap-4" noValidate>
         <div className="relative w-44 mx-auto">
-          <Avatar avatar={avatar} animate pokeable />
+          {isAvatarReady ? (
+            <Avatar avatar={avatar} animate pokeable drawIn />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="w-full aspect-square rounded-full bg-chalk-white/5 animate-pulse"
+            />
+          )}
         </div>
         <input
           autoFocus
@@ -192,7 +203,7 @@ const PlayForm = ({
           color="success"
           type="submit"
           loading={pendingAction === 'public'}
-          disabled={disableActions || !!pendingAction}
+          disabled={!!pendingAction}
           onClick={handlePlay}
         >
           {texts.home.form.buttons.playPublicGame}
@@ -201,7 +212,7 @@ const PlayForm = ({
           variant="secondary"
           color="secondary"
           loading={pendingAction === 'private'}
-          disabled={disableActions || !!pendingAction}
+          disabled={!!pendingAction}
           onClick={handleCreatePrivateRoom}
         >
           {texts.home.form.buttons.createPrivateRoom}
