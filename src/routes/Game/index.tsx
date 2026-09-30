@@ -7,7 +7,9 @@ import Button from '@/components/Button';
 import IconButton from '@/components/Button/IconButton';
 import Loading from '@/components/Loading';
 import SoundToggle from '@/components/SoundToggle';
+import TutorialTip from '@/components/TutorialTip';
 import { DoodlerEvents, GameEvents, RoomEvents } from '@/constants/Events';
+import { LocalStorageKeys } from '@/constants/LocalStorage';
 import texts from '@/constants/texts';
 import CanvasProvider from '@/contexts/canvas';
 import { useGame } from '@/contexts/game';
@@ -246,15 +248,24 @@ const GameLayout = () => {
       </Link>
       <div className="flex items-center gap-4">
         {isPrivate && (
-          <IconButton
-            variant="primary"
-            color="primary"
-            className="text-2xl"
-            onClick={handleCopy}
-            type="button"
-            tooltip="Copy invite link"
-            icon={<FaShareNodes />}
-          />
+          <div className="relative">
+            <IconButton
+              variant="primary"
+              color="primary"
+              className="text-2xl"
+              onClick={handleCopy}
+              type="button"
+              tooltip="Copy invite link"
+              icon={<FaShareNodes />}
+            />
+            {/* The lobby's invite bubble is gone once the game starts; point at the share button instead. */}
+            <TutorialTip
+              storageKey={LocalStorageKeys.INVITE_TIP_SEEN}
+              visible={game.status !== GameStatus.LOBBY}
+            >
+              {texts.game.privateLobby.inviteTip}
+            </TutorialTip>
+          </div>
         )}
         <SoundToggle />
       </div>
