@@ -5,7 +5,7 @@ import Text from '@/components/Text';
 const Footer = () => (
   <footer className="w-full flex items-center justify-center gap-4 py-4 text-xs text-light-chalk-white">
     <Text className="text-xs" disabled>
-      © {new Date().getFullYear()} Doodle
+      © {new Date().getFullYear()} Hunchpad
     </Text>
     <a
       href="https://github.com/Experimentf/doodle-client"
